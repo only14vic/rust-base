@@ -9,11 +9,16 @@ ifndef VERBOSE
 endif
 
 make = make --no-print-directory
-CARGO_ARGS = --release
+
+CARGO_ARGS =
 RUSTFLAGS = -Ctarget-cpu=native \
 			-Clinker-plugin-lto \
 			-Clink-arg=-fuse-ld=lld \
 			-Clink-arg=-lc
+
+ifeq ($(debug),)
+	CARGO_ARGS += --release
+endif
 
 ifneq ($(static),)
 	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
