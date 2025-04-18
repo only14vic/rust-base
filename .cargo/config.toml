@@ -1,0 +1,14 @@
+[build]
+rustc-wrapper = "sccache"
+
+[term]
+quiet = false
+verbose = false
+progress.when = 'auto'
+
+[install]
+root = "."
+
+[env]
+SCCACHE_RECACHE = '1'
+SCCACHE_DIRECT = '1'
