@@ -160,6 +160,8 @@ pub const fn ok<E>() -> Result<(), E> {
     Ok(())
 }
 
+impl<T: Sized> BaseFromInto for T {}
+
 pub trait BaseFromInto
 where
     Self: Sized
@@ -219,5 +221,3 @@ where
         serde_json::from_slice(value)
     }
 }
-
-impl<T: Sized> BaseFromInto for T {}
