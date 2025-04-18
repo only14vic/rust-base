@@ -4,7 +4,7 @@ use {
 };
 
 fn main() -> Void {
-    Ini::dotenv(false)?;
+    Ini::dotenv(false).ok();
     log_init();
 
     let res = actix_on_tokio_start(None, async { "Hello, from Async!" })?;

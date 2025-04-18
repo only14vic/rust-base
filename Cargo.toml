@@ -91,6 +91,18 @@ actix-http = { version = "3", features = ["http2", "ws", "compress-zstd"] }
 #actix-rt = { version = "2" }
 actix-files = { version = "0.6" }
 actix-test = { version = "0.1" }
+futures = { version = "0.3" }
+futures-io = { version = "0.3" }
+futures-channel = { version = "0.3" }
+futures-core = { version = "0.3" }
+futures-util = { version = "0.3", features = [
+  "alloc",
+  "channel",
+  "io",
+  "sink",
+] }
+futures-lite = { version = "2.6" }
+
 app-base = { path = "crates/app-base", default-features = false }
 app-macros = { path = "crates/app-macros", default-features = false }
 app-async = { path = "crates/app-async", default-features = false }
