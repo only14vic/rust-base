@@ -38,7 +38,7 @@ ALL =
 -include app-*/Makefile
 
 all:
-	echo $(ALL) | sed "s/[,\s\n\r]\+$$//g" | sed "s/\s*,\+\s*/\n/g" | xargs -I '{}' sh -c "$(make) {}"
+	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
 .PHONY: flags
 flags:
