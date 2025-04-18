@@ -4,7 +4,7 @@ pragma_once = true
 no_includes = false
 header = ""
 after_includes = ""
-sys_includes = ["string.h", "pthread.h", "unistd.h", "sched.h"]
+#sys_includes = ["string.h", "pthread.h", "unistd.h", "sched.h"]
 
 [export]
 renaming_overrides_prefixing = true

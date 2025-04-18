@@ -9,19 +9,18 @@ fn main() {
     //
     // Configuration
     //
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=src/lib.rs");
-    println!("cargo:rerun-if-changed=vendor/inih/ini.h");
-    println!("cargo:rerun-if-changed=cbindgen.toml");
-
     let src_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let inc_dir = PathBuf::from_iter([&src_dir, "include"]);
-
     let target_dir = format!(
         "{}/../../{}",
         env::var("OUT_DIR").unwrap(),
         env::var("PROFILE").unwrap()
     );
+
+    println!("cargo:rerun-if-changed={src_dir}/build.rs");
+    println!("cargo:rerun-if-changed={src_dir}/src/lib.rs");
+    println!("cargo:rerun-if-changed={src_dir}/vendor/inih/ini.h");
+    println!("cargo:rerun-if-changed={src_dir}/cbindgen.toml");
 
     //
     // Linking libraries
@@ -87,8 +86,6 @@ fn main() {
         "Unsuccessful status code when running `rustfmt`: {output:?}",
     );
 
-    /*
-
     //println!("cargo:warning={:?} was formatted successfully.", &out_path);
 
     //
@@ -108,5 +105,4 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings")
         .write_to_file(cbindgens_filename);
-    */
 }
