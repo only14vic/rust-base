@@ -1,4 +1,5 @@
 ALL += examples-async, \
+	   examples-async static=1, \
 
 .PHONY: examples-async
 examples-async:
