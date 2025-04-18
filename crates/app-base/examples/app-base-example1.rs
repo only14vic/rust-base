@@ -68,7 +68,7 @@ pub struct Foo {
 }
 
 const MAX_ITERS: usize = 100_000;
-const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/config.ini");
+const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/data.ini");
 
 #[no_mangle]
 fn main() -> c_int {
