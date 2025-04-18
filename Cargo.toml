@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["app-base", "app-macros"]
+members = ["crates/app-base", "crates/app-macros"]
 
 [workspace.package]
 version = "0.1.0"
@@ -81,5 +81,5 @@ serde = { version = "1.0.219", default-features = false, features = [
 serde_json = { version = "1.0.140", default-features = false, features = [
   "alloc",
 ] }
-app-base = { path = "app-base" }
-app-macros = { path = "app-macros" }
+app-base = { path = "crates/app-base" }
+app-macros = { path = "crates/app-macros" }

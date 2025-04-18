@@ -35,7 +35,7 @@ CARGO_ARGS += $(args)
 
 ALL =
 
--include app-*/Makefile
+-include crates/app-*/Makefile
 
 all:
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"

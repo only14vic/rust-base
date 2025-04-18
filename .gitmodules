@@ -1,4 +1,4 @@
-[submodule "app-base/vendor/inih"]
-	path = app-base/vendor/inih
+[submodule "crates/app-base/vendor/inih"]
+	path = crates/app-base/vendor/inih
 	url = https://github.com/benhoyt/inih.git
 	branch = master
