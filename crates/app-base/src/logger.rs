@@ -38,7 +38,7 @@ impl Logger {
             match getenv(c"LOG_LEVEL".as_ptr()) {
                 level if level.is_null() == false => {
                     let level = CStr::from_ptr(level).to_string_lossy();
-                    if level.is_empty() {
+                    if level.trim().is_empty() {
                         LEVEL_DEFAULT
                     } else {
                         level
