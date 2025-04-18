@@ -86,11 +86,14 @@ impl Ini {
         self.into_ok()
     }
 
-    pub fn dotenv(overwrite: bool) -> Ok<Self> {
-        let ini = Self::from_file(&".env")?;
+    pub fn setenv_from_file(path: &dyn AsRef<str>, overwrite: bool) -> Ok<Self> {
+        let ini = Self::from_file(path)?;
         ini.setenv(overwrite)?;
-
         ini.into_ok()
+    }
+
+    pub fn dotenv(overwrite: bool) -> Ok<Self> {
+        Self::setenv_from_file(&".env", overwrite)
     }
 
     unsafe extern "C" fn ini_parse_callback(
