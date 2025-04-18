@@ -45,6 +45,16 @@ ALL =
 all:
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
+clean:
+	find ./target \
+		-a -path "./target/*" -a -name "app*" \
+			-type f -executable -delete
+
+.PHONY: info
+info:
+	find ./target -type f -executable -path "*/release/*" -name "app*" ! -regex '.*-[0-9].*' \
+		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
+
 .PHONY: flags
 flags:
 	@echo "---=== MAKE FLAGS ===---"

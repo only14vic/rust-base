@@ -16,11 +16,6 @@ check-base:
 			-exec valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --error-exitcode=1 {} \; \
 		-o -quit \)
 
-.PHONY: info-base
-info-base:
-	find target -type f -executable -path "**/release/examples/app-base-*" \
-		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
-
 .PHONY: perf-base
 perf-base:
 	perf record -F99 --call-graph dwarf \

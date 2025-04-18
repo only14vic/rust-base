@@ -88,7 +88,7 @@ actix = { version = "0" }
 actix-web = { version = "4", features = ["secure-cookies", "macros"] }
 actix-web-test = { version = "0.0.1" }
 actix-http = { version = "3", features = ["http2", "ws", "compress-zstd"] }
-#actix-rt = { version = "2" }
+actix-rt = { version = "2.10" }
 actix-files = { version = "0.6" }
 actix-test = { version = "0.1" }
 futures = { version = "0.3" }
