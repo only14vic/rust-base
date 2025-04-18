@@ -39,8 +39,8 @@ endif
 CARGO_ARGS += $(args)
 
 ALL =
-
 -include crates/app-*/Makefile
+ALL += info
 
 all:
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
@@ -52,7 +52,7 @@ clean:
 
 .PHONY: info
 info:
-	find ./target -type f -executable -path "*/release/*" -name "app*" ! -regex '.*-[0-9].*' \
+	find ./target -type f -executable -path "*/release/*" -name "app*" ! -regex '.*-[a-f0-9]+$$' \
 		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
 
 .PHONY: flags

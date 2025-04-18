@@ -2,7 +2,6 @@ ALL += examples-base, \
 		examples-base static=1, \
 		examples-base no_std=1, \
 		examples-base no_std=1 static=1, \
-		check-base info-base, \
 
 .PHONY: examples-base
 examples-base: flags
