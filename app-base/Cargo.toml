@@ -1,0 +1,41 @@
+[package]
+name = "app-base"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+name = "app_base"
+crate-type = ["lib"]
+
+[[example]]
+name = "example1"
+path = "examples/example1.rs"
+
+[features]
+default = ["std"]
+std = []
+
+[build-dependencies]
+cc = { workspace = true }
+bindgen = { workspace = true }
+cbindgen = { workspace = true }
+log = { workspace = true }
+dotenv = { workspace = true }
+
+[dependencies]
+libc = { workspace = true }
+libc_alloc = { workspace = true }
+libc-print = { workspace = true }
+ahash = { workspace = true }
+indexmap = { workspace = true }
+yansi = { workspace = true }
+log = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+app-macros = { workspace = true }

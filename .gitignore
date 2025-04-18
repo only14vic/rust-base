@@ -1,0 +1,8 @@
+.idea
+.env
+.gdb_history
+*.vim
+perf.data*
+vgcore.*
+target
+vendor/*

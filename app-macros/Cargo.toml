@@ -1,0 +1,23 @@
+[package]
+name = "app-macros"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+proc-macro = true
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+syn = { workspace = true }
+quote = { workspace = true }
+proc-macro2 = { workspace = true }
+libc-print = { workspace = true }
+ahash = { workspace = true }
+indexmap = { workspace = true }
+

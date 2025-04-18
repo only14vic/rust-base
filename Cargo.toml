@@ -1,0 +1,85 @@
+[workspace]
+resolver = "2"
+members = ["app-base", "app-macros"]
+
+[workspace.package]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+authors = ["Drachenko Viktor"]
+description = "The base components suite"
+
+[profile.dev]
+opt-level = 0
+debug = true
+incremental = true
+lto = "fat"
+overflow-checks = true
+rpath = true
+
+[profile.release]
+opt-level = "z"
+strip = "debuginfo"
+#strip = "symbols"
+lto = "thin"
+codegen-units = 1
+overflow-checks = true
+rpath = true
+
+[profile.dev.package."*"]
+opt-level = "z"
+debug = false
+strip = "symbols"
+
+[profile.release.package."*"]
+opt-level = "z"
+debug = false
+strip = "symbols"
+
+[workspace.lints.rust]
+#unsafe_code = "forbid"
+async_fn_in_trait = "allow"
+hidden_glob_reexports = "allow"
+
+[workspace.lints.clippy]
+bool_comparison = "allow"
+bool_assert_comparison = "allow"
+needless_return = "allow"
+expect_fun_call = "allow"
+await_holding_lock = "allow"
+question_mark = "allow"
+new_without_default = "allow"
+redundant_field_names = "allow"
+await_holding_refcell_ref = "allow"
+missing_safety_doc = "allow"
+module_inception = "allow"
+field_reassign_with_default = "allow"
+assigning_clones = "allow"
+legacy_numeric_constants = "allow"
+unit_arg = "allow"
+
+[workspace.dependencies]
+libc = { version = "0.2", default-features = false }
+libc_alloc = { version = "1.0" }
+libc-print = { version = "0.1" }
+cc = { version = "1.2" }
+bindgen = { version = "0.71" }
+cbindgen = { version = "0.28" }
+log = { version = "0.4" }
+dotenv = { version = "0.15" }
+syn = { version = "2.0.100", features = ["full"] }
+quote = "1.0.40"
+proc-macro2 = "1.0.94"
+ahash = { version = "0.8", default-features = false }
+indexmap = { version = "2", default-features = false }
+yansi = { version = "1.0", default-features = false }
+serde = { version = "1.0.219", default-features = false, features = [
+  "derive",
+  "rc",
+  "alloc",
+] }
+serde_json = { version = "1.0.140", default-features = false, features = [
+  "alloc",
+] }
+app-base = { path = "app-base" }
+app-macros = { path = "app-macros" }
