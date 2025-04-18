@@ -2,6 +2,7 @@ extern crate alloc;
 
 use {
     alloc::{rc::Rc, sync::Arc},
+    app_macros::SetFromIter,
     core::{
         cell::RefCell,
         error::Error,
@@ -10,7 +11,6 @@ use {
         num::NonZero,
         str::FromStr
     },
-    set_from_iter_derive::SetFromIter,
     std::time::Instant
 };
 

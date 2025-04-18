@@ -12,8 +12,8 @@ name = "app_base"
 crate-type = ["lib"]
 
 [[example]]
-name = "example1"
-path = "examples/example1.rs"
+name = "app-base-example1"
+path = "examples/app-base-example1.rs"
 
 [features]
 default = ["std"]
@@ -36,6 +36,6 @@ yansi = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+app-macros = { workspace = true }
 
 [dev-dependencies]
-app-macros = { workspace = true }

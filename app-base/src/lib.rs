@@ -14,4 +14,4 @@ mod ini;
 mod base;
 mod logger;
 
-pub use {base::*, ini::*, logger::*, set_from_iter_derive::*};
+pub use {app_macros::*, base::*, ini::*, logger::*};

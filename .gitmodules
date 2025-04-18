@@ -1,4 +1,4 @@
 [submodule "app-base/vendor/inih"]
 	path = app-base/vendor/inih
 	url = https://github.com/benhoyt/inih.git
-	branch = 23acf2dd5af5287b0f170908c607560ab3995dae
+	branch = master
