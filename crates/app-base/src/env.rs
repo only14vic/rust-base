@@ -1,16 +1,21 @@
-use std::env;
-
 pub struct Env;
 
 impl Env {
     #[inline]
     pub fn is_test() -> bool {
-        cfg!(test) || env::var("APP_ENV").unwrap_or_default() == "test"
+        #[cfg(feature = "std")]
+        return cfg!(test) || std::env::var("APP_ENV").unwrap_or_default() == "test";
+        #[cfg(not(feature = "std"))]
+        return cfg!(test);
     }
 
     #[inline]
     pub fn is_prod() -> bool {
-        Self::is_release() || env::var("APP_ENV").unwrap_or_default() == "prod"
+        #[cfg(feature = "std")]
+        return Self::is_release()
+            || std::env::var("APP_ENV").unwrap_or_default() == "prod";
+        #[cfg(not(feature = "std"))]
+        return Self::is_release();
     }
 
     #[inline]
@@ -20,7 +25,7 @@ impl Env {
 
     #[inline]
     pub fn is_debug() -> bool {
-        env::var("APP_DEBUG").unwrap_or_default() == "1"
+        cfg!(debug_assertions) == true
     }
 
     #[inline]

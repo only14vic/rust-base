@@ -12,5 +12,6 @@ mod binds;
 mod ini;
 mod base;
 mod logger;
+mod env;
 
-pub use {app_macros::*, base::*, ini::*, logger::*};
+pub use {app_macros::*, base::*, env::*, ini::*, logger::*};
