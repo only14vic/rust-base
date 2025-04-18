@@ -149,9 +149,7 @@ name = "app-async"
 version = "0.1.0"
 dependencies = [
  "actix",
- "ahash",
  "app-base",
- "indexmap",
  "log",
  "tokio",
 ]

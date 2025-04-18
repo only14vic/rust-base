@@ -18,8 +18,6 @@ default = []
 app-base = { workspace = true, features = ["std"] }
 tokio = { workspace = true }
 actix = { workspace = true }
-indexmap = { workspace = true }
-ahash = { workspace = true }
 log = { workspace = true }
 
 [dev-dependencies]

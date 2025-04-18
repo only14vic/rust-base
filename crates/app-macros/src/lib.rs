@@ -13,7 +13,7 @@ use {
     quote::{quote, ToTokens},
     syn::{
         parse_macro_input, Data, DeriveInput, Fields, Ident, Lifetime, LifetimeParam,
-        Path
+        Path, TypePath
     }
 };
 #[cfg(not(feature = "std"))]
@@ -24,10 +24,20 @@ use libc_print::std_name::*;
 pub fn derive_iterable(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
+    // If "std"
     #[cfg(feature = "std")]
     let rust_lib: Path = Ident::new("std", Span::call_site()).into();
+    #[cfg(feature = "std")]
+    let items_map_type: TypePath =
+        syn::parse_str("::std::collections::HashMap<&'a str, Option<&'a str>>").unwrap();
+    //
+    // If no "std"
     #[cfg(not(feature = "std"))]
     let rust_lib: Path = Ident::new("alloc", Span::call_site()).into();
+    #[cfg(not(feature = "std"))]
+    let items_map_type: TypePath = syn::parse_str(
+        "::indexmap::IndexMap<&'a str, Option<&'a str>, ::core::hash::BuildHasherDefault<ahash::AHasher>>",
+    ).unwrap();
 
     let struct_name = input.ident;
     let struct_generics = input.generics;
@@ -180,11 +190,7 @@ pub fn derive_iterable(input: TokenStream) -> TokenStream {
             where
                 I: ::core::iter::IntoIterator<Item = (&'iter str, Option<&'iter str>)>
             {
-                type ItemsMap<'a> = ::indexmap::IndexMap<
-                    &'a str,
-                    Option<&'a str>,
-                    core::hash::BuildHasherDefault<ahash::AHasher>
-                >;
+                type ItemsMap<'a> = #items_map_type;
                 let mut map = ItemsMap::from_iter(iter.into_iter());
 
                 #(#fields_set)*
