@@ -67,11 +67,11 @@ impl Log for Logger {
     fn log(&self, record: &log::Record) {
         if self.enabled(record.metadata()) {
             let level_colored: String = match record.level() {
-                l @ Level::Info => l.bright_blue().to_string(),
+                l @ Level::Info => l.bright_green().to_string(),
                 l @ Level::Warn => l.bright_yellow().to_string(),
                 l @ Level::Error => l.bright_red().to_string(),
                 l @ Level::Trace => l.bright_black().to_string(),
-                l @ Level::Debug => l.bright_cyan().to_string()
+                l @ Level::Debug => l.bright_magenta().to_string()
             };
             eprintln!(
                 "[{}] [{}] {}",

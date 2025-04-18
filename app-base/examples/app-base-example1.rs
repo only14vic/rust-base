@@ -92,7 +92,7 @@ fn main() -> c_int {
 
     log::info!(
         "Struct {}",
-        format!("{:#?}", &config).bright_blue().italic()
+        format!("{:#?}", &config).bright_green().italic()
     );
 
     let config_json = config.to_json().unwrap();
