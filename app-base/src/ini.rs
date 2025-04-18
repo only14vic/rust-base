@@ -14,7 +14,7 @@ use {
     }
 };
 
-pub type IniMap = crate::base::IndexMap<Box<str>, Option<Box<str>>>;
+type IniMap = crate::base::IndexMap<Box<str>, Option<Box<str>>>;
 
 #[derive(Debug, Clone)]
 pub struct Ini {
