@@ -11,7 +11,10 @@ use {
     proc_macro::TokenStream,
     proc_macro2::Span,
     quote::{quote, ToTokens},
-    syn::{parse_macro_input, Data, DeriveInput, Fields, Ident, Lifetime, LifetimeParam}
+    syn::{
+        parse_macro_input, Data, DeriveInput, Fields, Ident, Lifetime, LifetimeParam,
+        Path
+    }
 };
 #[cfg(not(feature = "std"))]
 #[allow(unused_imports)]
@@ -20,6 +23,11 @@ use libc_print::std_name::*;
 #[proc_macro_derive(SetFromIter, attributes(parse))]
 pub fn derive_iterable(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    #[cfg(feature = "std")]
+    let rust_lib: Path = Ident::new("std", Span::call_site()).into();
+    #[cfg(not(feature = "std"))]
+    let rust_lib: Path = Ident::new("alloc", Span::call_site()).into();
 
     let struct_name = input.ident;
     let struct_generics = input.generics;
@@ -94,10 +102,10 @@ pub fn derive_iterable(input: TokenStream) -> TokenStream {
                     "String" | "str" => quote! {
                         v.split_terminator(',')
                             .map(|s| s.trim().into())
-                            .collect::<::alloc::vec::Vec<_>>()
+                            .collect::<::#rust_lib::vec::Vec<_>>()
                     },
                     _ => quote! {{
-                        let mut arr = ::alloc::vec::Vec::new();
+                        let mut arr = ::#rust_lib::vec::Vec::new();
                         for s in v.split_terminator(',') {
                             arr.push(
                                 s.trim()
@@ -168,7 +176,7 @@ pub fn derive_iterable(input: TokenStream) -> TokenStream {
                 &[#(#fields_iter),*]
             }
 
-            fn set_from_iter<#lifetime, I>(&mut self, iter: I) -> Result<(), ::alloc::boxed::Box<dyn ::core::error::Error>>
+            fn set_from_iter<#lifetime, I>(&mut self, iter: I) -> Result<(), ::#rust_lib::boxed::Box<dyn ::core::error::Error>>
             where
                 I: ::core::iter::IntoIterator<Item = (&'iter str, Option<&'iter str>)>
             {

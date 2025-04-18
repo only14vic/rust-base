@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/app-base", "crates/app-macros"]
+members = ["crates/*"]
+default-members = ["crates/*"]
+exclude = []
 
 [workspace.package]
 version = "0.1.0"
@@ -81,5 +83,14 @@ serde = { version = "1.0.219", default-features = false, features = [
 serde_json = { version = "1.0.140", default-features = false, features = [
   "alloc",
 ] }
-app-base = { path = "crates/app-base" }
-app-macros = { path = "crates/app-macros" }
+tokio = { version = "1", features = ["full"] }
+actix = { version = "0" }
+actix-web = { version = "4", features = ["secure-cookies", "macros"] }
+actix-web-test = { version = "0.0.1" }
+actix-http = { version = "3", features = ["http2", "ws", "compress-zstd"] }
+#actix-rt = { version = "2" }
+actix-files = { version = "0.6" }
+actix-test = { version = "0.1" }
+app-base = { path = "crates/app-base", default-features = false }
+app-macros = { path = "crates/app-macros", default-features = false }
+app-async = { path = "crates/app-async", default-features = false }

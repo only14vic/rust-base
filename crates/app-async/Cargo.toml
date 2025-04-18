@@ -1,0 +1,25 @@
+[package]
+name = "app-async"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+name = "app_async"
+crate-type = ["lib"]
+
+[features]
+default = []
+
+[dependencies]
+app-base = { workspace = true, features = ["std"] }
+tokio = { workspace = true }
+actix = { workspace = true }
+indexmap = { workspace = true }
+ahash = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]

@@ -11,7 +11,7 @@ pub use libc_print::std_name::*;
 mod binds;
 mod ini;
 mod base;
-mod logger;
+mod log;
 mod env;
 
-pub use {app_macros::*, base::*, env::*, ini::*, logger::*};
+pub use {app_macros::*, base::*, env::*, ini::*, log::*};

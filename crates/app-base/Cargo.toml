@@ -17,7 +17,7 @@ path = "examples/app-base-example1.rs"
 
 [features]
 default = ["std"]
-std = []
+std = ["app-macros/std"]
 
 [build-dependencies]
 cc = { workspace = true }
