@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[allow(unused)]
+#[macro_use]
 extern crate alloc;
 extern crate core;
 extern crate proc_macro2;
