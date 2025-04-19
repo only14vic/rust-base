@@ -8,13 +8,33 @@ use {
     },
     alloc::{boxed::Box, ffi::CString, string::String, vec::Vec},
     core::{
+        error::Error,
         ffi::{c_char, c_int, c_void, CStr},
+        fmt::Display,
         ops::Deref,
         str::FromStr
     }
 };
 
 type IniMap = crate::base::IndexMap<Box<str>, Option<Box<str>>>;
+
+#[derive(Debug)]
+pub enum IniError {
+    FileNotFound(String),
+    InvalidParse(String)
+}
+
+impl Error for IniError {}
+
+impl Display for IniError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let s = match self {
+            Self::FileNotFound(s) => s,
+            Self::InvalidParse(s) => s
+        };
+        write!(f, "{s}")
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct Ini {
@@ -52,7 +72,9 @@ impl Ini {
 
         unsafe {
             if libc::access(c_path.as_ptr().cast(), libc::F_OK) != 0 {
-                Err(["Config file not found: ", path.as_ref()].concat())?;
+                Err(IniError::FileNotFound(
+                    ["Ini file not found: ", path.as_ref()].concat()
+                ))?;
             }
 
             if binds::ini_parse(
@@ -61,7 +83,9 @@ impl Ini {
                 (&mut this.items as *mut IniMap).cast()
             ) != 0
             {
-                Err(["Couldn't parse INI file: ", path.as_ref()].concat())?;
+                Err(IniError::InvalidParse(
+                    ["Couldn't parse Ini file: ", path.as_ref()].concat()
+                ))?;
             }
         }
 
@@ -132,5 +156,16 @@ impl Ini {
 
 #[no_mangle]
 extern "C" fn dotenv(overwrite: bool) -> c_int {
-    Ini::dotenv(overwrite).is_ok().then_some(0).unwrap_or(-1)
+    match Ini::dotenv(overwrite) {
+        Ok(..) => 0,
+        Err(e) if e.downcast_ref::<IniError>().is_some() => {
+            match e.downcast_ref::<IniError>() {
+                // don't panic if file not exists
+                Some(IniError::FileNotFound(..)) => -1,
+                Some(e) => panic!("ERROR: {e}"),
+                None => unreachable!()
+            }
+        },
+        Err(..) => -2
+    }
 }
