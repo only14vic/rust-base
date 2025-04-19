@@ -9,11 +9,11 @@
 
 
 typedef enum LogLevel {
-  ERROR,
-  WARN,
-  INFO,
-  DEBUG,
-  TRACE,
+  ERROR = 1,
+  WARN = 2,
+  INFO = 3,
+  DEBUG = 4,
+  TRACE = 5,
 } LogLevel;
 
 int dotenv(bool overwrite);

@@ -3,8 +3,11 @@ use {
         alloc::string::ToString,
         base::{ok, Void}
     },
-    alloc::string::String,
-    core::ffi::{c_char, c_int, CStr},
+    alloc::{format, string::String},
+    core::{
+        ffi::{c_char, c_int, CStr},
+        mem::transmute
+    },
     libc::getenv,
     log::{Level, LevelFilter, Log, ParseLevelError},
     yansi::Paint
@@ -22,26 +25,18 @@ const LEVEL_DEFAULT: LevelFilter = LevelFilter::Info;
 #[repr(C)]
 #[allow(unused)]
 enum LogLevel {
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE
+    ERROR = 1, // Level::Error
+    WARN = 2,  // Level::Warn
+    INFO = 3,  // Level::Info
+    DEBUG = 4, // Level::Debug
+    TRACE = 5  // Level::Trace
 }
 
 impl Into<Level> for LogLevel {
     fn into(self) -> Level {
-        match self {
-            Self::ERROR => Level::Error,
-            Self::WARN => Level::Warn,
-            Self::INFO => Level::Info,
-            Self::DEBUG => Level::Debug,
-            Self::TRACE => Level::Trace
-        }
+        unsafe { transmute(self as usize) }
     }
 }
-
-pub struct Logger;
 
 #[no_mangle]
 pub extern "C" fn log_init() -> c_int {
@@ -59,6 +54,8 @@ extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
     let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
     log::log!(level.into(), "{msg}");
 }
+
+pub struct Logger;
 
 impl Logger {
     pub fn init() -> Void {
@@ -102,8 +99,8 @@ impl Log for Logger {
                 l @ Level::Debug => l.bright_blue().to_string()
             };
             eprintln!(
-                "[{}] [{}] {}",
-                level_colored,
+                "{:<16} [{}] {}",
+                format!("[{level_colored}]"),
                 record.target(),
                 record.args()
             );
