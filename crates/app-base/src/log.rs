@@ -4,10 +4,7 @@ use {
         base::{ok, Void}
     },
     alloc::string::String,
-    core::{
-        ffi::{c_char, c_int, c_uchar, CStr},
-        mem::transmute
-    },
+    core::ffi::{c_char, c_int, CStr},
     libc::getenv,
     log::{Level, LevelFilter, Log, ParseLevelError},
     yansi::Paint
@@ -21,6 +18,28 @@ static LOGGER: Logger = Logger;
 const LEVEL_DEFAULT: LevelFilter = LevelFilter::Debug;
 #[cfg(not(debug_assertions))]
 const LEVEL_DEFAULT: LevelFilter = LevelFilter::Info;
+
+#[repr(C)]
+#[allow(unused)]
+enum LogLevel {
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
+    TRACE
+}
+
+impl Into<Level> for LogLevel {
+    fn into(self) -> Level {
+        match self {
+            Self::ERROR => Level::Error,
+            Self::WARN => Level::Warn,
+            Self::INFO => Level::Info,
+            Self::DEBUG => Level::Debug,
+            Self::TRACE => Level::Trace
+        }
+    }
+}
 
 pub struct Logger;
 
@@ -36,17 +55,9 @@ pub extern "C" fn log_init() -> c_int {
 }
 
 #[no_mangle]
-unsafe extern "C" fn log_msg(level: c_uchar, msg: *const c_char) -> c_int {
-    if level < 1 || level > 5 {
-        return -1;
-    }
-
-    let level: Level = transmute(level as usize);
-    let msg = CStr::from_ptr(msg.cast()).to_string_lossy();
-
-    log::log!(level, "{msg}");
-
-    0
+extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
+    let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
+    log::log!(level.into(), "{msg}");
 }
 
 impl Logger {
