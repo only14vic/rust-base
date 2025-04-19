@@ -1,7 +1,7 @@
 use {
     app_async::{actix_on_tokio_start, TokioConfig},
     app_base::{log_init, mem_stats, ok, BaseFromInto, Ini, Ok, SetFromIter, Void},
-    std::env::current_dir
+    std::env::{self, current_dir}
 };
 
 #[derive(Debug, Default, SetFromIter)]
@@ -18,6 +18,16 @@ impl Config {
 
         let mut config = Self::default();
         config.set_from_iter(&ini)?;
+
+        let env_vars = [(
+            "tokio.worker_threads",
+            env::var("TOKIO_WORKER_THREADS").ok()
+        )];
+        config.set_from_iter(
+            env_vars
+                .iter()
+                .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+        )?;
 
         config.into_ok()
     }
