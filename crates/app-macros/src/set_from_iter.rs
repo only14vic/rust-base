@@ -173,11 +173,11 @@ pub(crate) fn set_from_iter_derive(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics #struct_name #ty_generics #where_clause {
-            fn struct_fields() -> &'static [(&'static str, &'static str)] {
+            pub fn struct_fields() -> &'static [(&'static str, &'static str)] {
                 &[#(#fields_iter),*]
             }
 
-            fn set_from_iter<#lifetime, I>(&mut self, iter: I) -> Result<(), ::#rust_lib::boxed::Box<dyn ::core::error::Error>>
+            pub fn set_from_iter<#lifetime, I>(&mut self, iter: I) -> Result<(), ::#rust_lib::boxed::Box<dyn ::core::error::Error>>
             where
                 I: ::core::iter::IntoIterator<Item = (&'iter str, Option<&'iter str>)>
             {

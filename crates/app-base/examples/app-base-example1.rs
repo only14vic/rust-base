@@ -16,7 +16,7 @@ use {
         string::{String, ToString},
         vec::Vec
     },
-    app_base::{log_init, BaseFromInto, Ini, SetFromIter},
+    app_base::{log_init, mem_stats, BaseFromInto, Ini, SetFromIter},
     core::{ffi::c_int, hint::black_box, num::NonZero, str::FromStr, usize},
     serde::Serialize,
     yansi::Paint
@@ -115,10 +115,7 @@ fn main() -> c_int {
             .on_bright_green()
     );
 
-    #[cfg(not(target_env = "musl"))]
-    unsafe {
-        libc::malloc_stats()
-    };
+    mem_stats();
 
     return libc::EXIT_SUCCESS;
 }

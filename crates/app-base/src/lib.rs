@@ -13,5 +13,6 @@ mod ini;
 mod base;
 mod log;
 mod env;
+mod mem_stats;
 
-pub use {app_macros::*, base::*, env::*, ini::*, log::*};
+pub use {app_macros::*, base::*, env::*, ini::*, log::*, mem_stats::*};
