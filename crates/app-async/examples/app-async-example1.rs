@@ -11,12 +11,12 @@ struct Config {
 
 impl Config {
     pub fn load() -> Ok<Self> {
+        let mut config = Self::default();
+
         let mut path = current_dir()?;
         path.push("config/app.ini");
 
         let ini = Ini::from_file(&path.to_string_lossy())?;
-
-        let mut config = Self::default();
         config.set_from_iter(&ini)?;
 
         let env_vars = [(
@@ -29,6 +29,8 @@ impl Config {
                 .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
         )?;
 
+        log::trace!("Loaded: {config:#?}");
+
         config.into_ok()
     }
 }
@@ -36,10 +38,9 @@ impl Config {
 fn main() -> Void {
     Ini::dotenv(false).ok();
     log_init();
-
     let config = Config::load()?;
-    let res = actix_on_tokio_start(Some(&config.tokio), async { "Hello, from Async!" })?;
 
+    let res = actix_on_tokio_start(Some(&config.tokio), async { "Hello, from Async!" })?;
     println!("{res}");
     assert_eq!(res, "Hello, from Async!");
 

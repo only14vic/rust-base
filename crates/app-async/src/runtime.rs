@@ -6,8 +6,6 @@ pub fn tokio_start(
     let config_default = Default::default();
     let config = config.unwrap_or(&config_default);
 
-    log::trace!("{config:#?}");
-
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(config.worker_threads)
         .max_blocking_threads(config.max_blocking_threads)
