@@ -13,7 +13,7 @@ build-base: flags
 ifeq ($(static),)
 	cargo rustc -p app-base --lib --crate-type=cdylib $(CARGO_ARGS)
 else
-	cargo rustc -p app-base --lib --crate-type=staticlib $(CARGO_ARGS)
+	cargo rustc -p app-base --lib --crate-type=staticlib $(CARGO_ARGS) --verbose -- --print native-static-libs
 endif
 
 .PHONY: examples-base
