@@ -129,3 +129,8 @@ impl Ini {
         return 1;
     }
 }
+
+#[no_mangle]
+extern "C" fn dotenv(overwrite: bool) -> c_int {
+    Ini::dotenv(overwrite).is_ok().then_some(0).unwrap_or(-1)
+}

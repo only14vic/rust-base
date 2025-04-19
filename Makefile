@@ -9,6 +9,7 @@ ifndef VERBOSE
 endif
 
 make = make --no-print-directory
+target_dir = $(shell find target -type d -name release|head -n1)
 
 CARGO_ARGS =
 RUSTFLAGS = -Ctarget-cpu=native \
@@ -23,6 +24,7 @@ endif
 ifneq ($(static),)
 	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
 	RUSTFLAGS += -Ctarget-feature=+crt-static
+	target_dir = $(shell find target -type d -path "*/$(CARGO_BUILD_TARGET)/*" -name release|head -n1)
 else
 	#CARGO_BUILD_TARGET = x86_64-unknown-linux-gnu
 	#RUSTFLAGS +=
@@ -53,12 +55,13 @@ clean:
 info:
 	find ./target -type f -executable \
 		-path "*/release/*" -a ! -path "*/deps/*" -a -name "*app*" \
-		-a ! -regex '.*-[a-f0-9]+\(\.so\|\.a\)?$$' \
+		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
 		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
 
 .PHONY: flags
 flags:
 	@echo "---=== MAKE FLAGS ===---"
+	@echo target_dir: $(target_dir)
 	@echo TARGET: $(CARGO_BUILD_TARGET)
 	@echo CARGO_ARGS: $(CARGO_ARGS)
 	@echo RUSTFLAGS: $(RUSTFLAGS)
