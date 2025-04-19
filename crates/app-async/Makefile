@@ -3,4 +3,4 @@ ALL += examples-async, \
 
 .PHONY: examples-async
 examples-async:
-	cargo run -p app-async --example app-async-example1 $(CARGO_ARGS)
+	cargo run -p app-async --example app-async-actix_on_tokio_start $(CARGO_ARGS)
