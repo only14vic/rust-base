@@ -49,7 +49,7 @@ all: clean
 
 clean:
 	find ./target \
-		-path "./target/*" -name "*app*" -type f -executable -o -name "*.a" -delete
+		-path "./target/*" -name "*app*" -type f -executable -delete
 
 .PHONY: info
 info:
