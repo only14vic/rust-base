@@ -42,16 +42,18 @@ ALL =
 -include crates/app-*/Makefile
 ALL += info
 
-all:
+all: clean
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
 clean:
 	find ./target \
-		-path "./target/*" -name "app*" -type f -executable -delete
+		-path "./target/*" -name "*app*" -type f -executable -o -name "*.a" -delete
 
 .PHONY: info
 info:
-	find ./target -type f -executable -path "*/release/*" -name "app*" ! -regex '.*-[a-f0-9]+$$' \
+	find ./target -type f -executable \
+		-path "*/release/*" -a ! -path "*/deps/*" -a -name "*app*" \
+		-a ! -regex '.*-[a-f0-9]+\(\.so\|\.a\)?$$' \
 		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
 
 .PHONY: flags

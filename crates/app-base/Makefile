@@ -1,7 +1,19 @@
-ALL += examples-base, \
-		examples-base static=1, \
-		examples-base no_std=1, \
-		examples-base no_std=1 static=1, \
+ALL += build-base, \
+	   build-base no_std=1, \
+	   build-base static=1, \
+	   build-base static=1 no_std=1, \
+	   examples-base, \
+	   examples-base no_std=1, \
+	   examples-base static=1, \
+	   examples-base static=1 no_std=1, \
+
+.PHONY: build-base
+build-base: flags
+ifeq ($(static),)
+	cargo rustc -p app-base --lib --crate-type=cdylib $(CARGO_ARGS)
+else
+	cargo rustc -p app-base --lib --crate-type=staticlib $(CARGO_ARGS)
+endif
 
 .PHONY: examples-base
 examples-base: flags

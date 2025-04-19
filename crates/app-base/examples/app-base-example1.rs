@@ -6,10 +6,6 @@
 extern crate alloc;
 extern crate core;
 
-// Use include!() to overwrite GLOBAL_ALLOC
-#[cfg(not(feature = "std"))]
-include!("../src/no_std.rs");
-
 use {
     alloc::{
         boxed::Box,
