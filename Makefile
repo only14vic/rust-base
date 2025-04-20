@@ -65,6 +65,13 @@ info:
 		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
 		-exec ls -sh {} \; -exec ldd {} \; -exec echo -e "------------------------" \;
 
+.PHONY: strip
+strip:
+	find ./target -type f -executable \
+		-path "*/release/*" -a ! -path "*/deps/*" -a -name "*app*" \
+		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
+		-exec strip {} \;
+
 .PHONY: flags
 flags:
 	@echo "---=== MAKE FLAGS ===---"
