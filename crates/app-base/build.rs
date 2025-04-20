@@ -43,8 +43,12 @@ fn main() {
 
     builder.clone()
         .file(src_dir + "/vendor/inih/ini.c")
-        .define("INI_USE_STACK", "1")
+        .define("INI_USE_STACK", "0")
+        .define("INI_ALLOW_REALLOC", "1")
         .define("INI_MAX_LINE", "1000")
+        .define("INI_ALLOW_BOM", "0")
+        .define("INI_ALLOW_NO_VALUE", "1")
+        .define("INI_STOP_ON_FIRST_ERROR", "1")
         .shared_flag(true)
         //.static_flag(true)
         .compile("inih");
