@@ -158,14 +158,13 @@ impl Ini {
 extern "C" fn dotenv(overwrite: bool) -> c_int {
     match Ini::dotenv(overwrite) {
         Ok(..) => 0,
-        Err(e) if e.downcast_ref::<IniError>().is_some() => {
+        Err(e) => {
             match e.downcast_ref::<IniError>() {
                 // don't panic if file not exists
                 Some(IniError::FileNotFound(..)) => -1,
                 Some(e) => panic!("ERROR: {e}"),
-                None => unreachable!()
+                None => -2
             }
         },
-        Err(..) => -2
     }
 }
