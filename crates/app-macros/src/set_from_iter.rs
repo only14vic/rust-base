@@ -142,7 +142,7 @@ pub(crate) fn set_from_iter_derive(input: TokenStream) -> TokenStream {
             ty = ty.trim();
             ty = ty.get(ty.rfind(' ').map(|i| i+1).unwrap_or(0)..).unwrap();
             if ty.is_empty() == false {
-                let type_ident = Ident::new(&ty, Span::call_site());
+                let type_ident = Ident::new(ty, Span::call_site());
                 field_value = match ty {
                     "Option" | "Box" | "NonNull" => quote! {#type_ident::from(#field_value)},
                     "Vec" => field_value,

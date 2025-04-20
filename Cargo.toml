@@ -59,6 +59,7 @@ field_reassign_with_default = "allow"
 assigning_clones = "allow"
 legacy_numeric_constants = "allow"
 unit_arg = "allow"
+from_over_into = "allow"
 
 [workspace.dependencies]
 libc = { version = "0.2", default-features = false }

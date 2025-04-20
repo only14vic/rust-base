@@ -178,7 +178,7 @@ where
 
     #[inline(always)]
     fn into_box(self) -> Box<Self> {
-        Box::new(self.into())
+        Box::new(self)
     }
 
     #[inline(always)]

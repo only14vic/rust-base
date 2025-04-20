@@ -165,6 +165,6 @@ extern "C" fn dotenv(overwrite: bool) -> c_int {
                 Some(e) => panic!("ERROR: {e}"),
                 None => -2
             }
-        },
+        }
     }
 }

@@ -24,6 +24,7 @@ const LEVEL_DEFAULT: LevelFilter = LevelFilter::Info;
 
 #[repr(C)]
 #[allow(unused)]
+#[allow(clippy::upper_case_acronyms)]
 enum LogLevel {
     ERROR = 1, // Level::Error
     WARN = 2,  // Level::Warn
@@ -74,7 +75,7 @@ impl Logger {
             }
         };
 
-        log::set_logger(&LOGGER).unwrap();
+        log::set_logger(&LOGGER).map_err(|e| e.to_string())?;
         log::set_max_level(level);
         log::debug!("LOG_LEVEL: {level}");
 

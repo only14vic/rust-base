@@ -44,12 +44,19 @@ ALL =
 -include crates/app-*/Makefile
 ALL += info
 
-all: clean
+all: clean check
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
 clean:
 	find ./target \
 		-path "./target/*" -name "*app*" -type f -executable -delete
+
+check:
+	$(eval RUSTFLAGS=)
+	cargo check --workspace --no-default-features
+	cargo check --workspace
+	cargo clippy --no-deps
+	rustup run nightly rustfmt --check crates/*/src/**
 
 .PHONY: info
 info:
