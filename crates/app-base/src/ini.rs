@@ -161,9 +161,9 @@ extern "C" fn dotenv(overwrite: bool) -> c_int {
         Err(e) => {
             match e.downcast_ref::<IniError>() {
                 // don't panic if file not exists
-                Some(IniError::FileNotFound(..)) => -1,
+                Some(IniError::FileNotFound(..)) => -2,
                 Some(e) => panic!("ERROR: {e}"),
-                None => -2
+                None => -1
             }
         }
     }
