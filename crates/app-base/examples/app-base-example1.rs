@@ -18,51 +18,6 @@ use {
     yansi::Paint
 };
 
-#[derive(Default, Debug, Serialize, SetFromIter)]
-pub struct Config {
-    version: f32,
-    general: General
-}
-
-#[derive(Default, Debug, PartialEq, Serialize)]
-pub enum Lang {
-    #[default]
-    Ru,
-    En
-}
-
-impl FromStr for Lang {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "ru" => Ok(Self::Ru),
-            "en" => Ok(Self::En),
-            _ => Err("Invalid value".to_string())
-        }
-    }
-}
-
-#[derive(Default, Debug, Serialize, SetFromIter)]
-pub struct General {
-    #[parse]
-    str: Option<Box<Lang>>,
-    number: u32,
-    boolean: bool,
-    list: Vec<u32>,
-    text: String,
-    foo: Foo
-}
-
-#[derive(Default, Debug, Serialize, SetFromIter)]
-pub struct Foo {
-    #[parse]
-    str: Lang,
-    number: Option<NonZero<u32>>,
-    boolean: Option<bool>,
-    text: Box<str>
-}
-
 const MAX_ITERS: usize = 100_000;
 const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/data.ini");
 
@@ -113,5 +68,50 @@ fn main() -> c_int {
 
     mem_stats();
 
-    return libc::EXIT_SUCCESS;
+    libc::EXIT_SUCCESS
+}
+
+#[derive(Default, Debug, Serialize, SetFromIter)]
+pub struct Config {
+    version: f32,
+    general: General
+}
+
+#[derive(Default, Debug, PartialEq, Serialize)]
+pub enum Lang {
+    #[default]
+    Ru,
+    En
+}
+
+impl FromStr for Lang {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "ru" => Ok(Self::Ru),
+            "en" => Ok(Self::En),
+            _ => Err("Invalid value".to_string())
+        }
+    }
+}
+
+#[derive(Default, Debug, Serialize, SetFromIter)]
+pub struct General {
+    #[parse]
+    str: Option<Box<Lang>>,
+    number: u32,
+    boolean: bool,
+    list: Vec<u32>,
+    text: String,
+    foo: Foo
+}
+
+#[derive(Default, Debug, Serialize, SetFromIter)]
+pub struct Foo {
+    #[parse]
+    str: Lang,
+    number: Option<NonZero<u32>>,
+    boolean: Option<bool>,
+    text: Box<str>
 }

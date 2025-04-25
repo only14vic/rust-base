@@ -4,6 +4,20 @@ use {
     std::env::{self, current_dir}
 };
 
+fn main() -> Void {
+    Ini::dotenv(false).ok();
+    log_init();
+    let config = Config::load()?;
+
+    let res = actix_on_tokio_start(Some(&config.tokio), async { "Hello, from Async!" })?;
+    println!("{res}");
+    assert_eq!(res, "Hello, from Async!");
+
+    mem_stats();
+
+    ok()
+}
+
 #[derive(Debug, Default, SetFromIter)]
 struct Config {
     tokio: TokioConfig
@@ -33,18 +47,4 @@ impl Config {
 
         config.into_ok()
     }
-}
-
-fn main() -> Void {
-    Ini::dotenv(false).ok();
-    log_init();
-    let config = Config::load()?;
-
-    let res = actix_on_tokio_start(Some(&config.tokio), async { "Hello, from Async!" })?;
-    println!("{res}");
-    assert_eq!(res, "Hello, from Async!");
-
-    mem_stats();
-
-    ok()
 }
