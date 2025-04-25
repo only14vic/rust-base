@@ -41,7 +41,7 @@ endif
 CARGO_ARGS += $(args)
 
 ALL =
--include crates/app-*/Makefile
+-include crates/*/Makefile
 ALL += info
 
 all: clean check
