@@ -9,7 +9,6 @@ ifndef VERBOSE
 endif
 
 make = make --no-print-directory
-target_dir = $(shell find target -type d -name release|head -n1)
 
 CARGO_ARGS =
 RUSTFLAGS = -Ctarget-cpu=native \
@@ -24,7 +23,6 @@ endif
 ifneq ($(static),)
 	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
 	RUSTFLAGS += -Ctarget-feature=+crt-static
-	target_dir = $(shell find target -type d -path "*/$(CARGO_BUILD_TARGET)/*" -name release|head -n1)
 else
 	#CARGO_BUILD_TARGET = x86_64-unknown-linux-gnu
 	#RUSTFLAGS +=
@@ -37,6 +35,8 @@ ifneq ($(no_std),)
 	RUSTFLAGS += -Cpanic=abort
 	CARGO_ARGS += --no-default-features
 endif
+
+target_dir = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)/release
 
 CARGO_ARGS += $(args)
 

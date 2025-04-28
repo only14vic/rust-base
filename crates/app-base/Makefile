@@ -24,11 +24,11 @@ examples-base: flags
 examples-base-c: flags
 	cc -std=gnu18 -Os -g -pipe -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin \
 		-fPIC -Wall -Wextra \
-		-Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$$ORIGIN/../$(target_dir)' \
+		-Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$(target_dir)' \
 		-L$(target_dir) -lapp_base \
 		-o $(target_dir)/app-base-example-c \
 		crates/app-base/examples/app-base-example.c
-	./$(target_dir)/app-base-example-c
+	$(target_dir)/app-base-example-c
 
 .PHONY: check-base
 check-base:
