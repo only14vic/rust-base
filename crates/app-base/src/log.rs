@@ -51,8 +51,8 @@ pub extern "C" fn log_init() -> c_int {
 }
 
 #[no_mangle]
-extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
-    let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
+unsafe extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
+    let msg = CStr::from_ptr(msg.cast()).to_string_lossy();
     log::log!(level.into(), "{msg}");
 }
 
