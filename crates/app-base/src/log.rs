@@ -22,6 +22,7 @@ const LEVEL_DEFAULT: LevelFilter = LevelFilter::Debug;
 #[cfg(not(debug_assertions))]
 const LEVEL_DEFAULT: LevelFilter = LevelFilter::Info;
 
+/// Logging levels for C
 #[repr(C)]
 #[allow(unused)]
 #[allow(clippy::upper_case_acronyms)]

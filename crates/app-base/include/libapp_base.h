@@ -8,6 +8,9 @@
 #include <stdlib.h>
 
 
+/**
+ * Logging levels for C
+ */
 typedef enum LogLevel {
   ERROR = 1,
   WARN = 2,
