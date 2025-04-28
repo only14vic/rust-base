@@ -1,4 +1,4 @@
-use app_base::SetFromIter;
+use app_base::prelude::*;
 
 #[derive(Debug, SetFromIter)]
 pub struct TokioConfig {

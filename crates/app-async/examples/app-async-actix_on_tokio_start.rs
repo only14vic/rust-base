@@ -1,7 +1,4 @@
-use {
-    app_async::actix_on_tokio_start,
-    app_base::{log_init, mem_stats, ok, Ini, Void}
-};
+use {app_async::actix_on_tokio_start, app_base::prelude::*};
 
 mod tests {
     include!(concat!(

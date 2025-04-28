@@ -9,12 +9,13 @@ extern crate alloc;
 mod no_std;
 
 mod binds;
-mod ini;
-mod base;
-mod log;
-mod env;
-mod mem_stats;
 
-#[cfg(not(feature = "std"))]
-pub use libc_print::std_name::*;
-pub use {app_macros::*, base::*, env::*, ini::*, log::*, mem_stats::*};
+pub mod ini;
+pub mod base;
+pub mod log;
+pub mod env;
+pub mod mem_stats;
+pub mod prelude;
+pub mod macros {
+    pub use app_macros::*;
+}
