@@ -16,8 +16,23 @@ typedef enum LogLevel {
   TRACE = 5,
 } LogLevel;
 
+/**
+ * Loads .env file variables
+ *
+ * Returns zero if initialization is successfull.
+ * Otherwise returns int less zero.
+ */
 int dotenv(bool overwrite);
 
+/**
+ * Initializes logging
+ *
+ * Returns zero if initialization is successfull.
+ * Otherwise returns -1.
+ */
 int log_init(void);
 
+/**
+ * Logs messages in C
+ */
 void log_msg(enum LogLevel level, const char *msg);

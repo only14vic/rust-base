@@ -154,6 +154,10 @@ impl Ini {
     }
 }
 
+/// Loads .env file variables
+///
+/// Returns zero if initialization is successfull.
+/// Otherwise returns int less zero.
 #[no_mangle]
 extern "C" fn dotenv(overwrite: bool) -> c_int {
     match Ini::dotenv(overwrite) {

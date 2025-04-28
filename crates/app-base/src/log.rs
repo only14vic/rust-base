@@ -39,6 +39,10 @@ impl Into<Level> for LogLevel {
     }
 }
 
+/// Initializes logging
+///
+/// Returns zero if initialization is successfull.
+/// Otherwise returns -1.
 #[no_mangle]
 pub extern "C" fn log_init() -> c_int {
     match Logger::init() {
@@ -50,6 +54,7 @@ pub extern "C" fn log_init() -> c_int {
     }
 }
 
+/// Logs messages in C
 #[no_mangle]
 unsafe extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
     let msg = CStr::from_ptr(msg.cast()).to_string_lossy();
