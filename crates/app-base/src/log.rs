@@ -176,7 +176,7 @@ impl Log for Logger {
             return;
         }
 
-        let allow_color = self.config.color && self.config.file.is_none();
+        let allow_color = self.config.color && self.file.is_none();
         let level = if allow_color {
             match record.level() {
                 l @ Level::Info => l.bright_green().to_string(),
