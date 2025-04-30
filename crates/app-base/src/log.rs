@@ -139,11 +139,11 @@ impl Logger {
             let mut time: libc::timeval = zeroed();
             libc::gettimeofday(&mut time as *mut _, null_mut());
             let local = &*libc::localtime(&time.tv_sec);
-            let buff = Box::into_raw(Box::new([0u8; 60])) as *mut i8;
+            let buff = &mut [0u8; 60] as *mut _ as *mut i8;
 
             libc::sprintf(
                 buff,
-                c"%04d-%02d-%02d %02d:%02d:%02d.%03ld+%02d".as_ptr(),
+                c"%04d-%02d-%02d %02d:%02d:%02d.%06ld+%02d".as_ptr(),
                 local.tm_year + 1900,
                 local.tm_mon + 1,
                 local.tm_mday,
@@ -154,7 +154,7 @@ impl Logger {
                 local.tm_gmtoff / 3600
             );
 
-            CString::from_raw(buff).to_string_lossy().to_string()
+            CStr::from_ptr(buff).to_string_lossy().to_string()
         }
     }
 }
