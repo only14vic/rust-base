@@ -86,7 +86,12 @@ pub(crate) fn set_from_iter_derive(input: TokenStream) -> TokenStream {
         let field_attr = field.attrs.first();
 
         let mut field_value = match field_type_str {
-            ty @ ("bool" | "i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32"
+            ty @ "bool" => {
+                quote! {
+                    ["0","off","false",""].contains(&v.to_lowercase().as_str()) == false
+                }
+            },
+            ty @ ("i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32"
             | "u64" | "u128" | "f32" | "f64" | "f128" | "isize" | "usize" | "c_char" | "c_short" | "c_ushort"
             | "c_int" | "c_uint" | "c_long" | "c_ulong" | "c_longlong" | "c_ulonglong" | "c_double" | "c_float" ) => {
                 let ident = Ident::new(ty, Span::call_site());

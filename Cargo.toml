@@ -104,6 +104,33 @@ futures-util = { version = "0.3", features = [
   "sink",
 ] }
 futures-lite = { version = "2.6" }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.3", features = [
+  "v4",
+  "serde",
+  "fast-rng",
+  "macro-diagnostics",
+] }
+regex = { version = "1.11", features = ["std"] }
+rand = { version = "0.9" }
+sqlx = { version = "0.7", default-features = false, features = [
+  "runtime-tokio-native-tls",
+  "macros",
+  "migrate",
+  "postgres",
+  "sqlite",
+  "json",
+  "uuid",
+  "chrono",
+  "time",
+  "bigdecimal",
+  "regexp",
+  "ipnetwork",
+  "bit-vec",
+] }
+sqlx-core = { version = "0.7" }
+sqlx-postgres = { version = "0.7" }
+sqlx-sqlite = { version = "0.7" }
 
 app-base = { path = "crates/app-base", default-features = false }
 app-macros = { path = "crates/app-macros", default-features = false }

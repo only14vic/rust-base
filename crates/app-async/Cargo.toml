@@ -12,12 +12,15 @@ name = "app_async"
 crate-type = ["lib"]
 
 [features]
-default = []
+default = ["db"]
+db = ["dep:sqlx", "dep:futures"]
 
 [dependencies]
 app-base = { workspace = true, features = ["std"] }
 tokio = { workspace = true }
 actix = { workspace = true }
 log = { workspace = true }
+futures = { workspace = true, optional = true }
+sqlx = { workspace = true, optional = true }
 
 [dev-dependencies]

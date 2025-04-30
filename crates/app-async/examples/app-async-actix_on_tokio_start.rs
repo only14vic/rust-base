@@ -1,4 +1,4 @@
-use {app_async::actix_on_tokio_start, app_base::prelude::*};
+use {app_async::actix_on_tokio_start, app_base::prelude::*, std::env::current_dir};
 
 mod tests {
     include!(concat!(
@@ -9,10 +9,27 @@ mod tests {
 
 fn main() -> Void {
     Ini::dotenv(false).ok();
-    log_init();
-    let config = tests::Config::load()?;
+    let mut log = Logger::init()?;
+
+    let mut file = current_dir()?;
+    file.push("config/app.ini");
+    let config = tests::Config::from_file(&file.to_string_lossy())?;
+
+    log.configure(&config.base.log)?;
 
     let res = actix_on_tokio_start((&config.tokio).into(), async {
+        for _ in 0..5 {
+            tokio::spawn(async {
+                log::trace!(
+                    "{:?} {:?}",
+                    std::thread::current().name(),
+                    std::thread::current().id()
+                );
+            });
+        }
+
+        tokio::task::yield_now().await;
+
         "Hello, from Async!"
     })?;
     println!("{res}");

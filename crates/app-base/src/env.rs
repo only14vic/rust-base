@@ -1,3 +1,33 @@
+#[cfg(not(feature = "std"))]
+extern crate libc;
+
+use alloc::string::String;
+
+#[cfg(not(feature = "std"))]
+use {alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr, core::str::FromStr};
+
+pub fn getenv(name: &str) -> Option<String> {
+    #[cfg(feature = "std")]
+    return std::env::var(name).ok();
+
+    #[cfg(not(feature = "std"))]
+    unsafe {
+        if let Ok(cstr) = CString::from_str(name) {
+            match libc::getenv(cstr.as_ptr()) {
+                ptr if ptr.is_null() == false => {
+                    match CStr::from_ptr(ptr).to_str() {
+                        Ok(str) => str.to_string().into(),
+                        _ => None
+                    }
+                },
+                _ => None
+            }
+        } else {
+            None
+        }
+    }
+}
+
 pub struct Env;
 
 impl Env {

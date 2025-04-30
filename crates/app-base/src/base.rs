@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use {
     ahash::AHasher,
     alloc::{

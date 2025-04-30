@@ -20,6 +20,11 @@ typedef enum LogLevel {
 } LogLevel;
 
 /**
+ * Logger
+ */
+typedef struct Logger Logger;
+
+/**
  * Loads .env file variables
  *
  * Returns zero if initialization is successfull.
@@ -30,12 +35,17 @@ int dotenv(bool overwrite);
 /**
  * Initializes logging
  *
- * Returns zero if initialization is successfull.
- * Otherwise returns -1.
+ * Returns non-zero pointer if initialization is successfull.
+ * Otherwise returns zero.
  */
-int log_init(void);
+struct Logger *log_init(void);
 
 /**
  * Logs messages in C
  */
 void log_msg(enum LogLevel level, const char *msg);
+
+/**
+ * Close log file descriptor
+ */
+void log_close(struct Logger *self);

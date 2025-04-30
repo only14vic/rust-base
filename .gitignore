@@ -2,6 +2,7 @@
 .env
 .gdb_history
 *.vim
+*.log
 perf.data*
 vgcore.*
 target

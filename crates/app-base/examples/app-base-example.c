@@ -8,7 +8,7 @@
 
 int main() {
     dotenv(false);
-    log_init();
+    Logger *log = log_init();
 
     log_msg(ERROR, "This is ERROR");
     log_msg(WARN, "This is WARNING");
@@ -17,4 +17,8 @@ int main() {
     log_msg(TRACE, "This is TRACE");
 
     malloc_stats();
+
+    if (log != NULL) {
+        log_close(log);
+    }
 }

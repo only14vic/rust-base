@@ -1,26 +1,23 @@
 use {
     crate::{
-        alloc::string::ToString,
-        base::{ok, Void}
+        alloc::{ffi::CString, string::ToString},
+        prelude::{ok, LogConfig, Ok, Void}
     },
-    alloc::{format, string::String},
+    alloc::{boxed::Box, format, string::String},
     core::{
-        ffi::{c_char, c_int, CStr},
-        mem::transmute
+        ffi::{c_char, CStr},
+        mem::{transmute, zeroed},
+        ops::{Deref, DerefMut},
+        ptr::null_mut,
+        str::FromStr,
+        sync::atomic::{AtomicBool, Ordering}
     },
-    libc::getenv,
-    log::{Level, LevelFilter, Log, ParseLevelError},
+    libc::fopen,
+    log::{Level, Log},
     yansi::Paint
 };
 #[cfg(not(feature = "std"))]
 use libc_print::std_name::*;
-
-static LOGGER: Logger = Logger;
-
-#[cfg(debug_assertions)]
-const LEVEL_DEFAULT: LevelFilter = LevelFilter::Debug;
-#[cfg(not(debug_assertions))]
-const LEVEL_DEFAULT: LevelFilter = LevelFilter::Info;
 
 /// Logging levels for C
 #[repr(C)]
@@ -42,15 +39,15 @@ impl Into<Level> for LogLevel {
 
 /// Initializes logging
 ///
-/// Returns zero if initialization is successfull.
-/// Otherwise returns -1.
+/// Returns non-zero pointer if initialization is successfull.
+/// Otherwise returns zero.
 #[no_mangle]
-pub extern "C" fn log_init() -> c_int {
+pub extern "C" fn log_init() -> *mut Logger {
     match Logger::init() {
-        Ok(..) => 0,
+        Ok(logger) => Box::into_raw(logger),
         Err(e) => {
             eprintln!("ERROR: log_init() - {e}");
-            -1
+            null_mut()
         }
     }
 }
@@ -62,30 +59,95 @@ unsafe extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
     log::log!(level.into(), "{msg}");
 }
 
-pub struct Logger;
+/// Logger
+#[derive(Default)]
+pub struct Logger {
+    config: LogConfig,
+    file: Option<Box<libc::FILE>>,
+    lock: AtomicBool
+}
+
+impl Deref for Logger {
+    type Target = LogConfig;
+
+    fn deref(&self) -> &Self::Target {
+        &self.config
+    }
+}
+
+impl DerefMut for Logger {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.config
+    }
+}
 
 impl Logger {
-    pub fn init() -> Void {
-        let level: LevelFilter = unsafe {
-            match getenv(c"LOG_LEVEL".as_ptr()) {
-                level if level.is_null() == false => {
-                    let level = CStr::from_ptr(level).to_string_lossy();
-                    let level = level.trim();
-                    if level.is_empty() {
-                        LEVEL_DEFAULT
-                    } else {
-                        level.parse().map_err(|e: ParseLevelError| e.to_string())?
-                    }
-                },
-                _ => LEVEL_DEFAULT
-            }
-        };
+    pub fn init() -> Ok<Box<Self>> {
+        let mut logger = Box::new(Self::default());
+        let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const _) };
 
-        log::set_logger(&LOGGER).map_err(|e| e.to_string())?;
-        log::set_max_level(level);
-        log::debug!("LOG_LEVEL: {level}");
+        log::set_logger(logger_ref).map_err(|e| e.to_string())?;
+
+        logger.load_env()?;
+        logger.configure(&logger_ref.config)?;
+
+        Ok(logger)
+    }
+
+    pub fn configure(&mut self, config: &LogConfig) -> Void {
+        self.log_close();
+        self.config = config.clone();
+
+        if let Some(path) = self.config.file.as_ref() {
+            if path.is_empty() == false {
+                unsafe {
+                    let file = fopen(
+                        CString::from_str(path.as_str())?.as_ptr(),
+                        c"a+".as_ptr()
+                    );
+                    if file.is_null() {
+                        Err("Could not open log file: {path}")?;
+                    }
+                    self.file = Box::from_raw(file).into();
+                }
+            }
+        }
+
+        log::set_max_level(self.config.level);
+        log::trace!("{:?}", self.config);
 
         ok()
+    }
+
+    /// Close log file descriptor
+    #[no_mangle]
+    extern "C" fn log_close(&mut self) {
+        if let Some(file) = self.file.take() {
+            unsafe { libc::fclose(Box::into_raw(file)) };
+
+            log::trace!(
+                "LOG FILE CLOSED: {}",
+                self.config
+                    .file
+                    .as_ref()
+                    .unwrap_or(&String::with_capacity(0))
+            );
+        }
+    }
+
+    #[inline]
+    fn now() -> String {
+        unsafe {
+            let mut time: libc::timeval = zeroed();
+            libc::gettimeofday(&mut time as *mut _, null_mut());
+            format!("{}.{}", time.tv_sec, time.tv_usec)
+        }
+    }
+}
+
+impl Drop for Logger {
+    fn drop(&mut self) {
+        self.log_close();
     }
 }
 
@@ -95,21 +157,56 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &log::Record) {
-        if self.enabled(record.metadata()) {
-            let level_colored: String = match record.level() {
+        if self.enabled(record.metadata()) == false {
+            return;
+        }
+
+        let allow_color = self.config.color && self.config.file.is_none();
+        let level = if allow_color {
+            match record.level() {
                 l @ Level::Info => l.bright_green().to_string(),
                 l @ Level::Warn => l.bright_yellow().to_string(),
                 l @ Level::Error => l.bright_red().to_string(),
                 l @ Level::Trace => l.bright_black().to_string(),
                 l @ Level::Debug => l.bright_blue().to_string()
-            };
-            eprintln!(
-                "{:<16} [{}] {}",
-                format!("[{level_colored}]"),
-                record.target(),
-                record.args()
+            }
+        } else {
+            record.level().to_string()
+        };
+        let out = format!(
+            "[{:0<17}] {:<len$} [{}] {}\n",
+            Self::now(),
+            format!("[{}]", level),
+            record.target(),
+            record.args(),
+            len = if allow_color { 16 } else { 7 }
+        );
+
+        if self.file.is_none() {
+            eprint!("{out}");
+            return;
+        }
+
+        while self.lock.swap(true, Ordering::SeqCst) {
+            #[cfg(not(feature = "std"))]
+            unsafe {
+                libc::sched_yield();
+            }
+            #[cfg(feature = "std")]
+            std::thread::yield_now();
+        }
+
+        unsafe {
+            libc::fputs(
+                CString::from_str(&out)
+                    .inspect_err(|_| self.lock.store(false, Ordering::SeqCst))
+                    .unwrap()
+                    .as_ptr(),
+                self.file.as_ref().unwrap().as_ref() as *const _ as *mut _
             );
         }
+
+        self.lock.store(false, Ordering::SeqCst);
     }
 
     fn flush(&self) {}
