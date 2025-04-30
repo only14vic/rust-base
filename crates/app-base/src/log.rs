@@ -12,7 +12,6 @@ use {
         str::FromStr,
         sync::atomic::{AtomicBool, Ordering}
     },
-    libc::fopen,
     log::{Level, Log},
     yansi::Paint
 };
@@ -101,7 +100,7 @@ impl Logger {
         if let Some(path) = self.config.file.as_ref() {
             if path.is_empty() == false {
                 unsafe {
-                    let file = fopen(
+                    let file = libc::fopen(
                         CString::from_str(path.as_str())?.as_ptr(),
                         c"a+".as_ptr()
                     );
@@ -136,11 +135,27 @@ impl Logger {
     }
 
     #[inline]
-    fn now() -> String {
+    fn time() -> String {
         unsafe {
             let mut time: libc::timeval = zeroed();
             libc::gettimeofday(&mut time as *mut _, null_mut());
-            format!("{}.{}", time.tv_sec, time.tv_usec)
+            let local = &*libc::localtime(&time.tv_sec);
+            let buff = Box::into_raw(Box::new([0u8; 60])) as *mut i8;
+
+            libc::sprintf(
+                buff,
+                c"%04d-%02d-%02d %02d:%02d:%02d.%03ld+%02d".as_ptr(),
+                local.tm_year + 1900,
+                local.tm_mon + 1,
+                local.tm_mday,
+                local.tm_hour,
+                local.tm_min,
+                local.tm_sec,
+                time.tv_usec,
+                local.tm_gmtoff / 3600
+            );
+
+            CString::from_raw(buff).to_string_lossy().to_string()
         }
     }
 }
@@ -174,8 +189,9 @@ impl Log for Logger {
             record.level().to_string()
         };
         let out = format!(
-            "[{:0<17}] {:<len$} [{}] {}\n",
-            Self::now(),
+            "[{}] [tid:{}] {:<len$} [{}] {}\n",
+            Self::time(),
+            unsafe { libc::pthread_self() },
             format!("[{}]", level),
             record.target(),
             record.args(),
