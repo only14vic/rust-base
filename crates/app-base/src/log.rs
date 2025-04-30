@@ -134,7 +134,6 @@ impl Logger {
         }
     }
 
-    #[inline]
     fn time() -> String {
         unsafe {
             let mut time: libc::timeval = zeroed();
@@ -189,8 +188,9 @@ impl Log for Logger {
             record.level().to_string()
         };
         let out = format!(
-            "[{}] [tid:{}] {:<len$} [{}] {}\n",
+            "[{}] [pid:{} tid:{}] {:<len$} [{}] {}\n",
             Self::time(),
+            unsafe { libc::getpid() },
             unsafe { libc::pthread_self() },
             format!("[{}]", level),
             record.target(),
