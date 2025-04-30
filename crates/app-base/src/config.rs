@@ -52,10 +52,11 @@ pub struct LogConfig {
 impl Default for LogConfig {
     fn default() -> Self {
         Self {
-            #[cfg(debug_assertions)]
-            level: LevelFilter::Debug,
-            #[cfg(not(debug_assertions))]
-            level: LevelFilter::Info,
+            level: if cfg!(debug_assertions) {
+                LevelFilter::Debug
+            } else {
+                LevelFilter::Info
+            },
             color: false,
             file: None
         }
