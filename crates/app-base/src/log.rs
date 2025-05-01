@@ -1,7 +1,7 @@
 use {
     crate::{
         alloc::{ffi::CString, string::ToString},
-        prelude::{ok, LogConfig, Ok, Void}
+        prelude::*
     },
     alloc::{boxed::Box, format, string::String},
     core::{

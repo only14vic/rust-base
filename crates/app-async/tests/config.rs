@@ -18,11 +18,12 @@ impl Config {
 
         config.into_ok()
     }
+}
 
-    pub fn load_env(&mut self) -> Void {
+impl LoadEnv for Config {
+    fn load_env(&mut self) -> Ok<&mut Self> {
         self.base.load_env()?;
         self.tokio.load_env()?;
-
-        ok()
+        self.into_ok()
     }
 }

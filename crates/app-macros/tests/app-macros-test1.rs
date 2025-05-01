@@ -111,7 +111,10 @@ fn test_from_map() -> Result<(), Box<dyn Error>> {
     assert_eq!(foo.b, Box::new(NonZero::new(123)).into());
     assert_eq!(foo.c, true.into());
     assert_eq!(foo.d, Some('X'));
-    assert_eq!(foo.e, Box::new(Rc::new(RefCell::new(1.23))).into());
+    assert_eq!(
+        foo.e,
+        Box::new(Rc::new(RefCell::new(1.23))).into()
+    );
     assert_eq!(foo.f, "World".into());
     assert_eq!(foo.g, vec!["a", "b", "c"].into());
     assert_eq!(foo.h, Some("Predefined value".into()));

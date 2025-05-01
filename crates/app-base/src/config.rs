@@ -22,8 +22,8 @@ impl Default for BaseConfig {
     }
 }
 
-impl BaseConfig {
-    pub fn load_env(&mut self) -> Void {
+impl LoadEnv for BaseConfig {
+    fn load_env(&mut self) -> Ok<&mut Self> {
         self.set_from_iter(
             [("lang", getenv("LANG")), ("timezone", getenv("TZ"))]
                 .iter()
@@ -37,7 +37,7 @@ impl BaseConfig {
 
         self.log.load_env()?;
 
-        ok()
+        self.into_ok()
     }
 }
 
@@ -63,8 +63,8 @@ impl Default for LogConfig {
     }
 }
 
-impl LogConfig {
-    pub fn load_env(&mut self) -> Void {
+impl LoadEnv for LogConfig {
+    fn load_env(&mut self) -> Ok<&mut Self> {
         self.set_from_iter(
             [
                 ("level", getenv("LOG_LEVEL")),
@@ -75,6 +75,6 @@ impl LogConfig {
             .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
         )?;
 
-        ok()
+        self.into_ok()
     }
 }

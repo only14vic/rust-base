@@ -17,6 +17,4 @@ pub mod env;
 pub mod mem_stats;
 pub mod config;
 pub mod prelude;
-pub mod macros {
-    pub use app_macros::*;
-}
+pub mod macros;
