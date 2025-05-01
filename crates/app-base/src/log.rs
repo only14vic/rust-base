@@ -192,7 +192,7 @@ impl Log for Logger {
             "[{}] [pid:{} tid:{}] {:<len$} [{}] {}\n",
             Self::time(),
             unsafe { libc::getpid() },
-            unsafe { libc::pthread_self() },
+            unsafe { libc::pthread_self() as usize },
             format!("[{}]", level),
             record.target(),
             record.args(),
