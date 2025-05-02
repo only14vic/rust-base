@@ -20,7 +20,7 @@ app-base = { workspace = true, features = ["std"] }
 tokio = { workspace = true }
 actix = { workspace = true }
 log = { workspace = true }
-futures = { workspace = true, optional = true }
 sqlx = { workspace = true, optional = true }
+futures = { workspace = true, optional = true }
 
 [dev-dependencies]

@@ -1,9 +1,14 @@
-use {app_async::TokioConfig, app_base::prelude::*};
+use {
+    app_async::{db::DbConfig, TokioConfig},
+    app_base::prelude::*
+};
 
 #[derive(Debug, Default, SetFromIter)]
 pub struct Config {
     pub base: BaseConfig,
-    pub tokio: TokioConfig
+    pub tokio: TokioConfig,
+    #[cfg(feature = "db")]
+    pub db: DbConfig
 }
 
 impl Config {
@@ -24,6 +29,8 @@ impl LoadEnv for Config {
     fn load_env(&mut self) -> Ok<&mut Self> {
         self.base.load_env()?;
         self.tokio.load_env()?;
+        #[cfg(feature = "db")]
+        self.db.load_env()?;
         self.into_ok()
     }
 }

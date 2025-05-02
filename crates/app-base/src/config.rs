@@ -1,6 +1,9 @@
 use {
     crate::prelude::*,
-    alloc::string::{String, ToString},
+    alloc::{
+        string::{String, ToString},
+        vec::Vec
+    },
     app_macros::SetFromIter,
     log::LevelFilter
 };
@@ -34,9 +37,7 @@ impl LoadEnv for BaseConfig {
             self.lang = self.lang[0..2].into();
         }
         self.lang.make_ascii_lowercase();
-
         self.log.load_env()?;
-
         self.into_ok()
     }
 }
@@ -46,7 +47,8 @@ pub struct LogConfig {
     #[parse]
     pub level: LevelFilter,
     pub color: bool,
-    pub file: Option<String>
+    pub file: Option<String>,
+    pub filter: Option<Vec<String>>
 }
 
 impl Default for LogConfig {
@@ -58,7 +60,8 @@ impl Default for LogConfig {
                 LevelFilter::Info
             },
             color: false,
-            file: None
+            file: None,
+            filter: None
         }
     }
 }
@@ -69,12 +72,12 @@ impl LoadEnv for LogConfig {
             [
                 ("level", getenv("LOG_LEVEL")),
                 ("file", getenv("LOG_FILE")),
-                ("color", getenv("LOG_COLOR"))
+                ("color", getenv("LOG_COLOR")),
+                ("filter", getenv("LOG_FILTER"))
             ]
             .iter()
             .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
         )?;
-
         self.into_ok()
     }
 }

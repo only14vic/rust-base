@@ -176,6 +176,19 @@ impl Log for Logger {
             return;
         }
 
+        if let Some(filter) = self.config.filter.as_ref() {
+            let target = record.target();
+            for value in filter.iter() {
+                if value.starts_with("!") {
+                    if target.starts_with(&value[1..]) {
+                        return;
+                    }
+                } else if target.starts_with(value) {
+                    break;
+                }
+            }
+        }
+
         let allow_color = self.config.color && self.file.is_none();
         let level = if allow_color {
             match record.level() {
