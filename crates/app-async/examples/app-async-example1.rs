@@ -36,7 +36,7 @@ fn main() -> Void {
                         .fetch_one(conn.acquire().await?)
                         .await?;
 
-                    let data: String = row.try_get::<String, &str>("data")?;
+                    let data = row.try_get::<String, &str>("data")?;
                     assert_eq!("Hello SQL!", &data);
                 }
 

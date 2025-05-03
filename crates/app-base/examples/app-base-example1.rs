@@ -13,7 +13,13 @@ use {
         vec::Vec
     },
     app_base::prelude::*,
-    core::{ffi::c_int, hint::black_box, num::NonZero, str::FromStr, usize},
+    core::{
+        ffi::{c_char, c_int},
+        hint::black_box,
+        num::NonZero,
+        str::FromStr,
+        usize
+    },
     serde::Serialize,
     yansi::Paint
 };
@@ -22,9 +28,22 @@ const MAX_ITERS: usize = 100_000;
 const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/data.ini");
 
 #[no_mangle]
-fn main() -> c_int {
+fn main(argc: usize, argv: *const *const c_char) -> c_int {
     let _ = Ini::dotenv(false);
     log_init();
+
+    let mut cmd = Cmd::new([
+        ("self", vec!["0"], None),
+        ("command", vec!["1", "-c"], None),
+        ("subcommand", vec!["2", "-s"], None),
+        ("foo", vec!["-f"], "Foo".into_some()),
+        ("bar", vec!["-b"], "Bar".into_some()),
+        ("zoo", vec!["-z"], None)
+    ]);
+
+    cmd.parse_argc(argc, argv).unwrap();
+
+    log::debug!("{:#?}", cmd.args);
 
     let mut config = Config::default();
 
