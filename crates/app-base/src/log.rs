@@ -179,8 +179,8 @@ impl Log for Logger {
         if let Some(filter) = self.config.filter.as_ref() {
             let target = record.target();
             for value in filter.iter() {
-                if value.starts_with("!") {
-                    if target.starts_with(&value[1..]) {
+                if let Some(value) = value.strip_prefix("!") {
+                    if target.starts_with(value) {
                         return;
                     }
                 } else if target.starts_with(value) {

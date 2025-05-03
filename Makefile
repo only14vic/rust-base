@@ -56,7 +56,7 @@ check:
 	cargo check --workspace --no-default-features
 	cargo check --workspace
 	cargo clippy --no-deps
-	rustup run nightly rustfmt --check crates/*/src/**
+	rustup run nightly rustfmt --check crates/*/src/**/*.rs
 
 .PHONY: info
 info:

@@ -90,12 +90,9 @@ impl LoadArgs for LogConfig {
                 ("level", args.get("log-level")),
                 ("file", args.get("log-file")),
             ]
-            .iter().map(|(k, v)| {
-                (
-                    *k,
-                    v.unwrap_or(&None).as_ref().map(String::as_str)
-                )
-            })
+            .iter().map(|(k, v)| {(
+                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
+            )})
         )?;
         self.into_ok()
     }

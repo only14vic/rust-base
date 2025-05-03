@@ -48,12 +48,9 @@ impl LoadArgs for DbConfig {
             [
                 ("url", args.get("db-url")),
             ]
-            .iter().map(|(k, v)| {
-                (
-                    *k,
-                    v.unwrap_or(&None).as_ref().map(String::as_str)
-                )
-            })
+            .iter().map(|(k, v)| {(
+                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
+            )})
         )?;
         self.into_ok()
     }

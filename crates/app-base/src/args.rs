@@ -25,7 +25,7 @@ pub struct Args<'o> {
     pub args: ArgsMap
 }
 
-impl<'o> Deref for Args<'o> {
+impl Deref for Args<'_> {
     type Target = ArgsMap;
 
     fn deref(&self) -> &Self::Target {
@@ -51,20 +51,16 @@ impl<'o> Args<'o> {
         self
     }
 
-    pub fn parse_argc(
-        &mut self,
-        argc: usize,
-        argv: *const *const c_char
-    ) -> Ok<&mut Self> {
+    pub unsafe fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
         let mut args = Vec::with_capacity(argc);
-        for arg in unsafe { slice::from_raw_parts(argv, argc) } {
-            let arg = unsafe { CStr::from_ptr(*arg) }.to_str()?.to_string();
+        for arg in slice::from_raw_parts(argv, argc) {
+            let arg = CStr::from_ptr(*arg).to_str()?.to_string();
             args.push(arg);
         }
         self.parse_args(args)
     }
 
-    pub fn parse_args(&mut self, args: Vec<String>) -> Ok<&mut Self> {
+    pub fn parse_args(mut self, args: Vec<String>) -> Ok<Self> {
         let mut i = 0;
         let mut n = 0;
 
