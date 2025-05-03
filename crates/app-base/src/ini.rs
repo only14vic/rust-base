@@ -159,7 +159,7 @@ impl Ini {
 /// Returns zero if initialization is successfull.
 /// Otherwise returns int less zero.
 #[no_mangle]
-extern "C" fn dotenv(overwrite: bool) -> c_int {
+pub extern "C" fn dotenv(overwrite: bool) -> c_int {
     match Ini::dotenv(overwrite) {
         Ok(..) => 0,
         Err(e) => {

@@ -12,7 +12,7 @@ mod tests {
 }
 
 fn main() -> Void {
-    Ini::dotenv(false).ok();
+    dotenv(false);
     let mut log = Logger::init()?;
 
     let config = tests::Config::load()?;

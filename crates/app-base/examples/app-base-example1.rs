@@ -29,7 +29,7 @@ const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/data.ini"
 
 #[no_mangle]
 fn main(argc: usize, argv: *const *const c_char) -> c_int {
-    let _ = Ini::dotenv(false);
+    dotenv(false);
     log_init();
 
     let mut args = Args::new([
