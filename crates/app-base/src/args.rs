@@ -12,24 +12,28 @@ use {
     }
 };
 
-type CmdOpts<'o> = IndexMap<&'o str, Vec<&'o str>>;
-type CmdArgs = IndexMap<String, Option<String>>;
-
-#[derive(Debug, Default)]
-pub struct Cmd<'o> {
-    pub opts: CmdOpts<'o>,
-    pub args: CmdArgs
+pub trait LoadArgs {
+    fn load_args(&mut self, args: &Args) -> Ok<&mut Self>;
 }
 
-impl<'o> Deref for Cmd<'o> {
-    type Target = CmdArgs;
+type ArgsOpts<'o> = IndexMap<&'o str, Vec<&'o str>>;
+type ArgsMap = IndexMap<String, Option<String>>;
+
+#[derive(Debug, Default)]
+pub struct Args<'o> {
+    pub opts: ArgsOpts<'o>,
+    pub args: ArgsMap
+}
+
+impl<'o> Deref for Args<'o> {
+    type Target = ArgsMap;
 
     fn deref(&self) -> &Self::Target {
         &self.args
     }
 }
 
-impl<'o> Cmd<'o> {
+impl<'o> Args<'o> {
     pub fn new(
         opts: impl IntoIterator<Item = (&'o str, Vec<&'o str>, Option<&'o str>)>
     ) -> Self {
@@ -118,10 +122,14 @@ impl<'o> Cmd<'o> {
     fn arg_name(&self, arg: &str) -> Result<String, String> {
         self.opts
             .iter()
-            .find(|(&n, v)| arg.len() > 2 && n == &arg[2..] || v.contains(&arg))
+            .find(|(&n, v)| {
+                n == arg
+                    || v.contains(&arg)
+                    || arg.get(0..2) == Some("--") && arg.get(2..) == Some(n)
+            })
             .map(|(&n, _)| n.into_ok())
             .unwrap_or_else(|| {
-                if self.opts.is_empty() {
+                if self.opts.is_empty() || arg == "0" {
                     arg.into_ok()
                 } else {
                     Err(format!(

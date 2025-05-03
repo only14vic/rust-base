@@ -1,8 +1,7 @@
 use {
     app_async::{actix_on_tokio_start, db::db_pool},
     app_base::prelude::*,
-    sqlx::{Acquire, Postgres, Row},
-    std::{env::current_dir, sync::Arc}
+    sqlx::{Acquire, Postgres, Row}
 };
 
 mod tests {
@@ -16,9 +15,7 @@ fn main() -> Void {
     Ini::dotenv(false).ok();
     let mut log = Logger::init()?;
 
-    let mut file = current_dir()?;
-    file.push("config/app.ini");
-    let config: Arc<_> = tests::Config::from_file(&file.to_string_lossy())?.into();
+    let config = tests::Config::load()?;
 
     log.configure(&config.base.log)?;
 

@@ -1,6 +1,7 @@
 use {
     app_async::{db::DbConfig, TokioConfig},
-    app_base::prelude::*
+    app_base::prelude::*,
+    std::env::current_dir
 };
 
 #[derive(Debug, Default, SetFromIter)]
@@ -12,12 +13,23 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_file(file: &str) -> Ok<Self> {
+    pub fn load() -> Ok<Self> {
         let mut config = Self::default();
 
-        let ini = Ini::from_file(&file)?;
+        let mut file = current_dir()?;
+        file.push("config/app.ini");
+        let ini = Ini::from_file(&file.to_string_lossy())?;
         config.set_from_iter(&ini)?;
+
         config.load_env()?;
+
+        let mut args = Args::new([
+            ("db-url", vec![], None),
+            ("log-level", vec!["-l"], None),
+            ("log-file", vec!["-f"], None)
+        ]);
+        args.parse_args(std::env::args().collect())?;
+        config.load_args(&args)?;
 
         log::trace!("Loaded: {config:#?}");
 
@@ -31,6 +43,14 @@ impl LoadEnv for Config {
         self.tokio.load_env()?;
         #[cfg(feature = "db")]
         self.db.load_env()?;
+        self.into_ok()
+    }
+}
+
+impl LoadArgs for Config {
+    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+        self.base.log.load_args(&args)?;
+        self.db.load_args(&args)?;
         self.into_ok()
     }
 }

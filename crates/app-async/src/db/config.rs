@@ -40,3 +40,21 @@ impl LoadEnv for DbConfig {
         self.into_ok()
     }
 }
+
+impl LoadArgs for DbConfig {
+    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+        #[rustfmt::skip]
+        self.set_from_iter(
+            [
+                ("url", args.get("db-url")),
+            ]
+            .iter().map(|(k, v)| {
+                (
+                    *k,
+                    v.unwrap_or(&None).as_ref().map(String::as_str)
+                )
+            })
+        )?;
+        self.into_ok()
+    }
+}

@@ -81,3 +81,22 @@ impl LoadEnv for LogConfig {
         self.into_ok()
     }
 }
+
+impl LoadArgs for LogConfig {
+    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+        #[rustfmt::skip]
+        self.set_from_iter(
+            [
+                ("level", args.get("log-level")),
+                ("file", args.get("log-file")),
+            ]
+            .iter().map(|(k, v)| {
+                (
+                    *k,
+                    v.unwrap_or(&None).as_ref().map(String::as_str)
+                )
+            })
+        )?;
+        self.into_ok()
+    }
+}

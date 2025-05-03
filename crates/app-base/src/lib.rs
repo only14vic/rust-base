@@ -18,4 +18,4 @@ pub mod mem_stats;
 pub mod config;
 pub mod prelude;
 pub mod macros;
-pub mod cmd;
+pub mod args;

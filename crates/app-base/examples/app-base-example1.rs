@@ -32,7 +32,7 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
     let _ = Ini::dotenv(false);
     log_init();
 
-    let mut cmd = Cmd::new([
+    let mut args = Args::new([
         ("self", vec!["0"], None),
         ("command", vec!["1", "-c"], None),
         ("subcommand", vec!["2", "-s"], None),
@@ -41,9 +41,9 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
         ("zoo", vec!["-z"], None)
     ]);
 
-    cmd.parse_argc(argc, argv).unwrap();
+    args.parse_argc(argc, argv).unwrap();
 
-    log::debug!("{:#?}", cmd.args);
+    log::debug!("{:#?}", &*args);
 
     let mut config = Config::default();
 
