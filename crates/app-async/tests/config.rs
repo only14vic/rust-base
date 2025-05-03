@@ -23,12 +23,13 @@ impl Config {
 
         config.load_env()?;
 
-        let mut args = Args::new([
+        let args = Args::new([
+            ("tokio-threads", vec!["-t"], None),
             ("db-url", vec![], None),
             ("log-level", vec!["-l"], None),
             ("log-file", vec!["-f"], None)
-        ]);
-        args.parse_args(std::env::args().collect())?;
+        ])
+        .parse_args(std::env::args().collect())?;
         config.load_args(&args)?;
 
         log::trace!("Loaded: {config:#?}");
@@ -50,7 +51,9 @@ impl LoadEnv for Config {
 impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
         self.base.log.load_args(&args)?;
+        #[cfg(feature = "db")]
         self.db.load_args(&args)?;
+        self.tokio.load_args(&args)?;
         self.into_ok()
     }
 }

@@ -6,7 +6,7 @@ use {
         base::{BaseFromInto, Ok},
         binds
     },
-    alloc::{boxed::Box, ffi::CString, string::String, vec::Vec},
+    alloc::{boxed::Box, ffi::CString, format, string::String, vec::Vec},
     core::{
         error::Error,
         ffi::{c_char, c_int, c_void, CStr},
@@ -72,9 +72,10 @@ impl Ini {
 
         unsafe {
             if libc::access(c_path.as_ptr().cast(), libc::F_OK) != 0 {
-                Err(IniError::FileNotFound(
-                    ["Ini file not found: ", path.as_ref()].concat()
-                ))?;
+                Err(IniError::FileNotFound(format!(
+                    "Ini file not found: {}",
+                    path.as_ref()
+                )))?;
             }
 
             if binds::ini_parse(
@@ -83,9 +84,10 @@ impl Ini {
                 (&mut this.items as *mut IniMap).cast()
             ) != 0
             {
-                Err(IniError::InvalidParse(
-                    ["Couldn't parse Ini file: ", path.as_ref()].concat()
-                ))?;
+                Err(IniError::InvalidParse(format!(
+                    "Could not parse Ini file: {}",
+                    path.as_ref()
+                )))?;
             }
         }
 
@@ -121,12 +123,16 @@ impl Ini {
     }
 
     unsafe extern "C" fn ini_parse_callback(
-        user: *mut c_void,
+        context: *mut c_void,
         section: *const c_char,
         name: *const c_char,
         value: *const c_char
     ) -> c_int {
-        let items: &mut IniMap = &mut *user.cast();
+        if context.is_null() || name.is_null() || value.is_null() || section.is_null() {
+            return 0;
+        }
+
+        let items: &mut IniMap = &mut *context.cast();
         let section = CStr::from_ptr(section);
         let name = CStr::from_ptr(name);
         let value = CStr::from_ptr(value);
