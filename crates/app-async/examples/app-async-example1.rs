@@ -14,9 +14,7 @@ mod tests {
 fn main() -> Void {
     dotenv(false);
     let mut log = Logger::init()?;
-
     let config = tests::Config::load()?;
-
     log.configure(&config.base.log)?;
 
     let res = actix_on_tokio_start((&config.tokio).into(), async {

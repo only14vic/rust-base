@@ -26,7 +26,7 @@ impl Default for DbConfig {
 }
 
 impl LoadEnv for DbConfig {
-    fn load_env(&mut self) -> app_base::prelude::Ok<&mut Self> {
+    fn load_env(&mut self) -> Ok<&mut Self> {
         self.set_from_iter(
             [
                 ("url", getenv("DATABASE_URL")),

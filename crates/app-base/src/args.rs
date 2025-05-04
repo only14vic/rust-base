@@ -129,7 +129,7 @@ impl<'o> Args<'o> {
                     arg.into_ok()
                 } else {
                     Err(format!(
-                        "Invalid command option or argument: {arg}"
+                        "Undefined command option or argument: {arg}"
                     ))
                 }
             })
