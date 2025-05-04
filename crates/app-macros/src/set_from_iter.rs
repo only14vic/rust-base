@@ -76,7 +76,7 @@ pub(crate) fn set_from_iter_derive(input: TokenStream) -> TokenStream {
             field_type_inner.rfind(' ').map(|i| i+1).unwrap_or(0)..
         ).unwrap().trim_matches(['[',']',' ']);
 
-        let field_type_str = if field_type.contains("Vec <") || field_type.contains("[") {
+        let field_type_str = if ["Vec <", "["].iter().any(|t| field_type.contains(t)) {
             "Vec"
         } else {
             field_type_inner
