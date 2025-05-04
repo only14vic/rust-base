@@ -66,12 +66,10 @@ impl<'a> IntoIterator for &'a Ini {
 impl Ini {
     pub fn from_file(path: &dyn AsRef<str>) -> Ok<Self> {
         let mut this = Self { items: Default::default() };
-
-        let c_path = &[path.as_ref().as_bytes(), b"\0"].concat();
-        let c_path = CStr::from_bytes_with_nul(c_path)?;
+        let c_path = CString::from_str(path.as_ref())?;
 
         unsafe {
-            if libc::access(c_path.as_ptr().cast(), libc::F_OK) != 0 {
+            if libc::access(c_path.as_ptr(), libc::F_OK) != 0 {
                 Err(IniError::FileNotFound(format!(
                     "Ini file not found: {}",
                     path.as_ref()
@@ -79,7 +77,7 @@ impl Ini {
             }
 
             if binds::ini_parse(
-                c_path.as_ptr().cast(),
+                c_path.as_ptr(),
                 Some(Self::ini_parse_callback),
                 (&mut this.items as *mut IniMap).cast()
             ) != 0
@@ -100,11 +98,7 @@ impl Ini {
                 let name = CString::from_str(k.as_ref())?;
                 let value = CString::from_str(v.as_ref())?;
                 unsafe {
-                    libc::setenv(
-                        name.as_ptr().cast(),
-                        value.as_ptr().cast(),
-                        overwrite.into()
-                    );
+                    libc::setenv(name.as_ptr(), value.as_ptr(), overwrite.into());
                 }
             }
         }
