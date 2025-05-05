@@ -1,5 +1,5 @@
 use {
-    app_async::{db::DbConfig, TokioConfig},
+    app_async::{db::DbConfig, http_server::ActixConfig, TokioConfig},
     app_base::prelude::*,
     std::env::current_dir
 };
@@ -9,7 +9,8 @@ pub struct Config {
     pub base: BaseConfig,
     pub tokio: TokioConfig,
     #[cfg(feature = "db")]
-    pub db: DbConfig
+    pub db: DbConfig,
+    pub actix: ActixConfig
 }
 
 impl Config {
@@ -42,6 +43,7 @@ impl LoadEnv for Config {
     fn load_env(&mut self) -> Ok<&mut Self> {
         self.base.load_env()?;
         self.tokio.load_env()?;
+        self.actix.load_env()?;
         #[cfg(feature = "db")]
         self.db.load_env()?;
         self.into_ok()
@@ -51,9 +53,10 @@ impl LoadEnv for Config {
 impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
         self.base.log.load_args(&args)?;
+        self.tokio.load_args(&args)?;
+        self.actix.load_args(&args)?;
         #[cfg(feature = "db")]
         self.db.load_args(&args)?;
-        self.tokio.load_args(&args)?;
         self.into_ok()
     }
 }

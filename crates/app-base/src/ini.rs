@@ -51,7 +51,6 @@ impl Deref for Ini {
 
 impl<'a> IntoIterator for &'a Ini {
     type Item = (&'a str, Option<&'a str>);
-
     type IntoIter = alloc::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {

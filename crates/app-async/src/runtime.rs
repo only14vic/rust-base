@@ -7,8 +7,8 @@ pub fn tokio_start(
     let config = config.unwrap_or(&config_default);
 
     tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(config.worker_threads)
-        .max_blocking_threads(config.max_blocking_threads)
+        .worker_threads(config.threads)
+        .max_blocking_threads(config.blocking_threads)
         .thread_name(&config.thread_name)
         .enable_all()
         .build()

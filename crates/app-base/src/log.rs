@@ -83,7 +83,7 @@ impl DerefMut for Logger {
 impl Logger {
     pub fn init() -> Ok<Box<Self>> {
         let mut logger = Box::new(Self::default());
-        let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const _) };
+        let logger_ref: &'static Self = unsafe { &*(&raw const *logger.as_ref()) };
 
         log::set_logger(logger_ref).map_err(|e| e.to_string())?;
 
