@@ -18,7 +18,7 @@ fn main() -> Void {
     log.configure(&config.base.log)?;
 
     let res = actix_on_tokio_start((&config.tokio).into(), async {
-        let db = db_pool::<Postgres>(Some(&config.db)).await?;
+        let db = db_pool::<Postgres>(config.db.into_some()).await?;
         let mut tasks = Vec::new();
 
         for _ in 0..100 {

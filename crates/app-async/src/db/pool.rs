@@ -16,28 +16,30 @@ use {
 
 const ERR_INVALID_DOWNCAST_TO_POOL: &str = "Invalid downcast database pool";
 
-static POOLS: LazyLock<Mutex<HashMap<DbConfig, Arc<dyn Any + Send + Sync>>>> =
+static POOLS: LazyLock<Mutex<HashMap<Arc<DbConfig>, Arc<dyn Any + Send + Sync>>>> =
     LazyLock::new(Default::default);
 
-static DEFAULT_CONFIG: LazyLock<DbConfig> = LazyLock::new(|| {
+static DEFAULT_CONFIG: LazyLock<Arc<DbConfig>> = LazyLock::new(|| {
     let mut config = DbConfig::default();
     config.load_env().unwrap();
-    config
+    config.into()
 });
 
 /// # Gets "sqlx" database pool by config
 ///
 /// If `config` is `None` then default config will be used.
-pub async fn db_pool<D: Database>(config: Option<&DbConfig>) -> OkAsync<Arc<Pool<D>>> {
+pub async fn db_pool<D: Database>(
+    config: Option<Arc<DbConfig>>
+) -> OkAsync<Arc<Pool<D>>> {
     let config = match config {
-        Some(config) => config,
-        None => &DEFAULT_CONFIG
+        Some(config) => config.clone(),
+        None => DEFAULT_CONFIG.clone()
     };
 
     let pool_ref: Arc<Pool<D>>;
     let mut pools = POOLS.lock().await;
 
-    if let Some(item) = pools.get(config).cloned() {
+    if let Some(item) = pools.get(&config).cloned() {
         pool_ref = item.downcast().map_err(|_| ERR_INVALID_DOWNCAST_TO_POOL)?;
         return Ok(pool_ref);
     }
@@ -56,13 +58,13 @@ pub async fn db_pool<D: Database>(config: Option<&DbConfig>) -> OkAsync<Arc<Pool
         .clone()
         .downcast()
         .map_err(|_| ERR_INVALID_DOWNCAST_TO_POOL)?;
-    pools.insert(config.clone(), pool);
+    pools.insert(config, pool);
 
     Ok(pool_ref)
 }
 
-pub async fn db_pool_reset(config: Option<&DbConfig>) {
-    if let Some(config) = config {
+pub async fn db_pool_reset(config: Option<Arc<DbConfig>>) {
+    if let Some(config) = config.as_ref() {
         POOLS.lock().await.remove(config);
     } else {
         *POOLS.lock().await = Default::default();
