@@ -10,6 +10,7 @@ mod no_std;
 
 mod binds;
 
+pub mod app;
 pub mod ini;
 pub mod base;
 pub mod log;
@@ -19,3 +20,8 @@ pub mod config;
 pub mod prelude;
 pub mod macros;
 pub mod args;
+pub mod convert;
+pub mod dirs;
+pub mod di;
+pub mod serde;
+pub mod filters;

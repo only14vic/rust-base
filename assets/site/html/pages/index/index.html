@@ -1,0 +1,16 @@
+{% extends "layouts/empty.html" %}
+
+{% block title %}Hello!{% endblock %}
+
+{% block content %}
+<h1>Hello, World!</h1>
+{{ debug(app=app, data=data, time=time) }}
+{% endblock %}
+
+{% block stylesheets %}
+{{ super() }}
+{% endblock %}
+
+{% block javascripts %}
+{{ super() }}
+{% endblock %}

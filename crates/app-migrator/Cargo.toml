@@ -1,0 +1,28 @@
+[package]
+name = "app-migrator"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+name = "app_migrator"
+crate-type = ["lib"]
+
+[features]
+
+[dependencies]
+app-base = { workspace = true, features = ["std"] }
+app-async = { workspace = true, features = ["db"] }
+tokio = { workspace = true }
+log = { workspace = true }
+sqlx = { workspace = true }
+futures = { workspace = true }
+dashmap = { workspace = true }
+serde = { workspace = true }
+pg_query = { workspace = true }
+
+[dev-dependencies]
+app-testing = { workspace = true }

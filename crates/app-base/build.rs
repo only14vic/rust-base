@@ -1,10 +1,14 @@
 use {
+    chrono::{DateTime, Local},
     dotenv::dotenv,
     std::{env, ffi::OsStr, fs::create_dir_all, path::PathBuf, process::Command}
 };
 
 fn main() {
     dotenv().ok();
+
+    let now: DateTime<Local> = Local::now();
+    println!("cargo:rustc-env=BUILD_TIME={now}");
 
     //
     // Configuration
@@ -19,7 +23,7 @@ fn main() {
 
     println!("cargo:rerun-if-changed={src_dir}/build.rs");
     println!("cargo:rerun-if-changed={src_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={src_dir}/vendor/inih/ini.h");
+    println!("cargo:rerun-if-changed={src_dir}/vendor/inih");
     println!("cargo:rerun-if-changed={src_dir}/cbindgen.toml");
 
     //
@@ -62,6 +66,7 @@ fn main() {
         .blocklist_type("_IO_lock_t")
         .blocklist_type("__off_t")
         .blocklist_type("__off64_t")
+        .blocklist_type("__uint64_t")
         .blocklist_type("FILE")
         .use_core()
         .header("vendor/inih/ini.h")

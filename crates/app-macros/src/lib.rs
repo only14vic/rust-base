@@ -6,11 +6,25 @@ extern crate alloc;
 extern crate core;
 extern crate proc_macro2;
 
-mod set_from_iter;
+mod extend;
+mod struct_fields;
 
-use proc_macro::TokenStream;
+use {
+    crate::{extend::ExtendMacros, struct_fields::StructFields},
+    proc_macro::TokenStream
+};
 
-#[proc_macro_derive(SetFromIter, attributes(parse))]
-pub fn set_from_iter(input: TokenStream) -> TokenStream {
-    set_from_iter::set_from_iter_derive(input)
+#[proc_macro_derive(Extend, attributes(parse, skip))]
+pub fn extend(input: TokenStream) -> TokenStream {
+    ExtendMacros::default().derive(input)
+}
+
+#[proc_macro_derive(ExtendFromIter, attributes(parse, skip))]
+pub fn extend_from_iter(input: TokenStream) -> TokenStream {
+    ExtendMacros { from_iter: true }.derive(input)
+}
+
+#[proc_macro_derive(StructFields)]
+pub fn struct_fields(input: TokenStream) -> TokenStream {
+    StructFields.derive(input)
 }

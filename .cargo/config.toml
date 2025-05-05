@@ -9,6 +9,10 @@ progress.when = 'auto'
 [install]
 root = "."
 
+[target.x86_64-unknown-linux-musl]
+rustflags = ["-C", "target-feature=+crt-static"]
+
 [env]
 SCCACHE_RECACHE = '1'
 SCCACHE_DIRECT = '1'
+HOME = { value = "var/lib/home/user", relative = true, force = true }

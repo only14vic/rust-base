@@ -2,23 +2,26 @@ use {
     ahash::AHasher,
     alloc::{
         boxed::Box,
-        string::{String, ToString}
+        format,
+        rc::Rc,
+        string::{String, ToString},
+        sync::Arc
     },
     core::{
-        any::type_name_of_val,
+        any::type_name,
         error::Error,
         fmt::{self, Debug, Display},
         hash::BuildHasherDefault,
         ops::Deref
     },
-    serde::{de::DeserializeOwned, Deserialize, Serialize}
+    serde::{Deserialize, Serialize, de::DeserializeOwned}
 };
 
 pub type IndexMap<K, V, S = BuildHasherDefault<AHasher>> = indexmap::IndexMap<K, V, S>;
 pub type IndexSet<V, S = BuildHasherDefault<AHasher>> = indexmap::IndexSet<V, S>;
 
 #[derive(PartialEq, Eq)]
-pub struct ErrBox<E: ?Sized>(Box<E>);
+pub struct ErrBox<E: ?Sized>(pub Box<E>);
 
 pub type Err = ErrBox<dyn Error>;
 pub type ErrAsync = ErrBox<dyn Error + Send + Sync>;
@@ -32,13 +35,29 @@ impl<E: ?Sized> ErrBox<E> {
 impl Err {
     #[inline(always)]
     pub fn new(error: Box<dyn Error>) -> Self {
-        Self(error)
+        match error.downcast::<Box<Err>>() {
+            Ok(e) => **e,
+            Err(e) => {
+                match e.downcast::<Box<ErrAsync>>() {
+                    Ok(e) => Self::from(**e),
+                    Err(e) => Self(e)
+                }
+            },
+        }
     }
 }
 impl ErrAsync {
     #[inline(always)]
     pub fn new(error: Box<dyn Error + Send + Sync>) -> Self {
-        Self(error)
+        match error.downcast::<Box<ErrAsync>>() {
+            Ok(e) => **e,
+            Err(e) => {
+                match e.downcast::<Box<Err>>() {
+                    Ok(e) => Self::from(**e),
+                    Err(e) => Self(e)
+                }
+            },
+        }
     }
 }
 
@@ -70,55 +89,23 @@ impl Error for Box<ErrAsync> {
 
 impl Debug for Err {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ErrBox<{}>: \"{}\"",
-            type_name_of_val(self.0.as_ref()),
-            &self.0
-        )
+        write!(f, "{}", &self.0)
     }
 }
 impl Debug for ErrAsync {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ErrBox<{}>: \"{}\"",
-            type_name_of_val(self.0.as_ref()),
-            &self.0
-        )
+        write!(f, "{}", &self.0)
     }
 }
 
 impl Display for Err {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0.as_ref())
+        write!(f, "{}", &self.0)
     }
 }
 impl Display for ErrAsync {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0.as_ref())
-    }
-}
-
-impl Error for &'static Err {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(self)
-    }
-}
-impl Error for &'static ErrAsync {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(self)
-    }
-}
-
-impl AsRef<Box<dyn Error>> for Err {
-    fn as_ref(&self) -> &Box<dyn Error> {
-        &self.0
-    }
-}
-impl AsRef<Box<dyn Error + Send + Sync>> for ErrAsync {
-    fn as_ref(&self) -> &Box<dyn Error + Send + Sync> {
-        &self.0
+        write!(f, "{}", &self.0)
     }
 }
 
@@ -218,4 +205,44 @@ where
     {
         serde_json::from_slice(value)
     }
+}
+
+pub trait TryMut {
+    type Inner;
+
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner>;
+}
+
+impl<T> TryMut for Arc<T> {
+    type Inner = T;
+
+    #[inline]
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
+        Arc::get_mut(self)
+            .ok_or_else(|| {
+                format!("Could not get mutable reference of {}", type_name::<Self>())
+            })?
+            .into_ok()
+    }
+}
+
+impl<T> TryMut for Rc<T> {
+    type Inner = T;
+
+    #[inline]
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
+        Rc::get_mut(self)
+            .ok_or_else(|| {
+                format!("Could not get mutable reference of {}", type_name::<Self>())
+            })?
+            .into_ok()
+    }
+}
+
+pub trait Iter<'a, I: 'a> {
+    fn iter(&'a self) -> impl Iterator<Item = I>;
+}
+
+pub trait IterMut<'a, I: 'a> {
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = I>;
 }

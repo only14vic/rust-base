@@ -1,0 +1,24 @@
+[package]
+name = "app-testing"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "app_testing"
+crate-type = ["lib"]
+
+[lints]
+workspace = true
+
+[dependencies]
+app-base = { workspace = true, features = ["std"] }
+criterion = { workspace = true }
+actix-web = { workspace = true }
+futures = { workspace = true }
+futures-lite = { workspace = true }
+sqlx = { workspace = true }
+accessory = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

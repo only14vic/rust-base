@@ -1,9 +1,15 @@
 .idea
-.env
-.gdb_history
+.env*
+.gdb*
 *.vim
 *.log
 perf.data*
 vgcore.*
+flamegraph*.svg
 target
 vendor/*
+var/*
+migrations/*
+bin/*
+lib/*
+include/*

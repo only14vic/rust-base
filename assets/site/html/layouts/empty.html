@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ app.language }}">
+<head>
+    <title>{%- block title -%}{%- endblock -%}</title>
+    {% include 'layouts/_head.html' %}
+    <meta name="robots"
+        content="{%- block meta_robots -%}noindex, nofollow{%- endblock -%}">
+    <meta name="keywords"
+        content="{%- block meta_keywords -%}{%- endblock -%}">
+    <meta name="description"
+        content="{%- block meta_description -%}{%- endblock -%}">
+    {%- block stylesheets -%}
+    {#{{ entry_link_tags(entry=['site']) }}#}
+    {%- endblock -%}
+</head>
+<body>
+    <div class="container">
+        <div id="main">
+            {%- block content -%}{%- endblock -%}
+        </div>
+    </div>
+
+    {%- block javascripts -%}
+    {#{{ app_context_script(app=app) }}#}
+    {#{{ entry_script_tags(entry=['site'], runtime=true) }}#}
+    {%- endblock -%}
+</body>
+</html>
