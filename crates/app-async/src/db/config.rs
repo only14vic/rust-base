@@ -1,6 +1,6 @@
 use app_base::prelude::*;
 
-#[derive(Debug, Hash, Eq, PartialEq, SetFromIter)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, SetFromIter)]
 pub struct DbConfig {
     pub url: String,
     pub schema: Option<String>,

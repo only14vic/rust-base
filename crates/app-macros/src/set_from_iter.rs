@@ -143,20 +143,20 @@ pub(crate) fn set_from_iter_derive(input: TokenStream) -> TokenStream {
             },
         };
 
-        for mut ty in field_type.as_str()[..field_type.rfind('<').unwrap_or(0)].rsplit("<") {
-            ty = ty.trim();
-            ty = ty.get(ty.rfind(' ').map(|i| i+1).unwrap_or(0)..).unwrap();
-            if ty.is_empty() == false {
-                let type_ident = Ident::new(ty, Span::call_site());
-                field_value = match ty {
-                    "Option" | "Box" | "NonNull" => quote! {#type_ident::from(#field_value)},
-                    "Vec" => field_value,
-                    _ => quote! {#type_ident::new(#field_value)}
+        if is_field_type_simple {
+            for mut ty in field_type.as_str()[..field_type.rfind('<').unwrap_or(0)].rsplit("<") {
+                ty = ty.trim();
+                ty = ty.get(ty.rfind(' ').map(|i| i+1).unwrap_or(0)..).unwrap();
+                if ty.is_empty() == false {
+                    let type_ident = Ident::new(ty, Span::call_site());
+                    field_value = match ty {
+                        "Option" | "Box" | "NonNull" => quote! {#type_ident::from(#field_value)},
+                        "Vec" => field_value,
+                        _ => quote! {#type_ident::new(#field_value)}
+                    }
                 }
             }
-        }
 
-        if is_field_type_simple {
             quote! {
                 if let Some(Some(mut v)) = map.get_mut(#field_name).take() {
                     if v.is_empty() == false {
