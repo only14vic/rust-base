@@ -20,7 +20,7 @@ overflow-checks = true
 rpath = true
 
 [profile.release]
-opt-level = "z"
+opt-level = 3
 strip = "debuginfo"
 #strip = "symbols"
 lto = "thin"
@@ -29,12 +29,12 @@ overflow-checks = true
 rpath = true
 
 [profile.dev.package."*"]
-opt-level = "z"
+opt-level = 3
 debug = false
 strip = "symbols"
 
 [profile.release.package."*"]
-opt-level = "z"
+opt-level = 3
 debug = false
 strip = "symbols"
 
