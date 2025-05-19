@@ -26,6 +26,7 @@ impl Config {
 
         let args = Args::new([
             ("tokio-threads", vec!["-t"], None),
+            #[cfg(feature = "db")]
             ("db-url", vec![], None),
             ("log-level", vec!["-l"], None),
             ("log-file", vec!["-f"], None)

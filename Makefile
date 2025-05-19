@@ -81,3 +81,14 @@ flags:
 	@echo RUSTFLAGS: $(RUSTFLAGS)
 	@echo ALL: $(ALL)
 	@echo "------------------------"
+
+gdb_args = --readnow -iex "set auto-load safe-path /" -x .gdb_local \
+		--directory "$$(ls -1d ~/.cargo/registry/src/* ~/.rustup/toolchains/*/lib/rustlib/src/rust/library | xargs echo | sed s/\ /:/g)"
+
+.PHONY: gdb
+gdb:
+ifdef f
+	rust-gdb $(gdb_args) --args $(f)
+else
+	rust-gdb $(gdb_args)
+endif

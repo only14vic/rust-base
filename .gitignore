@@ -1,6 +1,6 @@
 .idea
 .env
-.gdb_history
+.gdb*
 *.vim
 *.log
 perf.data*

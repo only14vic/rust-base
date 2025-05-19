@@ -16,8 +16,9 @@ use {
 
 const ERR_INVALID_DOWNCAST_TO_POOL: &str = "Invalid downcast database pool";
 
-static POOLS: LazyLock<Mutex<HashMap<Arc<DbConfig>, Arc<dyn Any + Send + Sync>>>> =
-    LazyLock::new(Default::default);
+type PoolsMap = HashMap<Arc<DbConfig>, Arc<dyn Any + Send + Sync>>;
+
+static POOLS: LazyLock<Mutex<PoolsMap>> = LazyLock::new(Default::default);
 
 static DEFAULT_CONFIG: LazyLock<Arc<DbConfig>> = LazyLock::new(|| {
     let mut config = DbConfig::default();
