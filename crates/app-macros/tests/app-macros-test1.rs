@@ -1,8 +1,10 @@
+#![allow(unused)]
+
 extern crate alloc;
 
 use {
     alloc::{rc::Rc, sync::Arc},
-    app_macros::SetFromIter,
+    app_macros::*,
     core::{
         cell::RefCell,
         error::Error,
@@ -11,13 +13,16 @@ use {
         num::NonZero,
         str::FromStr
     },
-    std::time::Instant
+    std::{
+        collections::{HashMap, HashSet},
+        time::Instant
+    }
 };
 
-#[derive(Debug, Default, SetFromIter)]
+#[derive(Debug, Default, ExtendFromIter)]
 struct Foo<'a, 'b: 'a, T>
 where
-    T: AsRef<str>
+    T: AsRef<str> + Default
 {
     a: std::string::String,
     b: Option<Box<Option<NonZero<c_uint>>>>,
@@ -25,24 +30,29 @@ where
     d: Option<char>,
     e: Option<Box<Rc<RefCell<f32>>>>,
     f: Option<&'b str>,
-    g: Box<Vec<&'a str>>,
+    g: Vec<&'a str>,
     h: Option<alloc::boxed::Box<str>>,
     #[parse]
-    l: Option<Lang>,
-    bar: self::Bar<'b, T>,
+    l: Option<Box<Lang>>,
+    m: Option<HashSet<Option<NonZero<i32>>>>,
+    n: Option<Rc<RefCell<HashMap<&'a str, Option<&'a str>>>>>,
+    bar: Arc<self::Bar<'b, T>>,
     zar: Zar,
     _phantom: PhantomData<&'b T>
 }
 
-#[derive(Debug, Default, SetFromIter)]
-struct Bar<'b, T> {
+#[derive(Debug, Default, ExtendFromIter)]
+struct Bar<'b, T>
+where
+    T: Default
+{
     x: &'b str,
     y: RefCell<c_float>,
     z: Zar,
     _phantom: PhantomData<&'b T>
 }
 
-#[derive(Debug, Default, SetFromIter)]
+#[derive(Debug, Default, ExtendFromIter)]
 struct Zar {
     a: Option<i32>,
     b: Option<Box<Vec<i32>>>
@@ -68,32 +78,8 @@ impl FromStr for Lang {
 }
 
 #[test]
-fn test_from_map() -> Result<(), Box<dyn Error>> {
-    assert_eq!(
-        &Foo::<String>::struct_fields()[..2],
-        &[
-            ("a", "std :: string :: String"),
-            ("b", "Option < Box < Option < NonZero < c_uint > > > >"),
-        ]
-    );
-
-    let values: Vec<(&str, Option<&str>)> = vec![
-        ("a", "Hello".into()),
-        ("b", "123".into()),
-        ("c", "true".into()),
-        ("d", "X".into()),
-        ("e", "1.23".into()),
-        ("f", "World".into()),
-        ("g", "   a ,   b ,    c   ".into()),
-        ("h", None),
-        ("l", "en".into()),
-        ("bar.x", "This is Bar".into()),
-        ("bar.y", "9.999".into()),
-        ("bar.z.a", "-1111".into()),
-        ("bar.z.b", "  -123, 0, 123 ".into()),
-        ("zar.a", "-333".into()),
-    ];
-
+fn test_extend() -> Result<(), Box<dyn Error>> {
+    let values = gen_values();
     let mut foo = Foo::<String>::default();
     foo.h = Some("Predefined value".into());
     foo.zar.b = Some(vec![1, 2, 3].into());
@@ -101,14 +87,15 @@ fn test_from_map() -> Result<(), Box<dyn Error>> {
     let max_iters = 10000;
     let t = Instant::now();
     for _ in 0..max_iters {
-        foo.set_from_iter(values.clone())?;
+        foo.g = vec!["zzz"];
+        foo.extend(values.clone());
     }
     let time = t.elapsed();
     dbg!(&foo);
     dbg!(time, max_iters);
 
     assert_eq!(foo.a, "Hello".to_owned());
-    assert_eq!(foo.b, Box::new(NonZero::new(123)).into());
+    assert_eq!(foo.b, Some(Box::new(None)));
     assert_eq!(foo.c, true.into());
     assert_eq!(foo.d, Some('X'));
     assert_eq!(
@@ -116,9 +103,24 @@ fn test_from_map() -> Result<(), Box<dyn Error>> {
         Box::new(Rc::new(RefCell::new(1.23))).into()
     );
     assert_eq!(foo.f, "World".into());
-    assert_eq!(foo.g, vec!["a", "b", "c"].into());
+    assert_eq!(foo.g, vec!["zzz", "a", "b", "c"]);
     assert_eq!(foo.h, Some("Predefined value".into()));
-    assert_eq!(foo.l, Some(Lang::En));
+    assert_eq!(foo.l, Some(Lang::En.into()));
+    assert_eq!(
+        foo.m,
+        Some(HashSet::from_iter([
+            NonZero::new(111).into(),
+            NonZero::new(-1111).into(),
+            None
+        ]))
+    );
+    assert_eq!(
+        foo.n,
+        Some(Rc::new(RefCell::new(HashMap::from_iter([
+            ("foo", " Foo ".into()),
+            ("bar", " Bar ".into())
+        ]))))
+    );
     assert_eq!(foo.bar.x, "This is Bar");
     assert_eq!(foo.bar.y, 9.999.into());
     assert_eq!(foo.bar.z.a, Some(-1111));
@@ -127,4 +129,27 @@ fn test_from_map() -> Result<(), Box<dyn Error>> {
     assert_eq!(foo.zar.b, Some(vec![1, 2, 3].into()));
 
     Ok(())
+}
+
+fn gen_values() -> impl IntoIterator<Item = (&'static str, Option<&'static str>)> + Clone
+{
+    [
+        ("a", "Hello".into()),
+        ("b", "0".into()),
+        ("c", "true".into()),
+        ("d", "X".into()),
+        ("e", "1.23".into()),
+        ("f", "World".into()),
+        ("g", "   a ,   b ,    c   ".into()),
+        ("h", None),
+        ("l", "en".into()),
+        ("m", "  -1111, 0, 111  ".into()),
+        ("n.foo", " Foo ".into()),
+        ("n.bar", " Bar ".into()),
+        ("bar.x", "This is Bar".into()),
+        ("bar.y", "9.999".into()),
+        ("bar.z.a", "-1111".into()),
+        ("bar.z.b", "  -123, 0, 123 ".into()),
+        ("zar.a", "-333".into())
+    ]
 }

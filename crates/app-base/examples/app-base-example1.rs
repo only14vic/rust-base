@@ -33,12 +33,12 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
     log_init();
 
     let args = Args::new([
-        ("self", vec!["0"], None),
-        ("command", vec!["1", "-c"], None),
-        ("subcommand", vec!["2", "-s"], None),
-        ("foo", vec!["-f"], "Foo".into_some()),
-        ("bar", vec!["-b"], "Bar".into_some()),
-        ("zoo", vec!["-z"], None)
+        ("self", &["0"][..], None),
+        ("command", &["1", "-c"], None),
+        ("subcommand", &["2", "-s"], None),
+        ("foo", &["-f"], "Foo".into_some()),
+        ("bar", &["-b"], "Bar".into_some()),
+        ("zoo", &["-z"], None)
     ]);
     let args = unsafe { args.parse_argc(argc, argv).unwrap() };
 
@@ -52,10 +52,7 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
                 .inspect_err(|e| log::error!("{e}"))
                 .unwrap();
 
-            config
-                .set_from_iter(&ini)
-                .inspect_err(|e| log::error!("{e}"))
-                .unwrap();
+            config.extend(&ini);
         });
     }
 
@@ -89,7 +86,7 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
     libc::EXIT_SUCCESS
 }
 
-#[derive(Default, Debug, Serialize, SetFromIter)]
+#[derive(Default, Debug, Serialize, Extend)]
 pub struct Config {
     version: f32,
     general: General
@@ -114,18 +111,18 @@ impl FromStr for Lang {
     }
 }
 
-#[derive(Default, Debug, Serialize, SetFromIter)]
+#[derive(Default, Debug, Serialize, Extend)]
 pub struct General {
     #[parse]
     str: Option<Box<Lang>>,
     number: u32,
     boolean: bool,
-    list: Vec<u32>,
+    list: Option<Vec<u32>>,
     text: String,
     foo: Foo
 }
 
-#[derive(Default, Debug, Serialize, SetFromIter)]
+#[derive(Default, Debug, Serialize, Extend)]
 pub struct Foo {
     #[parse]
     str: Lang,

@@ -4,7 +4,7 @@ use {
     std::env::current_dir
 };
 
-#[derive(Debug, Default, SetFromIter)]
+#[derive(Debug, Default, Extend)]
 pub struct Config {
     pub base: BaseConfig,
     pub tokio: TokioConfig,
@@ -20,16 +20,16 @@ impl Config {
         let mut file = current_dir()?;
         file.push("config/app.ini");
         let ini = Ini::from_file(&file.to_string_lossy())?;
-        config.set_from_iter(&ini)?;
+        config.extend(&ini);
 
         config.load_env()?;
 
         let args = Args::new([
-            ("tokio-threads", vec!["-t"], None),
+            ("tokio-threads", &["-t"][..], None),
             #[cfg(feature = "db")]
-            ("db-url", vec![], None),
-            ("log-level", vec!["-l"], None),
-            ("log-file", vec!["-f"], None)
+            ("db-url", &[], None),
+            ("log-level", &["-l"], None),
+            ("log-file", &["-f"], None)
         ])
         .parse_args(std::env::args().collect())?;
         config.load_args(&args)?;
@@ -41,23 +41,23 @@ impl Config {
 }
 
 impl LoadEnv for Config {
-    fn load_env(&mut self) -> Ok<&mut Self> {
+    fn load_env(&mut self) -> Ok<()> {
         self.base.load_env()?;
         self.tokio.load_env()?;
         self.actix.load_env()?;
         #[cfg(feature = "db")]
         self.db.load_env()?;
-        self.into_ok()
+        ok()
     }
 }
 
 impl LoadArgs for Config {
-    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+    fn load_args(&mut self, args: &Args) -> Ok<()> {
         self.base.log.load_args(&args)?;
         self.tokio.load_args(&args)?;
         self.actix.load_args(&args)?;
         #[cfg(feature = "db")]
         self.db.load_args(&args)?;
-        self.into_ok()
+        ok()
     }
 }

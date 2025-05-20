@@ -4,11 +4,10 @@ use {
         string::{String, ToString},
         vec::Vec
     },
-    app_macros::SetFromIter,
     log::LevelFilter
 };
 
-#[derive(Debug, SetFromIter)]
+#[derive(Debug, Extend)]
 pub struct BaseConfig {
     pub lang: String,
     pub timezone: String,
@@ -26,23 +25,23 @@ impl Default for BaseConfig {
 }
 
 impl LoadEnv for BaseConfig {
-    fn load_env(&mut self) -> Ok<&mut Self> {
-        self.set_from_iter(
+    fn load_env(&mut self) -> Ok<()> {
+        self.extend(
             [("lang", getenv("LANG")), ("timezone", getenv("TZ"))]
                 .iter()
                 .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
-        )?;
+        );
 
         if self.lang.len() > 2 {
             self.lang = self.lang[0..2].into();
         }
         self.lang.make_ascii_lowercase();
         self.log.load_env()?;
-        self.into_ok()
+        ok()
     }
 }
 
-#[derive(Debug, Clone, SetFromIter)]
+#[derive(Debug, Clone, ExtendFromIter)]
 pub struct LogConfig {
     #[parse]
     pub level: LevelFilter,
@@ -67,8 +66,8 @@ impl Default for LogConfig {
 }
 
 impl LoadEnv for LogConfig {
-    fn load_env(&mut self) -> Ok<&mut Self> {
-        self.set_from_iter(
+    fn load_env(&mut self) -> Ok<()> {
+        self.extend(
             [
                 ("level", getenv("LOG_LEVEL")),
                 ("file", getenv("LOG_FILE")),
@@ -77,15 +76,15 @@ impl LoadEnv for LogConfig {
             ]
             .iter()
             .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }
 
 impl LoadArgs for LogConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+    fn load_args(&mut self, args: &Args) -> Ok<()> {
         #[rustfmt::skip]
-        self.set_from_iter(
+        self.extend(
             [
                 ("level", args.get("log-level")),
                 ("file", args.get("log-file")),
@@ -93,7 +92,7 @@ impl LoadArgs for LogConfig {
             .iter().map(|(k, v)| {(
                 *k, v.unwrap_or(&None).as_ref().map(String::as_str)
             )})
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }

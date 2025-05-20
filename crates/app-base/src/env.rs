@@ -28,7 +28,7 @@ pub fn getenv(name: &str) -> Option<String> {
 }
 
 pub trait LoadEnv {
-    fn load_env(&mut self) -> Ok<&mut Self>;
+    fn load_env(&mut self) -> Ok<()>;
 }
 
 pub struct Env;

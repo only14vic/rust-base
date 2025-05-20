@@ -13,10 +13,10 @@ use {
 };
 
 pub trait LoadArgs {
-    fn load_args(&mut self, args: &Args) -> Ok<&mut Self>;
+    fn load_args(&mut self, args: &Args) -> Ok<()>;
 }
 
-type ArgsOpts<'o> = IndexMap<&'o str, Vec<&'o str>>;
+type ArgsOpts<'o> = IndexMap<&'o str, &'o [&'o str]>;
 type ArgsMap = IndexMap<String, Option<String>>;
 
 #[derive(Debug, Default)]
@@ -35,14 +35,14 @@ impl Deref for Args<'_> {
 
 impl<'o> Args<'o> {
     pub fn new(
-        opts: impl IntoIterator<Item = (&'o str, Vec<&'o str>, Option<&'o str>)>
+        opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
     ) -> Self {
         Self::default().with_opts(opts)
     }
 
     pub fn with_opts(
         mut self,
-        opts: impl IntoIterator<Item = (&'o str, Vec<&'o str>, Option<&'o str>)>
+        opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
     ) -> Self {
         for (n, o, v) in opts.into_iter() {
             self.opts.insert(n, o);

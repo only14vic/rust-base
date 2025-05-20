@@ -1,6 +1,6 @@
 use app_base::prelude::*;
 
-#[derive(Debug, SetFromIter)]
+#[derive(Debug, Extend)]
 pub struct TokioConfig {
     pub threads: usize,
     pub blocking_threads: usize,
@@ -18,27 +18,27 @@ impl Default for TokioConfig {
 }
 
 impl LoadEnv for TokioConfig {
-    fn load_env(&mut self) -> Ok<&mut Self> {
-        self.set_from_iter(
+    fn load_env(&mut self) -> Ok<()> {
+        self.extend(
             [("threads", getenv("TOKIO_THREADS"))]
                 .iter()
                 .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }
 
 impl LoadArgs for TokioConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+    fn load_args(&mut self, args: &Args) -> Ok<()> {
         #[rustfmt::skip]
-        self.set_from_iter(
+        self.extend(
             [
                 ("threads", args.get("tokio-threads")),
             ]
             .iter().map(|(k, v)| {(
                 *k, v.unwrap_or(&None).as_ref().map(String::as_str)
             )})
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }

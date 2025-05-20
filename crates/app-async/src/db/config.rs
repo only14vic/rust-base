@@ -1,6 +1,6 @@
 use app_base::prelude::*;
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, SetFromIter)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Extend)]
 pub struct DbConfig {
     pub url: String,
     pub schema: Option<String>,
@@ -26,8 +26,8 @@ impl Default for DbConfig {
 }
 
 impl LoadEnv for DbConfig {
-    fn load_env(&mut self) -> Ok<&mut Self> {
-        self.set_from_iter(
+    fn load_env(&mut self) -> Ok<()> {
+        self.extend(
             [
                 ("url", getenv("DATABASE_URL")),
                 ("min_conn", getenv("DATABASE_MIN_CONNECTIONS")),
@@ -36,22 +36,22 @@ impl LoadEnv for DbConfig {
             ]
             .iter()
             .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }
 
 impl LoadArgs for DbConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<&mut Self> {
+    fn load_args(&mut self, args: &Args) -> Ok<()> {
         #[rustfmt::skip]
-        self.set_from_iter(
+        self.extend(
             [
                 ("url", args.get("db-url")),
             ]
             .iter().map(|(k, v)| {(
                 *k, v.unwrap_or(&None).as_ref().map(String::as_str)
             )})
-        )?;
-        self.into_ok()
+        );
+        ok()
     }
 }
