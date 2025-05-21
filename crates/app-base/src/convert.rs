@@ -1,3 +1,5 @@
+use alloc::string::String;
+
 #[inline]
 pub fn tuple_option_string_to_str<'a>(
     item: &'a (&'a str, Option<String>)
