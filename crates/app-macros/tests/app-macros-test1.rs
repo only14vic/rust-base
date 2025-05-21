@@ -132,9 +132,8 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn gen_values() -> impl IntoIterator<Item = (&'static str, Option<&'static str>)> + Clone
-{
-    [
+fn gen_values() -> Vec<(&'static str, Option<&'static str>)> {
+    vec![
         ("a", "Hello".into()),
         ("b", "0".into()),
         ("c", "true".into()),
@@ -151,6 +150,6 @@ fn gen_values() -> impl IntoIterator<Item = (&'static str, Option<&'static str>)
         ("bar.y", "9.999".into()),
         ("bar.z.a", "-1111".into()),
         ("bar.z.b", "  -123, 0, 123 ".into()),
-        ("zar.a", "-333".into())
+        ("zar.a", "-333".into()),
     ]
 }

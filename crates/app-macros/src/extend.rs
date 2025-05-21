@@ -286,10 +286,10 @@ impl ExtendMacros {
             _ => {
                 *iterable = true;
                 let token = quote! {
-                     map.iter_mut()
-                        .filter_map(|(name, value)| {
+                     map.iter()
+                        .filter_map(|(&name, &value)| {
                             name.starts_with(concat!(#name, "."))
-                                .then(|| (name.trim_start_matches(concat!(#name, ".")), value.take()))
+                                .then(|| (name.trim_start_matches(concat!(#name, ".")), value))
                         })
                 };
                 if n == 0 {
