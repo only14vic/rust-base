@@ -31,7 +31,7 @@ impl LoadEnv for ActixConfig {
                 ("threads", getenv("ACTIX_THREADS"))
             ]
             .iter()
-            .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+            .map(convert::tuple_option_string_to_str)
         );
         ok()
     }
@@ -39,7 +39,6 @@ impl LoadEnv for ActixConfig {
 
 impl LoadArgs for ActixConfig {
     fn load_args(&mut self, args: &Args) -> Ok<()> {
-        #[rustfmt::skip]
         self.extend(
             [
                 ("socket", args.get("actix-socket")),
@@ -48,9 +47,7 @@ impl LoadArgs for ActixConfig {
                 ("threads", args.get("actix-threads"))
             ]
             .iter()
-            .map(|(k, v)| {(
-                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
-            )})
+            .map(convert::tuple_option_option_string_to_str)
         );
         ok()
     }

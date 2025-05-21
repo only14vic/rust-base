@@ -29,7 +29,7 @@ impl LoadEnv for BaseConfig {
         self.extend(
             [("lang", getenv("LANG")), ("timezone", getenv("TZ"))]
                 .iter()
-                .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+                .map(convert::tuple_option_string_to_str)
         );
 
         if self.lang.len() > 2 {
@@ -75,7 +75,7 @@ impl LoadEnv for LogConfig {
                 ("filter", getenv("LOG_FILTER"))
             ]
             .iter()
-            .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+            .map(convert::tuple_option_string_to_str)
         );
         ok()
     }
@@ -89,9 +89,7 @@ impl LoadArgs for LogConfig {
                 ("level", args.get("log-level")),
                 ("file", args.get("log-file")),
             ]
-            .iter().map(|(k, v)| {(
-                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
-            )})
+            .iter().map(convert::tuple_option_option_string_to_str)
         );
         ok()
     }

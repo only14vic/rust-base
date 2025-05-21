@@ -22,7 +22,7 @@ impl LoadEnv for TokioConfig {
         self.extend(
             [("threads", getenv("TOKIO_THREADS"))]
                 .iter()
-                .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+                .map(convert::tuple_option_string_to_str)
         );
         ok()
     }
@@ -30,14 +30,10 @@ impl LoadEnv for TokioConfig {
 
 impl LoadArgs for TokioConfig {
     fn load_args(&mut self, args: &Args) -> Ok<()> {
-        #[rustfmt::skip]
         self.extend(
-            [
-                ("threads", args.get("tokio-threads")),
-            ]
-            .iter().map(|(k, v)| {(
-                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
-            )})
+            [("threads", args.get("tokio-threads"))]
+                .iter()
+                .map(convert::tuple_option_option_string_to_str)
         );
         ok()
     }

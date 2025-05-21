@@ -35,7 +35,7 @@ impl LoadEnv for DbConfig {
                 ("schema", getenv("DATABASE_SCHEMA"))
             ]
             .iter()
-            .map(|(k, v)| (*k, v.as_ref().map(String::as_str)))
+            .map(convert::tuple_option_string_to_str)
         );
         ok()
     }
@@ -43,14 +43,10 @@ impl LoadEnv for DbConfig {
 
 impl LoadArgs for DbConfig {
     fn load_args(&mut self, args: &Args) -> Ok<()> {
-        #[rustfmt::skip]
         self.extend(
-            [
-                ("url", args.get("db-url")),
-            ]
-            .iter().map(|(k, v)| {(
-                *k, v.unwrap_or(&None).as_ref().map(String::as_str)
-            )})
+            [("url", args.get("db-url"))]
+                .iter()
+                .map(convert::tuple_option_option_string_to_str)
         );
         ok()
     }

@@ -36,6 +36,7 @@ where
     l: Option<Box<Lang>>,
     m: Option<HashSet<Option<NonZero<i32>>>>,
     n: Option<Rc<RefCell<HashMap<&'a str, Option<&'a str>>>>>,
+    o: HashMap<&'a str, Option<&'a str>>,
     bar: Arc<self::Bar<'b, T>>,
     zar: Zar,
     _phantom: PhantomData<&'b T>
