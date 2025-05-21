@@ -221,6 +221,27 @@ impl ExtendMacros {
                     token
                 }
             },
+            "c_void" => {
+                if n == 0 {
+                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap().into_raw().cast(); }
+                } else {
+                    quote! { ::alloc::ffi::CString::from_str(v).unwrap().into_raw().cast() }
+                }
+            },
+            "CString" => {
+                if n == 0 {
+                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap(); }
+                } else {
+                    quote! { ::alloc::ffi::CString::from_str(v).unwrap() }
+                }
+            },
+            "Box" if next_ty == Some("CStr".into()) => {
+                if n == 0 {
+                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap().into(); }
+                } else {
+                    quote! { ::alloc::ffi::CString::from_str(v).unwrap().into() }
+                }
+            },
             "char" => {
                 if n == 0 {
                     quote! { self.#name_ident = v.chars().next().unwrap_or_default(); }

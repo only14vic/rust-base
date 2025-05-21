@@ -6,15 +6,12 @@ use {
     alloc::{rc::Rc, sync::Arc},
     app_macros::*,
     core::{
-        cell::RefCell,
-        error::Error,
-        ffi::{c_float, c_uint},
-        marker::PhantomData,
-        num::NonZero,
-        str::FromStr
+        cell::RefCell, error::Error, ffi::*, marker::PhantomData, num::NonZero,
+        ptr::NonNull, str::FromStr
     },
     std::{
         collections::{HashMap, HashSet},
+        ffi::CString,
         time::Instant
     }
 };
@@ -37,6 +34,9 @@ where
     m: Option<HashSet<Option<NonZero<i32>>>>,
     n: Option<Rc<RefCell<HashMap<&'a str, Option<&'a str>>>>>,
     o: HashMap<&'a str, Option<&'a str>>,
+    p: Option<NonNull<c_void>>,
+    r: Box<CStr>,
+    s: CString,
     bar: Arc<self::Bar<'b, T>>,
     zar: Zar,
     _phantom: PhantomData<&'b T>
@@ -122,6 +122,19 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
             ("bar", " Bar ".into())
         ]))))
     );
+    assert_eq!(
+        foo.o,
+        HashMap::from_iter([("fooooo", "Foooooo".into()), ("baaaar", "Baaaaar".into())])
+    );
+    assert_eq!(
+        foo.p.map(|p| unsafe {
+            CStr::from_ptr(p.as_ptr() as *const i8).to_str().unwrap()
+        }),
+        "C void".into()
+    );
+    assert_eq!(foo.r.to_str().unwrap(), "C str");
+    assert_eq!(foo.s.to_str().unwrap(), "C string");
+
     assert_eq!(foo.bar.x, "This is Bar");
     assert_eq!(foo.bar.y, 9.999.into());
     assert_eq!(foo.bar.z.a, Some(-1111));
@@ -146,6 +159,11 @@ fn gen_values() -> Vec<(&'static str, Option<&'static str>)> {
         ("m", "  -1111, 0, 111  ".into()),
         ("n.foo", " Foo ".into()),
         ("n.bar", " Bar ".into()),
+        ("o.fooooo", "Foooooo".into()),
+        ("o.baaaar", "Baaaaar".into()),
+        ("p", "C void".into()),
+        ("r", "C str".into()),
+        ("s", "C string".into()),
         ("bar.x", "This is Bar".into()),
         ("bar.y", "9.999".into()),
         ("bar.z.a", "-1111".into()),
