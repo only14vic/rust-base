@@ -76,6 +76,8 @@ fn main() -> Void {
 
         assert_eq!(MAX_TASKS * MAX_ITERS, cache.len().await);
 
+        cache.clear_all().await?;
+
         Ok("Hello, from Async!") as Result<&str, ErrAsync>
     })?;
     assert_eq!(res.unwrap(), "Hello, from Async!");
