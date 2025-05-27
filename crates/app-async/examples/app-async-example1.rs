@@ -1,5 +1,9 @@
 use {
-    app_async::{actix_on_tokio_start, db::db_pool},
+    app_async::{
+        actix_on_tokio_start,
+        cache::{ArrayCache, Cache, Cacher},
+        db::db_pool
+    },
     app_base::prelude::*,
     sqlx::{Acquire, Postgres, Row}
 };
@@ -20,19 +24,41 @@ fn main() -> Void {
     let res = actix_on_tokio_start((&config.tokio).into(), async {
         let db = db_pool::<Postgres>(config.db.clone().into_some()).await?;
         let mut tasks = Vec::new();
+        let cache = Cacher::<ArrayCache>::from_static();
 
-        for _ in 0..100 {
+        const MAX_TASKS: usize = 100;
+        const MAX_ITERS: usize = 2000;
+
+        for j in 0..MAX_TASKS {
             let db = db.clone();
+            let cache = cache.clone();
             let task = tokio::spawn(async move {
                 let mut conn = db.acquire().await?;
-                for _ in 0..2000 {
+                for i in 0..MAX_ITERS {
                     let row = sqlx::query("select $1 as data")
                         .bind("Hello SQL!")
                         .fetch_one(conn.acquire().await?)
                         .await?;
 
                     let data = row.try_get::<String, &str>("data")?;
-                    assert_eq!("Hello SQL!", &data);
+
+                    cache
+                        .set(
+                            "example",
+                            &[&j.to_string(), &i.to_string()],
+                            data.clone(),
+                            1
+                        )
+                        .await?;
+
+                    assert_eq!(
+                        "Hello SQL!",
+                        cache
+                            .get::<String>("example", &[&j.to_string(), &i.to_string()])
+                            .await?
+                            .unwrap()
+                            .as_str()
+                    );
                 }
 
                 ok() as Result<(), ErrAsync>
@@ -47,6 +73,8 @@ fn main() -> Void {
             .for_each(|r| {
                 let _ = r.unwrap().unwrap();
             });
+
+        assert_eq!(MAX_TASKS * MAX_ITERS, cache.len().await);
 
         Ok("Hello, from Async!") as Result<&str, ErrAsync>
     })?;
