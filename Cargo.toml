@@ -86,6 +86,8 @@ serde_json = { version = "1.0.140", default-features = false, features = [
   "alloc",
 ] }
 memory-stats = { version = "1.2.0" }
+accessory = { version = "2.1.0" }
+criterion = { version = "0.6.0", features = ["async_tokio"] }
 tokio = { version = "1", features = ["full"] }
 actix = { version = "0" }
 actix-web = { version = "4", features = ["secure-cookies", "macros"] }
@@ -136,3 +138,4 @@ sqlx-sqlite = { version = "0.8" }
 app-base = { path = "crates/app-base", default-features = false }
 app-macros = { path = "crates/app-macros", default-features = false }
 app-async = { path = "crates/app-async", default-features = false }
+app-testing = { path = "crates/app-testing", default-features = false }
