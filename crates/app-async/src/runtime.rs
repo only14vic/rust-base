@@ -14,7 +14,7 @@ pub fn tokio_start(
         .build()
 }
 
-pub fn actix_on_tokio_start<T>(
+pub fn actix_with_tokio_start<T>(
     config: Option<&TokioConfig>,
     fut: impl Future<Output = T>
 ) -> std::io::Result<T> {

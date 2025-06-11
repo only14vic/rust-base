@@ -1,6 +1,6 @@
 use {
     app_async::{
-        actix_on_tokio_start,
+        actix_with_tokio_start,
         cache::{ArrayCache, Cache, Cacher},
         db::db_pool
     },
@@ -21,7 +21,7 @@ fn main() -> Void {
     let config = tests::Config::load()?;
     log.configure(&config.base.log)?;
 
-    let res = actix_on_tokio_start((&config.tokio).into(), async {
+    let res = actix_with_tokio_start((&config.tokio).into(), async {
         let db = db_pool::<Postgres>(config.db.clone().into_some()).await?;
         let mut tasks = Vec::new();
         let cache = Cacher::<ArrayCache>::from_static();
@@ -47,7 +47,7 @@ fn main() -> Void {
                             "example",
                             &[&j.to_string(), &i.to_string()],
                             data.clone(),
-                            1
+                            5
                         )
                         .await?;
 
