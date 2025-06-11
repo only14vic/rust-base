@@ -24,5 +24,6 @@ log = { workspace = true }
 sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 dashmap = { workspace = true }
+itoa = { workspace = true }
 
 [dev-dependencies]

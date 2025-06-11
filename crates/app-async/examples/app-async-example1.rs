@@ -32,29 +32,32 @@ fn main() -> Void {
         for j in 0..MAX_TASKS {
             let db = db.clone();
             let cache = cache.clone();
-            let task = tokio::spawn(async move {
-                let mut conn = db.acquire().await?;
-                for i in 0..MAX_ITERS {
-                    let row = sqlx::query("select $1 as data")
-                        .bind("Hello SQL!")
-                        .fetch_one(conn.acquire().await?)
-                        .await?;
 
-                    let data = row.try_get::<String, &str>("data")?;
+            let task = tokio::task::spawn(async move {
+                let mut conn = db.acquire().await?;
+                let mut buff_j = itoa::Buffer::new();
+                let mut buff_i = itoa::Buffer::new();
+
+                for i in 0..MAX_ITERS {
+                    let keys = [buff_j.format(j), buff_i.format(i)];
 
                     cache
-                        .set(
-                            "example",
-                            &[&j.to_string(), &i.to_string()],
-                            data.clone(),
-                            5
-                        )
+                        .call("example", &keys, 5, async {
+                            let row = sqlx::query("select $1 as data")
+                                .bind("Hello SQL!")
+                                .fetch_one(conn.acquire().await?)
+                                .await?;
+
+                            let data = row.try_get::<String, &str>("data")?;
+
+                            Ok(data)
+                        })
                         .await?;
 
                     assert_eq!(
                         "Hello SQL!",
                         cache
-                            .get::<String>("example", &[&j.to_string(), &i.to_string()])
+                            .get::<String>("example", &keys)
                             .await?
                             .unwrap()
                             .as_str()

@@ -405,6 +405,7 @@ dependencies = [
  "app-base",
  "dashmap",
  "futures",
+ "itoa",
  "log",
  "sqlx",
  "tokio",

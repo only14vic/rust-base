@@ -82,7 +82,7 @@ impl Cache for ArrayCache {
         &self,
         group: &str,
         keys: &[&str]
-    ) -> Ok<Option<Arc<T>>> {
+    ) -> OkAsync<Option<Arc<T>>> {
         let key = self.get_key(group, keys);
 
         match self.buffer.get(&key) {
@@ -104,7 +104,7 @@ impl Cache for ArrayCache {
         keys: &[&str],
         value: T,
         lifetime: u64
-    ) -> Ok<Option<Arc<T>>> {
+    ) -> OkAsync<Option<Arc<T>>> {
         let key = self.get_key(group, keys);
 
         self.buffer
@@ -120,7 +120,7 @@ impl Cache for ArrayCache {
             .into_ok()
     }
 
-    async fn exists(&self, group: &str, keys: &[&str]) -> Ok<bool> {
+    async fn exists(&self, group: &str, keys: &[&str]) -> OkAsync<bool> {
         let key = self.get_key(group, keys);
 
         self.buffer.contains_key(&key).into_ok()
@@ -134,7 +134,7 @@ impl Cache for ArrayCache {
         self.buffer.iter().map(|v| v.key().to_string()).collect()
     }
 
-    async fn remove(&self, group: &str, keys: &[&str]) -> Void {
+    async fn remove(&self, group: &str, keys: &[&str]) -> VoidAsync {
         let key = self.get_key(group, keys);
 
         self.buffer.remove(&key);
@@ -142,7 +142,7 @@ impl Cache for ArrayCache {
         ok()
     }
 
-    async fn remove_expired(&self) -> Ok<usize> {
+    async fn remove_expired(&self) -> OkAsync<usize> {
         let now = now();
         let mut num = 0;
 
@@ -157,7 +157,7 @@ impl Cache for ArrayCache {
         Ok(num)
     }
 
-    async fn clear(&self, group: &str, keys: &[&str]) -> Void {
+    async fn clear(&self, group: &str, keys: &[&str]) -> VoidAsync {
         let key = self.get_key(group, keys);
 
         if key.is_empty() {
@@ -169,7 +169,7 @@ impl Cache for ArrayCache {
         ok()
     }
 
-    async fn clear_all(&self) -> Void {
+    async fn clear_all(&self) -> VoidAsync {
         self.buffer.clear();
         ok()
     }
@@ -179,8 +179,8 @@ impl Cache for ArrayCache {
         group: &str,
         keys: &[&str],
         lifetime: u64,
-        callback: impl Future<Output = Ok<T>>
-    ) -> Ok<Option<Arc<T>>> {
+        callback: impl Future<Output = OkAsync<T>>
+    ) -> OkAsync<Option<Arc<T>>> {
         match self.get(group, keys).await? {
             Some(v) => Ok(Some(v)),
             None => {

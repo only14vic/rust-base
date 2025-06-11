@@ -28,7 +28,7 @@ pub trait Cache {
         &self,
         group: &str,
         keys: &[&str]
-    ) -> Ok<Option<Arc<T>>>;
+    ) -> OkAsync<Option<Arc<T>>>;
 
     async fn set<T: Send + Sync + 'static>(
         &self,
@@ -36,9 +36,9 @@ pub trait Cache {
         keys: &[&str],
         value: T,
         lifetime: u64
-    ) -> Ok<Option<Arc<T>>>;
+    ) -> OkAsync<Option<Arc<T>>>;
 
-    async fn exists(&self, group: &str, keys: &[&str]) -> Ok<bool>;
+    async fn exists(&self, group: &str, keys: &[&str]) -> OkAsync<bool>;
 
     async fn len(&self) -> usize;
 
@@ -48,19 +48,19 @@ pub trait Cache {
 
     async fn keys(&self) -> Vec<String>;
 
-    async fn remove(&self, group: &str, keys: &[&str]) -> Void;
+    async fn remove(&self, group: &str, keys: &[&str]) -> VoidAsync;
 
-    async fn remove_expired(&self) -> Ok<usize>;
+    async fn remove_expired(&self) -> OkAsync<usize>;
 
-    async fn clear(&self, group: &str, keys: &[&str]) -> Void;
+    async fn clear(&self, group: &str, keys: &[&str]) -> VoidAsync;
 
-    async fn clear_all(&self) -> Void;
+    async fn clear_all(&self) -> VoidAsync;
 
     async fn call<T: Send + Sync + 'static>(
         &self,
         group: &str,
         keys: &[&str],
         lifetime: u64,
-        callback: impl Future<Output = Ok<T>>
-    ) -> Ok<Option<Arc<T>>>;
+        callback: impl Future<Output = OkAsync<T>>
+    ) -> OkAsync<Option<Arc<T>>>;
 }
