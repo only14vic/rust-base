@@ -10,7 +10,7 @@ use {
             atomic::{AtomicBool, Ordering},
             Arc, LazyLock
         },
-        time::{Duration, SystemTime, UNIX_EPOCH}
+        time::{Duration, Instant, SystemTime, UNIX_EPOCH}
     }
 };
 
@@ -25,10 +25,11 @@ const DEFAULT_CACHE_CAPACITY: LazyLock<usize> = LazyLock::new(|| {
 
 #[inline]
 fn now() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
+    static TIME: LazyLock<Instant> = LazyLock::new(|| {
+        Instant::now() - SystemTime::now().duration_since(UNIX_EPOCH).unwrap()
+    });
+
+    TIME.elapsed().as_secs()
 }
 
 #[derive(Debug)]

@@ -27,7 +27,7 @@ fn main() -> Void {
         let cache = Cacher::<ArrayCache>::from_static();
 
         const MAX_TASKS: usize = 100;
-        const MAX_ITERS: usize = 2000;
+        const MAX_ITERS: usize = 1000;
 
         for j in 0..MAX_TASKS {
             let db = db.clone();
@@ -42,7 +42,7 @@ fn main() -> Void {
                     let keys = [buff_j.format(j), buff_i.format(i)];
 
                     cache
-                        .call("example", &keys, 5, async {
+                        .call("example", &keys, 2, async {
                             let row = sqlx::query("select $1 as data")
                                 .bind("Hello SQL!")
                                 .fetch_one(conn.acquire().await?)

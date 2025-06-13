@@ -6,7 +6,7 @@ use {
 pub trait Cache {
     fn get_key(&self, group: &str, keys: &[&str]) -> String {
         let mut str = String::with_capacity(
-            group.len() + keys.len() + keys.iter().fold(0, |acc, &key| acc + key.len())
+            group.len() + 1 + keys.iter().fold(0, |acc, &key| acc + key.len() + 1)
         );
 
         if str.capacity() == 0 {
