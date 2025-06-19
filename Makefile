@@ -38,7 +38,9 @@ endif
 
 target_dir = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)/release
 
-CARGO_ARGS += $(args)
+ifdef args
+	CARGO_ARGS += -- $(args)
+endif
 
 ALL =
 -include crates/*/Makefile

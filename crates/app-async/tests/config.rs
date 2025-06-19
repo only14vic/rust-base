@@ -28,8 +28,10 @@ impl Config {
             #[cfg(feature = "db")]
             ("db-url", &[], None),
             ("log-level", &["-l"], None),
-            ("log-file", &["-f"], None)
-        ])
+            ("log-file", &["-f"], None),
+            ("language", &[], None),
+            ("timezone", &[], None)
+        ])?
         .parse_args(std::env::args().collect())?;
         config.load_args(&args)?;
 
@@ -62,7 +64,7 @@ impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Ok<()> {
         #[rustfmt::skip]
         let list = [
-            &mut self.base.log,
+            &mut self.base,
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]

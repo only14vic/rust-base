@@ -9,7 +9,7 @@ use {
 
 #[derive(Debug, Extend)]
 pub struct BaseConfig {
-    pub lang: String,
+    pub language: String,
     pub timezone: String,
     pub log: LogConfig
 }
@@ -17,7 +17,7 @@ pub struct BaseConfig {
 impl Default for BaseConfig {
     fn default() -> Self {
         Self {
-            lang: "en".into(),
+            language: "en".into(),
             timezone: "UTC".into(),
             log: Default::default()
         }
@@ -27,16 +27,31 @@ impl Default for BaseConfig {
 impl LoadEnv for BaseConfig {
     fn load_env(&mut self) -> Ok<()> {
         self.extend(
-            [("lang", getenv("LANG")), ("timezone", getenv("TZ"))]
+            [("language", getenv("LANG")), ("timezone", getenv("TZ"))]
                 .iter()
                 .map(convert::tuple_option_string_to_str)
         );
 
-        if self.lang.len() > 2 {
-            self.lang = self.lang[0..2].into();
+        if self.language.len() > 2 {
+            self.language = self.language[0..2].into();
         }
-        self.lang.make_ascii_lowercase();
+        self.language.make_ascii_lowercase();
         self.log.load_env()?;
+        ok()
+    }
+}
+
+impl LoadArgs for BaseConfig {
+    fn load_args(&mut self, args: &Args) -> Ok<()> {
+        #[rustfmt::skip]
+        self.extend(
+            [
+                ("language", args.get("language")),
+                ("timezone", args.get("timezone")),
+            ]
+            .iter().map(convert::tuple_option_option_string_to_str)
+        );
+        self.log.load_args(args)?;
         ok()
     }
 }
