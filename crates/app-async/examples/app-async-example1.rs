@@ -21,7 +21,7 @@ fn main() -> Void {
     let config = tests::Config::load()?;
     log.configure(&config.base.log)?;
 
-    let res = actix_with_tokio_start((&config.tokio).into(), async {
+    let res = actix_with_tokio_start(Some(&config.tokio), async {
         let db = db_pool::<Postgres>(config.db.clone().into_some()).await?;
         let mut tasks = Vec::new();
         let cache = Cacher::<ArrayCache>::from_static();

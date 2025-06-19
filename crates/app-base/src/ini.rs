@@ -23,7 +23,6 @@ pub enum IniError {
     FileNotFound(String),
     InvalidParse(String)
 }
-
 impl Error for IniError {}
 
 impl Display for IniError {
