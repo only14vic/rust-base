@@ -21,7 +21,6 @@ impl Config {
         file.push("config/app.ini");
         let ini = Ini::from_file(&file.to_string_lossy())?;
         config.extend(&ini);
-
         config.load_env()?;
 
         let args = Args::new([
@@ -42,22 +41,38 @@ impl Config {
 
 impl LoadEnv for Config {
     fn load_env(&mut self) -> Ok<()> {
-        self.base.load_env()?;
-        self.tokio.load_env()?;
-        self.actix.load_env()?;
-        #[cfg(feature = "db")]
-        self.db.load_env()?;
+        #[rustfmt::skip]
+        let list = [
+            &mut self.base,
+            &mut self.tokio,
+            &mut self.actix,
+            #[cfg(feature = "db")]
+            &mut self.db
+        ] as [&mut dyn LoadEnv; 4];
+
+        for config in list {
+            config.load_env()?;
+        }
+
         ok()
     }
 }
 
 impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Ok<()> {
-        self.base.log.load_args(&args)?;
-        self.tokio.load_args(&args)?;
-        self.actix.load_args(&args)?;
-        #[cfg(feature = "db")]
-        self.db.load_args(&args)?;
+        #[rustfmt::skip]
+        let list = [
+            &mut self.base.log,
+            &mut self.tokio,
+            &mut self.actix,
+            #[cfg(feature = "db")]
+            &mut self.db
+        ] as [&mut dyn LoadArgs; 4];
+
+        for config in list {
+            config.load_args(args)?;
+        }
+
         ok()
     }
 }
