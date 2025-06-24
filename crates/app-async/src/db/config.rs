@@ -26,7 +26,7 @@ impl Default for DbConfig {
 }
 
 impl LoadEnv for DbConfig {
-    fn load_env(&mut self) -> Ok<()> {
+    fn load_env(&mut self) -> Void {
         self.extend(
             [
                 ("url", getenv("DATABASE_URL")),
@@ -42,7 +42,7 @@ impl LoadEnv for DbConfig {
 }
 
 impl LoadArgs for DbConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<()> {
+    fn load_args(&mut self, args: &Args) -> Void {
         self.extend(
             [("url", args.get("db-url"))]
                 .iter()

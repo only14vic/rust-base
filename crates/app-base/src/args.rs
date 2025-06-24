@@ -13,7 +13,7 @@ use {
 };
 
 pub trait LoadArgs {
-    fn load_args(&mut self, args: &Args) -> Ok<()>;
+    fn load_args(&mut self, args: &Args) -> Void;
 }
 
 type ArgsOpts<'o> = IndexMap<&'o str, &'o [&'o str]>;

@@ -22,7 +22,7 @@ impl Default for ActixConfig {
 }
 
 impl LoadEnv for ActixConfig {
-    fn load_env(&mut self) -> Ok<()> {
+    fn load_env(&mut self) -> Void {
         self.extend(
             [
                 ("socket", getenv("ACTIX_SOCKET")),
@@ -38,7 +38,7 @@ impl LoadEnv for ActixConfig {
 }
 
 impl LoadArgs for ActixConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<()> {
+    fn load_args(&mut self, args: &Args) -> Void {
         self.extend(
             [
                 ("socket", args.get("actix-socket")),

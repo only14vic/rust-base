@@ -1,7 +1,7 @@
 #[cfg(not(feature = "std"))]
 extern crate libc;
 
-use {crate::prelude::Ok, alloc::string::String};
+use {crate::prelude::Void, alloc::string::String};
 #[cfg(not(feature = "std"))]
 use {alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr, core::str::FromStr};
 
@@ -28,7 +28,7 @@ pub fn getenv(name: &str) -> Option<String> {
 }
 
 pub trait LoadEnv {
-    fn load_env(&mut self) -> Ok<()>;
+    fn load_env(&mut self) -> Void;
 }
 
 pub struct Env;

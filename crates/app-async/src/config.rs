@@ -18,7 +18,7 @@ impl Default for TokioConfig {
 }
 
 impl LoadEnv for TokioConfig {
-    fn load_env(&mut self) -> Ok<()> {
+    fn load_env(&mut self) -> Void {
         self.extend(
             [("threads", getenv("TOKIO_THREADS"))]
                 .iter()
@@ -29,7 +29,7 @@ impl LoadEnv for TokioConfig {
 }
 
 impl LoadArgs for TokioConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<()> {
+    fn load_args(&mut self, args: &Args) -> Void {
         self.extend(
             [("threads", args.get("tokio-threads"))]
                 .iter()

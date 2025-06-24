@@ -25,7 +25,7 @@ impl Default for BaseConfig {
 }
 
 impl LoadEnv for BaseConfig {
-    fn load_env(&mut self) -> Ok<()> {
+    fn load_env(&mut self) -> Void {
         self.extend(
             [("language", getenv("LANG")), ("timezone", getenv("TZ"))]
                 .iter()
@@ -42,7 +42,7 @@ impl LoadEnv for BaseConfig {
 }
 
 impl LoadArgs for BaseConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<()> {
+    fn load_args(&mut self, args: &Args) -> Void {
         #[rustfmt::skip]
         self.extend(
             [
@@ -81,7 +81,7 @@ impl Default for LogConfig {
 }
 
 impl LoadEnv for LogConfig {
-    fn load_env(&mut self) -> Ok<()> {
+    fn load_env(&mut self) -> Void {
         self.extend(
             [
                 ("level", getenv("LOG_LEVEL")),
@@ -97,7 +97,7 @@ impl LoadEnv for LogConfig {
 }
 
 impl LoadArgs for LogConfig {
-    fn load_args(&mut self, args: &Args) -> Ok<()> {
+    fn load_args(&mut self, args: &Args) -> Void {
         #[rustfmt::skip]
         self.extend(
             [
