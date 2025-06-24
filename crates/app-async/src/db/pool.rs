@@ -60,8 +60,8 @@ pub async fn db_pool<D: Database>(
     Ok(pool_ref)
 }
 
-pub async fn db_pool_reset(config: Option<Arc<DbConfig>>) {
-    if let Some(config) = config.as_ref() {
+pub async fn db_pool_reset(config: Option<&Arc<DbConfig>>) {
+    if let Some(config) = config {
         POOLS.lock().await.remove(config);
     } else {
         *POOLS.lock().await = Default::default();
