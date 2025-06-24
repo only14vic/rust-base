@@ -64,10 +64,12 @@ impl<'o> Args<'o> {
 
     pub unsafe fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
         let mut args = Vec::with_capacity(argc);
+
         for arg in slice::from_raw_parts(argv, argc) {
             let arg = CStr::from_ptr(*arg).to_str()?.to_string();
             args.push(arg);
         }
+
         self.parse_args(args)
     }
 

@@ -30,17 +30,13 @@ static DEFAULT_CONFIG: LazyLock<Arc<DbConfig>> = LazyLock::new(|| {
 ///
 /// If `config` is `None` then default config will be used.
 pub async fn db_pool<D: Database>(
-    config: Option<Arc<DbConfig>>
+    config: Option<&Arc<DbConfig>>
 ) -> OkAsync<Arc<Pool<D>>> {
-    let config = match config {
-        Some(config) => config.clone(),
-        None => DEFAULT_CONFIG.clone()
-    };
-
+    let config = config.unwrap_or(&DEFAULT_CONFIG);
     let pool_ref: Arc<Pool<D>>;
     let mut pools = POOLS.lock().await;
 
-    if let Some(item) = pools.get(&config).cloned() {
+    if let Some(item) = pools.get(config).cloned() {
         pool_ref = item.downcast().map_err(|_| ERR_INVALID_DOWNCAST_TO_POOL)?;
         return Ok(pool_ref);
     }
@@ -59,7 +55,7 @@ pub async fn db_pool<D: Database>(
         .clone()
         .downcast()
         .map_err(|_| ERR_INVALID_DOWNCAST_TO_POOL)?;
-    pools.insert(config, pool);
+    pools.insert(config.clone(), pool);
 
     Ok(pool_ref)
 }

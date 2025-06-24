@@ -1,7 +1,7 @@
 use {
     app_async::{db::DbConfig, http_server::ActixConfig, TokioConfig},
     app_base::prelude::*,
-    std::env::current_dir
+    std::{env::current_dir, sync::Arc}
 };
 
 #[derive(Debug, Default, Extend)]
@@ -9,7 +9,7 @@ pub struct Config {
     pub base: BaseConfig,
     pub tokio: TokioConfig,
     #[cfg(feature = "db")]
-    pub db: DbConfig,
+    pub db: Arc<DbConfig>,
     pub actix: ActixConfig
 }
 
@@ -49,7 +49,7 @@ impl LoadEnv for Config {
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
-            &mut self.db
+            Arc::get_mut(&mut self.db).unwrap()
         ] as [&mut dyn LoadEnv; 4];
 
         for config in list {
@@ -68,7 +68,7 @@ impl LoadArgs for Config {
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
-            &mut self.db
+            Arc::get_mut(&mut self.db).unwrap()
         ] as [&mut dyn LoadArgs; 4];
 
         for config in list {
