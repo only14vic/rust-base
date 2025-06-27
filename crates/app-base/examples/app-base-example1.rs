@@ -39,7 +39,8 @@ fn main(argc: usize, argv: *const *const c_char) -> c_int {
         ("foo", &["-f"], "Foo".into_some()),
         ("bar", &["-b"], "Bar".into_some()),
         ("zoo", &["-z"], None)
-    ]);
+    ])
+    .unwrap();
     let args = unsafe { args.parse_argc(argc, argv).unwrap() };
 
     log::debug!("{:#?}", &*args);
