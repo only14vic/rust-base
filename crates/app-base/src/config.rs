@@ -1,6 +1,7 @@
 use {
     crate::prelude::*,
     alloc::{
+        format,
         string::{String, ToString},
         vec::Vec
     },
@@ -80,6 +81,19 @@ impl Default for LogConfig {
     }
 }
 
+impl LogConfig {
+    pub fn with_log_dir(&mut self, dir: &str) -> &mut Self {
+        if dir.is_empty() == false {
+            if let Some(file) = self.file.as_ref() {
+                if file.starts_with("/") == false {
+                    self.file = Some(format!("{dir}/{file}"));
+                }
+            }
+        }
+        self
+    }
+}
+
 impl LoadEnv for LogConfig {
     fn load_env(&mut self) -> Void {
         self.extend(
@@ -104,7 +118,8 @@ impl LoadArgs for LogConfig {
                 ("level", args.get("log-level")),
                 ("file", args.get("log-file")),
             ]
-            .iter().map(convert::tuple_option_option_string_to_str)
+            .iter()
+            .map(convert::tuple_option_option_string_to_str)
         );
         ok()
     }

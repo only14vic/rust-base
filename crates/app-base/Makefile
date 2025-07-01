@@ -1,19 +1,20 @@
-ALL += build-base, \
-	   build-base no_std=1, \
-	   build-base static=1, \
-	   build-base static=1 no_std=1, \
-	   examples-base-c, \
-	   examples-base, \
-	   examples-base no_std=1, \
-	   examples-base static=1, \
-	   examples-base static=1 no_std=1, \
+ALL += tests-base, \
+		build-base, \
+		build-base no_std=1, \
+		build-base static=1, \
+		build-base static=1 no_std=1, \
+		examples-base-c, \
+		examples-base, \
+		examples-base no_std=1, \
+		examples-base static=1, \
+		examples-base static=1 no_std=1, \
 
 .PHONY: build-base
 build-base: flags
 ifeq ($(static),)
 	cargo rustc -p app-base --lib --crate-type=cdylib $(CARGO_ARGS)
 else
-	cargo rustc -p app-base --lib --crate-type=staticlib $(CARGO_ARGS) --verbose -- --print native-static-libs
+	cargo rustc -p app-base --lib --crate-type=staticlib $(CARGO_ARGS)
 endif
 
 .PHONY: examples-base
@@ -29,6 +30,10 @@ examples-base-c: flags
 		-o $(target_dir)/app-base-example-c \
 		crates/app-base/examples/app-base-example.c
 	$(target_dir)/app-base-example-c
+
+.PHONY: tests-base
+tests-base: flags
+	cargo test -p app-base --tests $(CARGO_ARGS) -- --nocapture
 
 .PHONY: check-base
 check-base:

@@ -105,7 +105,7 @@ impl Logger {
                         c"a+".as_ptr()
                     );
                     if file.is_null() {
-                        Err("Could not open log file: {path}")?;
+                        Err(format!("Could not open log file: {path}"))?;
                     }
                     self.file = Box::from_raw(file).into();
                 }

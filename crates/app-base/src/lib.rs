@@ -20,3 +20,4 @@ pub mod prelude;
 pub mod macros;
 pub mod args;
 pub mod convert;
+pub mod dirs;

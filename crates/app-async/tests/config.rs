@@ -7,6 +7,7 @@ use {
 #[derive(Debug, Default, Extend)]
 pub struct Config {
     pub base: BaseConfig,
+    pub dirs: Dirs,
     pub tokio: TokioConfig,
     #[cfg(feature = "db")]
     pub db: Arc<DbConfig>,
@@ -28,12 +29,17 @@ impl Config {
             #[cfg(feature = "db")]
             ("db-url", &[], None),
             ("log-level", &["-l"], None),
-            ("log-file", &["-f"], None),
+            ("log-file", &[], None),
             ("language", &[], None),
-            ("timezone", &[], None)
+            ("timezone", &[], None),
+            ("home-dir", &["-h"], None),
+            ("config-dir", &["-c"], None),
+            ("user-config-dir", &["-u"], None)
         ])?
         .parse_args(std::env::args().collect())?;
         config.load_args(&args)?;
+
+        config.base.log.with_log_dir(&config.dirs.log);
 
         log::trace!("Loaded: {config:#?}");
 
@@ -46,11 +52,12 @@ impl LoadEnv for Config {
         #[rustfmt::skip]
         let list = [
             &mut self.base,
+            &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
-        ] as [&mut dyn LoadEnv; 4];
+        ] as [&mut dyn LoadEnv; 5];
 
         for config in list {
             config.load_env()?;
@@ -65,11 +72,12 @@ impl LoadArgs for Config {
         #[rustfmt::skip]
         let list = [
             &mut self.base,
+            &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
-        ] as [&mut dyn LoadArgs; 4];
+        ] as [&mut dyn LoadArgs; 5];
 
         for config in list {
             config.load_args(args)?;
