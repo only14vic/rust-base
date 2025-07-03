@@ -114,7 +114,7 @@ impl Ini {
         Self::setenv_from_file(&".env", overwrite)
     }
 
-    unsafe extern "C" fn ini_parse_callback(
+    extern "C" fn ini_parse_callback(
         context: *mut c_void,
         section: *const c_char,
         name: *const c_char,
@@ -124,10 +124,10 @@ impl Ini {
             return 0;
         }
 
-        let items: &mut IniMap = &mut *context.cast();
-        let section = CStr::from_ptr(section);
-        let name = CStr::from_ptr(name);
-        let value = CStr::from_ptr(value);
+        let items: &mut IniMap = unsafe { &mut *context.cast() };
+        let section = unsafe { CStr::from_ptr(section) };
+        let name = unsafe { CStr::from_ptr(name) };
+        let value = unsafe { CStr::from_ptr(value) };
 
         let key: String = if section.is_empty() {
             name.to_string_lossy().into_owned()
@@ -156,7 +156,7 @@ impl Ini {
 ///
 /// Returns zero if initialization is successfull.
 /// Otherwise returns int less zero.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn dotenv(overwrite: bool) -> c_int {
     match Ini::dotenv(overwrite) {
         Ok(..) => 0,

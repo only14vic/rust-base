@@ -27,7 +27,7 @@ use {
 const MAX_ITERS: usize = 100_000;
 const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/data.ini");
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 fn main(argc: usize, argv: *const *const c_char) -> c_int {
     dotenv(false);
     log_init();

@@ -40,7 +40,7 @@ impl Into<Level> for LogLevel {
 ///
 /// Returns non-zero pointer if initialization is successfull.
 /// Otherwise returns zero.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
     match Logger::init() {
         Ok(logger) => Box::into_raw(logger),
@@ -52,9 +52,9 @@ pub extern "C" fn log_init() -> *mut Logger {
 }
 
 /// Logs messages in C
-#[no_mangle]
-unsafe extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
-    let msg = CStr::from_ptr(msg.cast()).to_string_lossy();
+#[unsafe(no_mangle)]
+extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
+    let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
     log::log!(level.into(), "{msg}");
 }
 
@@ -119,7 +119,7 @@ impl Logger {
     }
 
     /// Close log file descriptor
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     extern "C" fn log_close(&mut self) {
         if let Some(file) = self.file.take() {
             unsafe { libc::fclose(Box::into_raw(file)) };

@@ -11,9 +11,9 @@ fn panic(info: &PanicInfo<'_>) -> ! {
     unsafe { abort() };
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn rust_eh_personality() {}
 
 #[allow(non_snake_case)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn _Unwind_Resume() {}

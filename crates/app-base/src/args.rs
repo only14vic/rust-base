@@ -65,8 +65,8 @@ impl<'o> Args<'o> {
     pub unsafe fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
         let mut args = Vec::with_capacity(argc);
 
-        for arg in slice::from_raw_parts(argv, argc) {
-            let arg = CStr::from_ptr(*arg).to_str()?.to_string();
+        for arg in unsafe { slice::from_raw_parts(argv, argc) } {
+            let arg = unsafe { CStr::from_ptr(*arg).to_str()?.to_string() };
             args.push(arg);
         }
 
@@ -131,8 +131,8 @@ impl<'o> Args<'o> {
     fn arg_name(&self, arg: &str) -> Result<String, String> {
         self.opts
             .iter()
-            .find(|(&n, v)| {
-                n == arg
+            .find(|(n, v)| {
+                **n == arg
                     || v.contains(&arg)
                     || arg.get(0..2) == Some("--") && arg.get(2..) == Some(n)
             })

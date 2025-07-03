@@ -33,7 +33,7 @@ pub struct Dirs {
 impl Default for Dirs {
     fn default() -> Self {
         let mut this = Self {
-            exe: unsafe { Self::exe_path().unwrap() },
+            exe: Self::exe_path().unwrap(),
             prefix: "".into(),
             suffix: "".into(),
             home: "~".into(),
@@ -216,35 +216,38 @@ impl Dirs {
         path
     }
 
-    unsafe fn exe_path() -> Ok<String> {
-        let pid = libc::getpid();
+    fn exe_path() -> Ok<String> {
+        let pid = unsafe { libc::getpid() };
         let path = format!("/proc/{pid}/exe");
         let path_c = CString::from_str(&path)?;
         let mut buf = Vec::with_capacity(PATH_MAX);
-        let size = readlink(path_c.as_ptr(), buf.as_mut_ptr(), PATH_MAX);
+        let size = unsafe { readlink(path_c.as_ptr(), buf.as_mut_ptr(), PATH_MAX) };
 
         if size <= 0 {
             return Err(format!("Could not read link '{path}'"))?;
         }
 
-        let link_path = ManuallyDrop::new(String::from_raw_parts(
-            buf.as_mut_ptr().cast(),
-            size as usize,
-            PATH_MAX
-        ));
+        let link_path = unsafe {
+            ManuallyDrop::new(String::from_raw_parts(
+                buf.as_mut_ptr().cast(),
+                size as usize,
+                PATH_MAX
+            ))
+        };
 
         Ok(link_path.to_string())
     }
 
-    pub unsafe fn dirname(path: &str) -> Ok<String> {
+    pub fn dirname(path: &str) -> Ok<String> {
         let path_c = ManuallyDrop::new(CString::from_str(path)?);
-        let dir_ptr = dirname(realpath(path_c.as_ptr().cast_mut(), null_mut()));
+        let dir_ptr =
+            unsafe { dirname(realpath(path_c.as_ptr().cast_mut(), null_mut())) };
 
         if dir_ptr.is_null() {
             return Err("Could not get dirname.")?;
         }
 
-        let dir = CString::from_raw(dir_ptr).into_string()?;
+        let dir = unsafe { CString::from_raw(dir_ptr).into_string()? };
         Ok(dir)
     }
 
