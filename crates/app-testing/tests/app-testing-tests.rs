@@ -14,7 +14,7 @@ async fn app_testing_test_async() -> Void {
 
     join_all(FuturesUnordered::from_iter([
         TEST.run(async {
-            for i in 0..10 {
+            for i in 0..100 {
                 RES.lock().await.push(i);
                 sleep(Duration::from_micros(1)).await;
             }
@@ -22,7 +22,7 @@ async fn app_testing_test_async() -> Void {
         })
         .boxed_local(),
         TEST.run(async {
-            for i in 10..20 {
+            for i in 100..200 {
                 RES.lock().await.push(i);
             }
             ok()
@@ -42,7 +42,7 @@ async fn app_testing_test_sync() -> Void {
 
     join_all(FuturesUnordered::from_iter([
         TEST.run_sync(0, async {
-            for i in 0..10 {
+            for i in 0..100 {
                 RES.lock().await.push(i);
                 sleep(Duration::from_micros(1)).await;
             }
@@ -50,7 +50,7 @@ async fn app_testing_test_sync() -> Void {
         })
         .boxed_local(),
         TEST.run_sync(1, async {
-            for i in 10..20 {
+            for i in 100..200 {
                 RES.lock().await.push(i);
             }
             ok()
