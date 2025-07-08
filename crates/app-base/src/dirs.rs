@@ -54,6 +54,8 @@ impl Default for Dirs {
 }
 
 impl Dirs {
+    const CONFIG_DIR_ENV: &str = "CONFIG_DIR";
+
     fn init(&mut self) -> &mut Self {
         let (home, prefix, suffix) = (
             self.home.clone(),
@@ -291,7 +293,7 @@ impl LoadEnv for Dirs {
         #[rustfmt::skip]
         self.extend(
             [
-                ("config", getenv("CONFIG_DIR")),
+                ("config", getenv(Self::CONFIG_DIR_ENV)),
             ]
             .iter()
             .map(convert::tuple_option_string_to_str)
