@@ -27,10 +27,14 @@ impl Default for BaseConfig {
 
 impl LoadEnv for BaseConfig {
     fn load_env(&mut self) -> Void {
+        #[rustfmt::skip]
         self.extend(
-            [("language", getenv("LANG")), ("timezone", getenv("TZ"))]
-                .iter()
-                .map(convert::tuple_option_string_to_str)
+            [
+                ("language", getenv("LANG")),
+                ("timezone", getenv("TZ"))
+            ]
+            .iter()
+            .map(convert::tuple_option_string_to_str)
         );
 
         if self.language.len() > 2 {
