@@ -58,13 +58,13 @@ impl LoadEnv for Config {
     fn load_env(&mut self) -> Void {
         #[rustfmt::skip]
         let list = [
-            &mut self.base,
+            &mut self.base as &mut dyn LoadEnv,
             &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
-        ] as [&mut dyn LoadEnv; 5];
+        ];
 
         for config in list {
             config.load_env()?;
@@ -78,13 +78,13 @@ impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Void {
         #[rustfmt::skip]
         let list = [
-            &mut self.base,
+            &mut self.base as &mut dyn LoadArgs,
             &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
             #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
-        ] as [&mut dyn LoadArgs; 5];
+        ];
 
         for config in list {
             config.load_args(args)?;
