@@ -14,9 +14,7 @@ pub struct Config {
 }
 
 impl Config {
-    const CONFIG_FILE_NAME: &str = "app.ini";
-
-    pub fn load() -> Ok<Self> {
+    pub fn load(config_file_name: &str) -> Ok<Self> {
         let args = Args::new([
             ("tokio-threads", &["-t"][..], None),
             ("db-url", &[], None),
@@ -35,7 +33,7 @@ impl Config {
         dirs.load_args(&args)?;
 
         let mut config_file = PathBuf::from(&dirs.config);
-        config_file.push(Self::CONFIG_FILE_NAME);
+        config_file.push(config_file_name);
 
         let ini = Ini::from_file(&config_file.to_string_lossy())?;
 

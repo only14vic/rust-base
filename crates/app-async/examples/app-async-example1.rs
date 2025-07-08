@@ -14,7 +14,7 @@ const MAX_ITERS: usize = 1000;
 fn main() -> Void {
     dotenv(false);
     let mut log = Logger::init()?;
-    let config = app::Config::load()?;
+    let config = app::Config::load("app.ini")?;
     log.configure(&config.base.log)?;
 
     let res = actix_with_tokio_start(Some(&config.tokio), async {
