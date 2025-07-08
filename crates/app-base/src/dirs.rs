@@ -288,6 +288,15 @@ impl Dirs {
 
 impl LoadEnv for Dirs {
     fn load_env(&mut self) -> Void {
+        #[rustfmt::skip]
+        self.extend(
+            [
+                ("config", getenv("CONFIG_DIR")),
+            ]
+            .iter()
+            .map(convert::tuple_option_string_to_str)
+        );
+        self.init();
         ok()
     }
 }

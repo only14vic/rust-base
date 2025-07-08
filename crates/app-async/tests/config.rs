@@ -1,7 +1,7 @@
 use {
     app_async::{db::DbConfig, http_server::ActixConfig, TokioConfig},
     app_base::prelude::*,
-    std::{env::current_dir, sync::Arc}
+    std::{path::PathBuf, sync::Arc}
 };
 
 #[derive(Debug, Default, Extend)]
@@ -16,14 +16,6 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Ok<Self> {
-        let mut config = Self::default();
-
-        let mut file = current_dir()?;
-        file.push("config/app.ini");
-        let ini = Ini::from_file(&file.to_string_lossy())?;
-        config.extend(&ini);
-        config.load_env()?;
-
         let args = Args::new([
             ("tokio-threads", &["-t"][..], None),
             #[cfg(feature = "db")]
@@ -37,6 +29,19 @@ impl Config {
             ("user-config-dir", &["-u"], None)
         ])?
         .parse_args(std::env::args().collect())?;
+
+        let mut dirs = Dirs::default();
+        dirs.load_env()?;
+        dirs.load_args(&args)?;
+
+        let mut config_file = PathBuf::from(&dirs.config);
+        config_file.push("app.ini");
+
+        let ini = Ini::from_file(&config_file.to_string_lossy())?;
+
+        let mut config = Self::default();
+        config.extend(&ini);
+        config.load_env()?;
         config.load_args(&args)?;
 
         config.base.log.with_log_dir(&config.dirs.log);
