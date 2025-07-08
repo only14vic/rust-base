@@ -8,26 +8,19 @@ use {
     sqlx::{Acquire, Postgres, Row}
 };
 
-mod tests {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/config.rs"
-    ));
-}
+const MAX_TASKS: usize = 100;
+const MAX_ITERS: usize = 1000;
 
 fn main() -> Void {
     dotenv(false);
     let mut log = Logger::init()?;
-    let config = tests::Config::load()?;
+    let config = app::Config::load()?;
     log.configure(&config.base.log)?;
 
     let res = actix_with_tokio_start(Some(&config.tokio), async {
         let db = db_pool::<Postgres>(Some(&config.db)).await?;
         let mut tasks = Vec::new();
         let cache = Cacher::<ArrayCache>::from_static();
-
-        const MAX_TASKS: usize = 100;
-        const MAX_ITERS: usize = 1000;
 
         for j in 0..MAX_TASKS {
             let db = db.clone();

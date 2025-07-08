@@ -9,7 +9,6 @@ pub struct Config {
     pub base: BaseConfig,
     pub dirs: Dirs,
     pub tokio: TokioConfig,
-    #[cfg(feature = "db")]
     pub db: Arc<DbConfig>,
     pub actix: ActixConfig
 }
@@ -20,7 +19,6 @@ impl Config {
     pub fn load() -> Ok<Self> {
         let args = Args::new([
             ("tokio-threads", &["-t"][..], None),
-            #[cfg(feature = "db")]
             ("db-url", &[], None),
             ("log-level", &["-l"], None),
             ("log-file", &[], None),
@@ -62,7 +60,6 @@ impl LoadEnv for Config {
             &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
-            #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
         ];
 
@@ -82,7 +79,6 @@ impl LoadArgs for Config {
             &mut self.dirs,
             &mut self.tokio,
             &mut self.actix,
-            #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
         ];
 

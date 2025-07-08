@@ -397,11 +397,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "app"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-web",
+ "app-async",
+ "app-base",
+ "app-macros",
+ "app-testing",
+ "dashmap",
+ "futures",
+ "log",
+ "sqlx",
+ "tokio",
+]
+
+[[package]]
 name = "app-async"
 version = "0.1.0"
 dependencies = [
  "actix",
  "actix-web",
+ "app",
  "app-base",
  "dashmap",
  "futures",

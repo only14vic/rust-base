@@ -1,5 +1,5 @@
 [package]
-name = "app-async"
+name = "app"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,15 +8,21 @@ workspace = true
 
 [lib]
 path = "src/lib.rs"
-name = "app_async"
+name = "app"
 crate-type = ["lib"]
 
+[[bin]]
+path = "src/main.rs"
+name = "app"
+
 [features]
-default = ["db"]
-db = ["dep:sqlx", "dep:futures"]
+default = ["std"]
+std = ["app-base/std", "app-macros/std"]
 
 [dependencies]
-app-base = { workspace = true, features = ["std"] }
+app-base = { workspace = true }
+app-async = { workspace = true, features = ["db"] }
+app-macros = { workspace = true }
 tokio = { workspace = true }
 actix = { workspace = true }
 actix-web = { workspace = true }
@@ -24,7 +30,6 @@ log = { workspace = true }
 sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 dashmap = { workspace = true }
-itoa = { workspace = true }
 
 [dev-dependencies]
-app = { workspace = true, features = ["std"] }
+app-testing = { workspace = true }
