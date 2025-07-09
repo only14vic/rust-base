@@ -7,7 +7,7 @@ static GLOBAL_ALLOC: LibcAlloc = LibcAlloc;
 
 #[panic_handler]
 fn panic(info: &PanicInfo<'_>) -> ! {
-    eprintln!("{info}");
+    eprintln!("ERROR: {info}");
     unsafe { abort() };
 }
 

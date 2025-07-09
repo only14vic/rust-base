@@ -1,41 +1,57 @@
-use {
-    app_async::{db::DbConfig, http_server::ActixConfig, TokioConfig},
-    app_base::prelude::*,
-    std::{path::PathBuf, sync::Arc}
-};
+#[cfg(not(feature = "std"))]
+use core::ffi::c_char;
+
+use {alloc::format, app_base::prelude::*};
+#[cfg(feature = "std")]
+use app_async::{http_server::ActixConfig, TokioConfig};
+#[cfg(feature = "db")]
+use {alloc::sync::Arc, app_async::db::DbConfig};
 
 #[derive(Debug, Default, Extend)]
 pub struct Config {
     pub base: BaseConfig,
     pub dirs: Dirs,
+    #[cfg(feature = "std")]
     pub tokio: TokioConfig,
-    pub db: Arc<DbConfig>,
-    pub actix: ActixConfig
+    #[cfg(feature = "std")]
+    pub actix: ActixConfig,
+    #[cfg(feature = "db")]
+    pub db: Arc<DbConfig>
 }
 
 impl Config {
-    pub fn load(config_file_name: &str) -> Ok<Self> {
-        let args = Args::new([
-            ("tokio-threads", &["-t"][..], None),
-            ("db-url", &[], None),
-            ("log-level", &["-l"], None),
+    pub fn load(
+        config_file_name: &str,
+        #[cfg(not(feature = "std"))] argc: usize,
+        #[cfg(not(feature = "std"))] argv: *const *const c_char
+    ) -> Ok<Self> {
+        let mut args = Args::new([
+            ("log-level", &["-l"][..], None),
             ("log-file", &[], None),
             ("language", &[], None),
             ("timezone", &[], None),
             ("home-dir", &["-h"], None),
             ("config-dir", &["-c"], None),
-            ("user-config-dir", &["-u"], None)
-        ])?
-        .parse_args(std::env::args().collect())?;
+            ("user-config-dir", &["-u"], None),
+            ("tokio-threads", &["-t"], None),
+            ("db-url", &[], None)
+        ])?;
+
+        #[cfg(feature = "std")]
+        {
+            args = args.parse_args(std::env::args().collect())?;
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            args = unsafe { args.parse_argc(argc, argv)? };
+        }
 
         let mut dirs = Dirs::default();
         dirs.load_env()?;
         dirs.load_args(&args)?;
 
-        let mut config_file = PathBuf::from(&dirs.config);
-        config_file.push(config_file_name);
-
-        let ini = Ini::from_file(&config_file.to_string_lossy())?;
+        let config_file = format!("{}/{config_file_name}", &dirs.config);
+        let ini = Ini::from_file(&config_file)?;
 
         let mut config = Self::default();
         config.extend(&ini);
@@ -52,12 +68,14 @@ impl Config {
 
 impl LoadEnv for Config {
     fn load_env(&mut self) -> Void {
-        #[rustfmt::skip]
         let list = [
             &mut self.base as &mut dyn LoadEnv,
             &mut self.dirs,
+            #[cfg(feature = "std")]
             &mut self.tokio,
+            #[cfg(feature = "std")]
             &mut self.actix,
+            #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
         ];
 
@@ -71,12 +89,14 @@ impl LoadEnv for Config {
 
 impl LoadArgs for Config {
     fn load_args(&mut self, args: &Args) -> Void {
-        #[rustfmt::skip]
         let list = [
             &mut self.base as &mut dyn LoadArgs,
             &mut self.dirs,
+            #[cfg(feature = "std")]
             &mut self.tokio,
+            #[cfg(feature = "std")]
             &mut self.actix,
+            #[cfg(feature = "db")]
             Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
         ];
 

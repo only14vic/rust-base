@@ -16,7 +16,7 @@ default = ["db"]
 db = ["dep:sqlx", "dep:futures"]
 
 [dependencies]
-app-base = { workspace = true, features = ["std"] }
+app-base = { workspace = true }
 tokio = { workspace = true }
 actix = { workspace = true }
 actix-web = { workspace = true }
@@ -25,6 +25,7 @@ sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 dashmap = { workspace = true }
 itoa = { workspace = true }
+yansi = { workspace = true }
 
 [dev-dependencies]
-app = { workspace = true, features = ["std"] }
+app = { workspace = true, features = ["db"] }

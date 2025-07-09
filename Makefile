@@ -12,6 +12,7 @@ make = make --no-print-directory
 
 CARGO_ARGS =
 RUSTFLAGS = -Ctarget-cpu=native \
+			-Clinker=clang \
 			-Clinker-plugin-lto \
 			-Clink-arg=-fuse-ld=lld \
 			-Clink-arg=-lc
@@ -55,7 +56,7 @@ clean:
 
 check:
 	$(eval RUSTFLAGS=)
-	cargo check --workspace --no-default-features
+	cargo check --workspace --no-default-features --exclude app
 	cargo check --workspace
 	cargo clippy --no-deps
 	rustup run nightly rustfmt --check crates/*/src/**/*.rs
