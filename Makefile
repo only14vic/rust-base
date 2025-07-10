@@ -10,10 +10,7 @@ endif
 
 make = make --no-print-directory
 
-ifndef CARGO_ARGS
-	CARGO_ARGS =
-endif
-
+CARGO_ARGS =
 RUSTFLAGS = -Ctarget-cpu=native \
 			-Clinker=clang \
 			-Clinker-plugin-lto \

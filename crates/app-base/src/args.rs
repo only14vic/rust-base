@@ -62,7 +62,7 @@ impl<'o> Args<'o> {
         Ok(self)
     }
 
-    pub fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
+    pub unsafe fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
         let mut args = Vec::with_capacity(argc);
 
         for arg in unsafe { slice::from_raw_parts(argv, argc) } {

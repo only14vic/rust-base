@@ -9,7 +9,7 @@ extern crate core;
 #[cfg(not(feature = "std"))]
 use core::ffi::{c_char, c_int};
 
-use app_base::prelude::*;
+use {app::Config, app_base::prelude::*, core::mem::forget};
 
 const CONFIG_FILE_NAME: &str = "app.ini";
 
@@ -33,7 +33,7 @@ fn run(
     let mut log = Logger::init()?;
 
     #[rustfmt::skip]
-    let config = app::Config::load(
+    let config = Config::load(
         CONFIG_FILE_NAME,
         #[cfg(not(feature = "std"))]
         argc,
@@ -42,6 +42,10 @@ fn run(
     )?;
 
     log.configure(&config.base.log)?;
+    forget(log);
+
+    let di = Di::from_static();
+    di.set(config);
 
     ok()
 }

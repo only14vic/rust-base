@@ -21,3 +21,4 @@ pub mod macros;
 pub mod args;
 pub mod convert;
 pub mod dirs;
+pub mod di;
