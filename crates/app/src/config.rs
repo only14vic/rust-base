@@ -43,7 +43,7 @@ impl Config {
         }
         #[cfg(not(feature = "std"))]
         {
-            args = unsafe { args.parse_argc(argc, argv)? };
+            args = args.parse_argc(argc, argv)?;
         }
 
         let mut dirs = Dirs::default();
