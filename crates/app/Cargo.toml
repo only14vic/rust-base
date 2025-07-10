@@ -20,6 +20,7 @@ default = ["std", "db"]
 std = [
   "app-base/std",
   "app-macros/std",
+  "dep:app-async",
   "dep:tokio",
   "dep:actix",
   "dep:actix-web",
