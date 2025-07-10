@@ -41,6 +41,12 @@ impl Di {
             .map(|v| v.clone().downcast::<T>().unwrap())
     }
 
+    pub fn get_ref<T: Send + Sync + 'static>(&self) -> Option<&T> {
+        self.container
+            .get(&TypeId::of::<T>())
+            .map(|v| v.downcast_ref::<T>().unwrap())
+    }
+
     pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> OkAsync<Option<&mut T>> {
         match self.container.get_mut(&TypeId::of::<T>()) {
             Some(v) => {
