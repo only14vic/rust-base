@@ -1,11 +1,15 @@
 #[cfg(not(feature = "std"))]
 use core::ffi::c_char;
 
-use {alloc::format, app_base::prelude::*};
 #[cfg(feature = "std")]
 use app_async::{http_server::ActixConfig, TokioConfig};
 #[cfg(feature = "db")]
 use {alloc::sync::Arc, app_async::db::DbConfig};
+use {
+    alloc::{boxed::Box, format},
+    app_base::prelude::*,
+    core::pin::Pin
+};
 
 #[derive(Debug, Default, Extend)]
 pub struct Config {
@@ -57,8 +61,14 @@ impl Config {
         config.extend(&ini);
         config.load_env()?;
         config.load_args(&args)?;
-
         config.base.log.with_log_dir(&config.dirs.log);
+
+        let di = Di::from_static();
+        di.set(args);
+
+        if let Ok(Some(log)) = di.get_mut::<Pin<Box<Logger>>>() {
+            log.configure(&config.base.log)?;
+        }
 
         log::trace!("Loaded: {config:#?}");
 

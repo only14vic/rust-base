@@ -1,8 +1,8 @@
 use {
     crate::prelude::*,
-    alloc::{boxed::Box, sync::Arc},
+    alloc::{boxed::Box, format, sync::Arc},
     core::{
-        any::{Any, TypeId},
+        any::{type_name, Any, TypeId},
         ptr::null_mut,
         sync::atomic::{AtomicPtr, Ordering}
     }
@@ -39,6 +39,23 @@ impl Di {
         self.container
             .get(&TypeId::of::<T>())
             .map(|v| v.clone().downcast::<T>().unwrap())
+    }
+
+    pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> OkAsync<Option<&mut T>> {
+        match self.container.get_mut(&TypeId::of::<T>()) {
+            Some(v) => {
+                match Arc::get_mut(v) {
+                    Some(v) => v.downcast_mut::<T>().unwrap().into_ok(),
+                    None => {
+                        Err(format!(
+                            "Could not get mutable '{}' from container",
+                            type_name::<T>()
+                        ))?
+                    },
+                }
+            },
+            None => Ok(None)
+        }
     }
 
     pub fn set<T: Send + Sync + 'static>(&mut self, obj: T) -> Option<Arc<T>> {

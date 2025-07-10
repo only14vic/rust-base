@@ -8,6 +8,7 @@ use {
         ffi::{c_char, CStr},
         mem::{transmute, zeroed},
         ops::{Deref, DerefMut},
+        pin::Pin,
         ptr::null_mut,
         str::FromStr,
         sync::atomic::{AtomicBool, Ordering}
@@ -43,7 +44,7 @@ impl Into<Level> for LogLevel {
 #[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
     match Logger::init() {
-        Ok(logger) => Box::into_raw(logger),
+        Ok(logger) => Box::leak(Pin::into_inner(logger)),
         Err(e) => {
             eprintln!("ERROR: log_init() - {e}");
             null_mut()
@@ -81,7 +82,7 @@ impl DerefMut for Logger {
 }
 
 impl Logger {
-    pub fn init() -> Ok<Box<Self>> {
+    pub fn init() -> Ok<Pin<Box<Self>>> {
         let mut logger = Box::new(Self::default());
         let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const _) };
 
@@ -90,12 +91,12 @@ impl Logger {
         logger.load_env()?;
         logger.configure(&logger_ref.config)?;
 
-        Ok(logger)
+        Ok(logger.into())
     }
 
     pub fn configure(&mut self, config: &LogConfig) -> Void {
         self.log_close();
-        self.config = config.clone();
+        self.config.clone_from(config);
 
         if let Some(path) = self.config.file.as_ref() {
             if path.is_empty() == false {
@@ -113,7 +114,7 @@ impl Logger {
         }
 
         log::set_max_level(self.config.level);
-        log::trace!("{:?}", self.config);
+        log::trace!("Configured: {:?}", self.config);
 
         ok()
     }
