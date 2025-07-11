@@ -79,19 +79,19 @@ impl App {
         Ok(app)
     }
 
+    #[unsafe(no_mangle)]
+    #[allow(unused_variables)]
+    extern "C" fn app_boot(argc: usize, argv: *const *const c_char) -> *const c_void {
+        #[cfg(feature = "std")]
+        let app = Self::boot().unwrap();
+        #[cfg(not(feature = "std"))]
+        let app = Self::boot(argc, argv).unwrap();
+
+        Box::into_raw(app.into()).cast()
+    }
+
     pub fn run(self) -> Void {
         mem_stats();
         ok()
     }
-}
-
-#[unsafe(no_mangle)]
-#[allow(unused_variables)]
-pub extern "C" fn app_start(argc: usize, argv: *const *const c_char) -> *const c_void {
-    #[cfg(feature = "std")]
-    let app = App::boot().unwrap();
-    #[cfg(not(feature = "std"))]
-    let app = App::boot(argc, argv).unwrap();
-
-    Box::into_raw(app.into()).cast()
 }
