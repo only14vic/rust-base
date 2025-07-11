@@ -37,8 +37,6 @@ impl Config {
         config.load_args(args)?;
         config.base.log.with_log_dir(&config.dirs.log);
 
-        log::trace!("Loaded: {config:#?}");
-
         config.into_ok()
     }
 

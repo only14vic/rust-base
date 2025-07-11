@@ -6,6 +6,6 @@ extern crate core;
 extern crate alloc;
 
 mod config;
-mod boot;
+mod app;
 
-pub use {boot::*, config::*};
+pub use {app::*, config::*};

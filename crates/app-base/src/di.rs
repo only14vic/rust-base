@@ -79,4 +79,8 @@ impl Di {
     pub fn has<T: Send + Sync + 'static>(&self) -> bool {
         self.container.contains_key(&TypeId::of::<T>())
     }
+
+    pub fn clear(&mut self) {
+        self.container = Default::default();
+    }
 }

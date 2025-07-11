@@ -19,7 +19,7 @@ fn main() -> Void {
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: usize, argv: *const *const c_char) -> c_int {
-    let _ = run(argc, argv).unwrap();
+    run(argc, argv).unwrap();
     libc::EXIT_SUCCESS
 }
 
@@ -28,9 +28,9 @@ pub fn run(
     #[cfg(not(feature = "std"))] argv: *const *const c_char
 ) -> Void {
     #[cfg(feature = "std")]
-    Boot::boot()?;
+    let _app = App::boot()?;
     #[cfg(not(feature = "std"))]
-    Boot::boot(argc, argv)?;
+    let _app = App::boot(argc, argv)?;
 
     ok()
 }
