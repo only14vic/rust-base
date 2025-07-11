@@ -70,6 +70,12 @@ impl Di {
             .map(|v| v.downcast::<T>().unwrap())
     }
 
+    pub fn add<T: Send + Sync + 'static>(&mut self, obj_ref: Arc<T>) -> Option<Arc<T>> {
+        self.container
+            .insert(TypeId::of::<T>(), obj_ref)
+            .map(|v| v.downcast::<T>().unwrap())
+    }
+
     pub fn remove<T: Send + Sync + 'static>(&mut self) -> Option<Arc<T>> {
         self.container
             .swap_remove(&TypeId::of::<T>())

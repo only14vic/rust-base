@@ -7,5 +7,6 @@ extern crate alloc;
 
 mod config;
 mod app;
+mod options;
 
-pub use {app::*, config::*};
+pub use {app::*, config::*, options::*};

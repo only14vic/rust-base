@@ -8,10 +8,11 @@ use {
 };
 #[cfg(feature = "db")]
 use app_async::db::DbConfig;
-use {alloc::format, app_base::prelude::*};
+use {crate::AppOptions, alloc::format, app_base::prelude::*};
 
 #[derive(Debug, Default, Extend)]
-pub struct Config {
+pub struct AppConfig {
+    pub options: AppOptions,
     pub base: BaseConfig,
     pub dirs: Dirs,
     #[cfg(feature = "std")]
@@ -22,7 +23,7 @@ pub struct Config {
     pub db: Arc<DbConfig>
 }
 
-impl Config {
+impl AppConfig {
     pub fn load(config_file_name: &str, args: Option<&Args<'_>>) -> Ok<Self> {
         let mut dirs = Dirs::default();
         dirs.load_env()?;
@@ -72,7 +73,7 @@ impl Config {
     }
 }
 
-impl LoadEnv for Config {
+impl LoadEnv for AppConfig {
     fn load_env(&mut self) -> Void {
         let list = [
             &mut self.base as &mut dyn LoadEnv,
@@ -93,7 +94,7 @@ impl LoadEnv for Config {
     }
 }
 
-impl LoadArgs for Config {
+impl LoadArgs for AppConfig {
     fn load_args(&mut self, args: &Args) -> Void {
         let list = [
             &mut self.base as &mut dyn LoadArgs,

@@ -1,21 +1,43 @@
 use {
-    crate::Config,
+    crate::AppConfig,
     alloc::boxed::Box,
     app_base::prelude::*,
     core::{
         ffi::{c_char, c_void},
+        ops::{Deref, DerefMut},
         pin::Pin
     }
 };
 
-pub struct App;
+pub struct App {
+    di: Di
+}
+
+impl Deref for App {
+    type Target = Di;
+
+    fn deref(&self) -> &Self::Target {
+        &self.di
+    }
+}
+
+impl DerefMut for App {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.di
+    }
+}
 
 impl Drop for App {
     fn drop(&mut self) {
-        let di = Di::from_static();
-        let _log = di.get::<Pin<Box<Logger>>>();
-
-        Di::from_static().clear();
+        let _log = if self.config().options.clear_static_di {
+            let di = Di::from_static();
+            let log = di.get::<Pin<Box<Logger>>>();
+            Di::from_static().clear();
+            log::trace!("Static Di cleared");
+            log
+        } else {
+            None
+        };
 
         log::trace!("App finished");
     }
@@ -23,6 +45,12 @@ impl Drop for App {
 
 impl App {
     const CONFIG_FILE_NAME: &str = "app.ini";
+
+    #[inline]
+    pub fn config(&self) -> &AppConfig {
+        self.get_ref::<AppConfig>()
+            .expect("App container is not initialized")
+    }
 
     pub fn boot(
         #[cfg(not(feature = "std"))] argc: usize,
@@ -32,21 +60,20 @@ impl App {
         let mut log = Logger::init()?;
 
         #[cfg(feature = "std")]
-        let args = Config::parse_args()?;
+        let args = AppConfig::parse_args()?;
         #[cfg(not(feature = "std"))]
-        let args = Config::parse_args(argc, argv)?;
+        let args = AppConfig::parse_args(argc, argv)?;
 
-        let config = Config::load(Self::CONFIG_FILE_NAME, Some(&args))?;
+        let config = AppConfig::load(Self::CONFIG_FILE_NAME, Some(&args))?;
 
         log.configure(&config.base.log)?;
         log::trace!("Loaded: {config:#?}");
 
-        let di = Di::from_static();
-        di.set(log);
-        di.set(args);
-        di.set(config);
+        let mut app = Self { di: Default::default() };
 
-        let app = Self {};
+        app.set(log);
+        app.set(args);
+        app.set(config);
 
         Ok(app)
     }
