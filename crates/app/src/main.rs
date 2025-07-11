@@ -9,28 +9,19 @@ extern crate core;
 #[cfg(not(feature = "std"))]
 use core::ffi::{c_char, c_int};
 
+#[allow(unused_imports)]
 use {app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
-    run()
+    let app = App::boot()?;
+    app.run()
 }
 
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: usize, argv: *const *const c_char) -> c_int {
-    run(argc, argv).unwrap();
+    let app = App::boot(argc, argv).unwrap();
+    app.run().unwrap();
     libc::EXIT_SUCCESS
-}
-
-pub fn run(
-    #[cfg(not(feature = "std"))] argc: usize,
-    #[cfg(not(feature = "std"))] argv: *const *const c_char
-) -> Void {
-    #[cfg(feature = "std")]
-    let _app = App::boot()?;
-    #[cfg(not(feature = "std"))]
-    let _app = App::boot(argc, argv)?;
-
-    ok()
 }

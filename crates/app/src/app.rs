@@ -78,6 +78,11 @@ impl App {
 
         Ok(app)
     }
+
+    pub fn run(self) -> Void {
+        mem_stats();
+        ok()
+    }
 }
 
 #[unsafe(no_mangle)]
