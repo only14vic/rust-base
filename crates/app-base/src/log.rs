@@ -65,7 +65,7 @@ extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
     log::log!(level.into(), "{msg}");
 }
 
-// Set max log level in C
+/// Set max log level in C
 #[unsafe(no_mangle)]
 extern "C" fn log_max_level(level: LogLevel) {
     log::set_max_level(level.into());
