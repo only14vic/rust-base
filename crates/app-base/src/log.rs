@@ -203,14 +203,24 @@ impl Log for Logger {
 
         if let Some(filter) = self.config.filter.as_ref() {
             let target = record.target();
+            let mut allow = true;
+
             for value in filter.iter() {
                 if let Some(value) = value.strip_prefix("!") {
                     if target.starts_with(value) {
-                        return;
+                        allow = false;
+                        break;
                     }
                 } else if target.starts_with(value) {
+                    allow = true;
                     break;
+                } else {
+                    allow = false;
                 }
+            }
+
+            if allow == false {
+                return;
             }
         }
 

@@ -67,7 +67,9 @@ impl LoadArgs for LogConfig {
         self.extend(
             [
                 ("level", args.get("log-level")),
+                ("color", args.get("log-color")),
                 ("file", args.get("log-file")),
+                ("filter", args.get("log-filter")),
             ]
             .iter()
             .map(convert::tuple_option_option_string_to_str)

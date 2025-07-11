@@ -53,7 +53,9 @@ impl AppConfig {
     ) -> Ok<Args<'static>> {
         let args = Args::new([
             ("log-level", &["-l"][..], None),
+            ("log-color", &[], None),
             ("log-file", &[], None),
+            ("log-filter", &[], None),
             ("language", &[], None),
             ("timezone", &[], None),
             ("home-dir", &["-h"], None),
