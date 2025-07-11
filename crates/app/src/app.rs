@@ -89,12 +89,12 @@ impl App {
     }
 
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn app_finish(app: *mut c_void) {
+    extern "C" fn app_finish(app: *mut c_void) {
         let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
     }
 
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn app_run(app: *mut c_void) {
+    extern "C" fn app_run(app: *mut c_void) {
         let app = unsafe { &mut *app.cast::<Self>() };
         app.run().unwrap();
     }

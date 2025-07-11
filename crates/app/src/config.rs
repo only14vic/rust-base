@@ -44,7 +44,7 @@ impl AppConfig {
 
         config.base.log.with_log_dir(&config.dirs.log);
 
-        config.into_ok()
+        Ok(config)
     }
 
     pub fn parse_args(
