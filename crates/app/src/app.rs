@@ -36,7 +36,7 @@ impl App {
         #[cfg(not(feature = "std"))]
         let args = Config::parse_args(argc, argv)?;
 
-        let config = Config::load(Self::CONFIG_FILE_NAME, &args)?;
+        let config = Config::load(Self::CONFIG_FILE_NAME, Some(&args))?;
 
         log.configure(&config.base.log)?;
         log::trace!("Loaded: {config:#?}");

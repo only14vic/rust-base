@@ -12,10 +12,9 @@ const MAX_TASKS: usize = 100;
 const MAX_ITERS: usize = 1000;
 
 fn main() -> Void {
-    dotenv(false);
-    let mut log = Logger::init()?;
-    let config = app::Config::load("app.ini")?;
-    log.configure(&config.base.log)?;
+    let _app = app::App::boot()?;
+    let di = Di::from_static();
+    let config = di.get_ref::<app::Config>().unwrap();
 
     let res = actix_with_tokio_start(Some(&config.tokio), async {
         let db = db_pool::<Postgres>(Some(&config.db)).await?;

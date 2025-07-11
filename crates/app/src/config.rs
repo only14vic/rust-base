@@ -23,10 +23,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load(config_file_name: &str, args: &Args<'_>) -> Ok<Self> {
+    pub fn load(config_file_name: &str, args: Option<&Args<'_>>) -> Ok<Self> {
         let mut dirs = Dirs::default();
         dirs.load_env()?;
-        dirs.load_args(&args)?;
+
+        if let Some(args) = args {
+            dirs.load_args(args)?;
+        }
 
         let config_file = format!("{}/{config_file_name}", &dirs.config);
         let ini = Ini::from_file(&config_file)?;
@@ -34,7 +37,11 @@ impl Config {
         let mut config = Self::default();
         config.extend(&ini);
         config.load_env()?;
-        config.load_args(args)?;
+
+        if let Some(args) = args {
+            config.load_args(args)?;
+        }
+
         config.base.log.with_log_dir(&config.dirs.log);
 
         config.into_ok()
