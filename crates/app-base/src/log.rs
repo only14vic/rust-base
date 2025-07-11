@@ -43,8 +43,18 @@ impl Into<Level> for LogLevel {
 /// Otherwise returns zero.
 #[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
+    let di = Di::from_static();
+
+    if let Ok(Some(logger)) = di.get_mut::<Pin<Box<Logger>>>() {
+        return Pin::get_mut(logger.as_mut());
+    }
+
     match Logger::init() {
-        Ok(logger) => Box::leak(Pin::into_inner(logger)),
+        Ok(mut logger) => {
+            let logger_ptr = Pin::get_mut(logger.as_mut()) as *mut _;
+            di.set(logger);
+            logger_ptr
+        },
         Err(e) => {
             eprintln!("ERROR: log_init() - {e}");
             null_mut()

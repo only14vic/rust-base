@@ -9,9 +9,7 @@ extern crate core;
 #[cfg(not(feature = "std"))]
 use core::ffi::{c_char, c_int};
 
-use {app::Config, app_base::prelude::*};
-
-const CONFIG_FILE_NAME: &str = "app.ini";
+use {app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
@@ -21,29 +19,18 @@ fn main() -> Void {
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: usize, argv: *const *const c_char) -> c_int {
-    run(argc, argv).inspect_err(|e| panic!("{e}")).ok();
+    let _ = run(argc, argv).unwrap();
     libc::EXIT_SUCCESS
 }
 
-fn run(
+pub fn run(
     #[cfg(not(feature = "std"))] argc: usize,
     #[cfg(not(feature = "std"))] argv: *const *const c_char
 ) -> Void {
-    dotenv(false);
-    let log = Logger::init()?;
-
-    let di = Di::from_static();
-    di.set(log);
-
-    #[rustfmt::skip]
-    let config = Config::load(
-        CONFIG_FILE_NAME,
-        #[cfg(not(feature = "std"))]
-        argc,
-        #[cfg(not(feature = "std"))]
-        argv
-    )?;
-    di.set(config);
+    #[cfg(feature = "std")]
+    Boot::boot()?;
+    #[cfg(not(feature = "std"))]
+    Boot::boot(argc, argv)?;
 
     ok()
 }
