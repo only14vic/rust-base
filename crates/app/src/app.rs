@@ -69,11 +69,12 @@ impl App {
         log.configure(&config.base.log)?;
         log::trace!("Loaded: {config:#?}");
 
-        let mut app = Self { di: Default::default() };
+        let mut di = Di::default();
+        di.set(log);
+        di.set(args);
+        di.set(config);
 
-        app.set(log);
-        app.set(args);
-        app.set(config);
+        let app = Self { di };
 
         Ok(app)
     }
