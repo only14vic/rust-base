@@ -60,9 +60,14 @@ pub extern "C" fn log_init() -> *mut Logger {
 
 /// Logs messages in C
 #[unsafe(no_mangle)]
-extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
+extern "C" fn log_msg(level: LogLevel, target: *const c_char, msg: *const c_char) {
+    let target = if target.is_null() {
+        module_path!().into()
+    } else {
+        unsafe { CStr::from_ptr(target.cast()).to_string_lossy() }
+    };
     let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
-    log::log!(level.into(), "{msg}");
+    log::log!(target: &target, level.into(), "{msg}");
 }
 
 /// Set max log level in C

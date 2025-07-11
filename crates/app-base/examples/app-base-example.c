@@ -10,11 +10,11 @@ int main() {
     dotenv(false);
     Logger *log = log_init();
 
-    log_msg(ERROR, "This is ERROR");
-    log_msg(WARN, "This is WARNING");
-    log_msg(INFO, "This is INFO");
-    log_msg(DEBUG, "This is DEBUG");
-    log_msg(TRACE, "This is TRACE");
+    log_msg(ERROR, __FUNCTION__, "This is ERROR");
+    log_msg(WARN, __FUNCTION__, "This is WARNING");
+    log_msg(INFO, __FUNCTION__, "This is INFO");
+    log_msg(DEBUG, __FUNCTION__, "This is DEBUG");
+    log_msg(TRACE, __FUNCTION__, "This is TRACE");
 
     malloc_stats();
 

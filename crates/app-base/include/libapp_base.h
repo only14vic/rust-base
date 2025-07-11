@@ -44,7 +44,7 @@ struct Logger *log_init(void);
 /**
  * Logs messages in C
  */
-void log_msg(enum LogLevel level, const char *msg);
+void log_msg(enum LogLevel level, const char *target, const char *msg);
 
 /**
  * Set max log level in C

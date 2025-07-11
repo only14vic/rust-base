@@ -10,7 +10,7 @@
 int main(int argc, const char *argv[]) {
     void *app = app_boot(argc, argv);
 
-    log_msg(INFO, "Starting...");
+    log_msg(INFO, __FUNCTION__, "Starting...");
 
     app_run(app);
     app_finish(app);
