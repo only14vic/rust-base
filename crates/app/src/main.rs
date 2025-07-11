@@ -21,7 +21,10 @@ fn main() -> Void {
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
-    let mut app = App::boot(argc, argv).unwrap();
-    app.run().unwrap();
+    let mut app = App::boot(argc, argv)
+        .inspect_err(|e| panic!("{e}"))
+        .unwrap();
+    let _ = app.run().inspect_err(|e| panic!("{e}"));
+
     libc::EXIT_SUCCESS
 }

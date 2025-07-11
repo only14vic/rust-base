@@ -55,6 +55,7 @@ impl App {
 
         #[cfg(feature = "std")]
         let args = AppConfig::parse_args()?;
+
         #[cfg(not(feature = "std"))]
         let args = AppConfig::parse_args(argc, argv)?;
 
@@ -80,10 +81,16 @@ impl App {
     #[unsafe(no_mangle)]
     #[allow(unused_variables)]
     extern "C" fn app_boot(argc: c_int, argv: *const *const c_char) -> *mut c_void {
+        #[rustfmt::skip]
         #[cfg(feature = "std")]
-        let app = Self::boot().unwrap();
+        let app = Self::boot()
+            .inspect_err(|e| panic!("{e}"))
+            .unwrap();
+
         #[cfg(not(feature = "std"))]
-        let app = Self::boot(argc, argv).unwrap();
+        let app = Self::boot(argc, argv)
+            .inspect_err(|e| panic!("{e}"))
+            .unwrap();
 
         Box::into_raw(app.into()).cast()
     }
@@ -96,6 +103,6 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut c_void) {
         let app = unsafe { &mut *app.cast::<Self>() };
-        app.run().unwrap();
+        let _ = app.run().inspect_err(|e| panic!("{e}"));
     }
 }
