@@ -6,14 +6,13 @@ use {
     alloc::{boxed::Box, format, string::String},
     core::{
         ffi::{c_char, CStr},
-        mem::{transmute, zeroed},
+        mem::{forget, transmute, zeroed},
         ops::{Deref, DerefMut},
-        pin::Pin,
         ptr::null_mut,
         str::FromStr,
-        sync::atomic::{AtomicBool, Ordering}
+        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
     },
-    log::{Level, Log},
+    log::{Level, LevelFilter, Log},
     yansi::Paint
 };
 #[cfg(not(feature = "std"))]
@@ -24,6 +23,7 @@ use libc_print::std_name::*;
 #[allow(unused)]
 #[allow(clippy::upper_case_acronyms)]
 enum LogLevel {
+    OFF = 0,   // unreachable!
     ERROR = 1, // Level::Error
     WARN = 2,  // Level::Warn
     INFO = 3,  // Level::Info
@@ -37,24 +37,20 @@ impl Into<Level> for LogLevel {
     }
 }
 
+impl Into<LevelFilter> for LogLevel {
+    fn into(self) -> LevelFilter {
+        unsafe { transmute(self as usize) }
+    }
+}
+
 /// Initializes logging
 ///
 /// Returns non-zero pointer if initialization is successfull.
 /// Otherwise returns zero.
 #[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
-    let di = Di::from_static();
-
-    if let Ok(Some(logger)) = di.get_mut::<Pin<Box<Logger>>>() {
-        return Pin::get_mut(logger.as_mut());
-    }
-
     match Logger::init() {
-        Ok(mut logger) => {
-            let logger_ptr = Pin::get_mut(logger.as_mut()) as *mut _;
-            di.set(logger);
-            logger_ptr
-        },
+        Ok(logger) => logger,
         Err(e) => {
             eprintln!("ERROR: log_init() - {e}");
             null_mut()
@@ -67,6 +63,12 @@ pub extern "C" fn log_init() -> *mut Logger {
 extern "C" fn log_msg(level: LogLevel, msg: *const c_char) {
     let msg = unsafe { CStr::from_ptr(msg.cast()).to_string_lossy() };
     log::log!(level.into(), "{msg}");
+}
+
+// Set max log level in C
+#[unsafe(no_mangle)]
+extern "C" fn log_max_level(level: LogLevel) {
+    log::set_max_level(level.into());
 }
 
 /// Logger
@@ -92,16 +94,28 @@ impl DerefMut for Logger {
 }
 
 impl Logger {
-    pub fn init() -> Ok<Pin<Box<Self>>> {
+    pub fn init() -> Ok<&'static mut Self> {
+        static LOGGER: AtomicPtr<Logger> = AtomicPtr::new(null_mut());
+
+        let mut logger_ptr = LOGGER.load(Ordering::Relaxed);
+
+        if logger_ptr.is_null() == false {
+            return Ok(unsafe { &mut *logger_ptr });
+        }
+
         let mut logger = Box::new(Self::default());
-        let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const _) };
+        logger_ptr = logger.as_mut() as *mut _;
+        LOGGER.store(logger_ptr, Ordering::SeqCst);
+
+        let logger_ref: &'static mut Self = unsafe { &mut *logger_ptr };
 
         log::set_logger(logger_ref).map_err(|e| e.to_string())?;
 
         logger.load_env()?;
         logger.configure(&logger_ref.config)?;
+        forget(logger);
 
-        Ok(logger.into())
+        Ok(unsafe { &mut *logger_ptr })
     }
 
     pub fn configure(&mut self, config: &LogConfig) -> Void {

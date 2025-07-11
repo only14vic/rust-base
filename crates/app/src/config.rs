@@ -1,6 +1,5 @@
 #[cfg(not(feature = "std"))]
-use core::ffi::c_char;
-
+use {core::ffi::c_char, core::ffi::c_int};
 #[cfg(feature = "std")]
 use {
     alloc::sync::Arc,
@@ -49,7 +48,7 @@ impl AppConfig {
     }
 
     pub fn parse_args(
-        #[cfg(not(feature = "std"))] argc: usize,
+        #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<Args<'static>> {
         let args = Args::new([
@@ -60,6 +59,7 @@ impl AppConfig {
             ("home-dir", &["-h"], None),
             ("config-dir", &["-c"], None),
             ("user-config-dir", &["-u"], None),
+            ("log-dir", &[], None),
             ("tokio-threads", &["-t"], None),
             ("db-url", &[], None)
         ])?;

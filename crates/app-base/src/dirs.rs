@@ -309,7 +309,8 @@ impl LoadArgs for Dirs {
             [
                 ("home", args.get("home-dir")),
                 ("config", args.get("config-dir")),
-                ("user_config", args.get("user-config-dir"))
+                ("user_config", args.get("user-config-dir")),
+                ("log", args.get("log-dir"))
             ]
             .iter()
             .map(convert::tuple_option_option_string_to_str)

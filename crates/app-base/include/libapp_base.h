@@ -12,6 +12,7 @@
  * Logging levels for C
  */
 typedef enum LogLevel {
+  OFF = 0,
   ERROR = 1,
   WARN = 2,
   INFO = 3,
@@ -44,6 +45,8 @@ struct Logger *log_init(void);
  * Logs messages in C
  */
 void log_msg(enum LogLevel level, const char *msg);
+
+void log_max_level(enum LogLevel level);
 
 /**
  * Close log file descriptor

@@ -14,14 +14,14 @@ use {app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
-    let app = App::boot()?;
+    let mut app = App::boot()?;
     app.run()
 }
 
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
-fn main(argc: usize, argv: *const *const c_char) -> c_int {
-    let app = App::boot(argc, argv).unwrap();
+fn main(argc: c_int, argv: *const *const c_char) -> c_int {
+    let mut app = App::boot(argc, argv).unwrap();
     app.run().unwrap();
     libc::EXIT_SUCCESS
 }

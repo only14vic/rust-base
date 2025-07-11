@@ -6,7 +6,7 @@ use {
         vec::Vec
     },
     core::{
-        ffi::{c_char, CStr},
+        ffi::{c_char, c_int, CStr},
         ops::Deref,
         str
     }
@@ -62,10 +62,10 @@ impl<'o> Args<'o> {
         Ok(self)
     }
 
-    pub unsafe fn parse_argc(self, argc: usize, argv: *const *const c_char) -> Ok<Self> {
-        let mut args = Vec::with_capacity(argc);
+    pub unsafe fn parse_argc(self, argc: c_int, argv: *const *const c_char) -> Ok<Self> {
+        let mut args = Vec::with_capacity(argc as usize);
 
-        for arg in unsafe { slice::from_raw_parts(argv, argc) } {
+        for arg in unsafe { slice::from_raw_parts(argv, argc as usize) } {
             let arg = unsafe { CStr::from_ptr(*arg).to_str()?.to_string() };
             args.push(arg);
         }
@@ -141,7 +141,7 @@ impl<'o> Args<'o> {
                 if self.opts.is_empty() || arg == "0" {
                     arg.into_ok()
                 } else {
-                    Err(format!("Undefined option/argument: {arg}"))
+                    Err(format!("Undefined option or argument: {arg}"))
                 }
             })
     }

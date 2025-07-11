@@ -28,6 +28,13 @@ std = [
 ]
 db = ["std", "app-async/db", "dep:sqlx"]
 
+[build-dependencies]
+cc = { workspace = true }
+bindgen = { workspace = true }
+cbindgen = { workspace = true }
+log = { workspace = true }
+dotenv = { workspace = true }
+
 [dependencies]
 app-base = { workspace = true }
 app-macros = { workspace = true }

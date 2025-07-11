@@ -3,9 +3,8 @@ use {
     alloc::boxed::Box,
     app_base::prelude::*,
     core::{
-        ffi::{c_char, c_void},
-        ops::{Deref, DerefMut},
-        pin::Pin
+        ffi::{c_char, c_int, c_void},
+        ops::{Deref, DerefMut}
     }
 };
 
@@ -29,15 +28,10 @@ impl DerefMut for App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        let _log = if self.config().options.clear_static_di {
-            let di = Di::from_static();
-            let log = di.get::<Pin<Box<Logger>>>();
+        if self.config().options.clear_static_di {
             Di::from_static().clear();
             log::trace!("Static Di cleared");
-            log
-        } else {
-            None
-        };
+        }
 
         log::trace!("App finished");
     }
@@ -53,11 +47,11 @@ impl App {
     }
 
     pub fn boot(
-        #[cfg(not(feature = "std"))] argc: usize,
+        #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<Self> {
         dotenv(false);
-        let mut log = Logger::init()?;
+        let log = Logger::init()?;
 
         #[cfg(feature = "std")]
         let args = AppConfig::parse_args()?;
@@ -70,7 +64,6 @@ impl App {
         log::trace!("Loaded: {config:#?}");
 
         let mut di = Di::default();
-        di.set(log);
         di.set(args);
         di.set(config);
 
@@ -79,9 +72,14 @@ impl App {
         Ok(app)
     }
 
+    pub fn run(&mut self) -> Void {
+        mem_stats();
+        ok()
+    }
+
     #[unsafe(no_mangle)]
     #[allow(unused_variables)]
-    extern "C" fn app_boot(argc: usize, argv: *const *const c_char) -> *const c_void {
+    extern "C" fn app_boot(argc: c_int, argv: *const *const c_char) -> *mut c_void {
         #[cfg(feature = "std")]
         let app = Self::boot().unwrap();
         #[cfg(not(feature = "std"))]
@@ -90,8 +88,14 @@ impl App {
         Box::into_raw(app.into()).cast()
     }
 
-    pub fn run(self) -> Void {
-        mem_stats();
-        ok()
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn app_finish(app: *mut c_void) {
+        let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
+    }
+
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn app_run(app: *mut c_void) {
+        let app = unsafe { &mut *app.cast::<Self>() };
+        app.run().unwrap();
     }
 }
