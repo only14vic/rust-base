@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../../app-base/include/libapp_base.h"
 
 
 void *app_boot(int argc, const char *const *argv);

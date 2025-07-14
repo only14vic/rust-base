@@ -1,5 +1,4 @@
 #include "../include/libapp.h"
-#include "../../app-base/include/libapp_base.h"
 #include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>
