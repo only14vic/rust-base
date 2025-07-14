@@ -28,7 +28,7 @@ impl DerefMut for App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        if self.config().options.clear_static_di {
+        if self.has::<AppConfig>() && self.config().options.clear_static_di {
             Di::from_static().clear();
             log::trace!("Static Di cleared");
         }
