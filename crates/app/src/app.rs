@@ -1,3 +1,6 @@
+#[cfg(not(feature = "std"))]
+use core::panic::PanicInfo;
+
 use {
     crate::AppConfig,
     alloc::boxed::Box,
@@ -50,6 +53,9 @@ impl App {
         #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<Self> {
+        #[cfg(not(feature = "std"))]
+        set_panic_handler(Self::panic_handler);
+
         dotenv(false);
         let log = Logger::init()?;
 
@@ -71,6 +77,12 @@ impl App {
         let app = Self { di };
 
         Ok(app)
+    }
+
+    #[cfg(not(feature = "std"))]
+    fn panic_handler(info: &PanicInfo) {
+        Di::from_static().clear();
+        eprintln!("ERROR: {info}");
     }
 
     pub fn run(&mut self) -> Void {
