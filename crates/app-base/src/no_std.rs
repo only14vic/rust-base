@@ -20,9 +20,7 @@ static PANIC_HANDLER: AtomicPtr<fn(&PanicInfo<'_>)> = AtomicPtr::new(null_mut())
 fn panic(info: &PanicInfo<'_>) -> ! {
     let handler = PANIC_HANDLER.load(Ordering::SeqCst);
     if handler.is_null() == false {
-        unsafe {
-            (*handler)(info);
-        }
+        unsafe { (*handler)(info) };
     } else {
         eprintln!("ERROR: {info}");
     }
