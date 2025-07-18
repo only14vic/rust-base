@@ -1,7 +1,6 @@
 use {
     crate::prelude::*,
     alloc::{
-        format,
         string::{String, ToString},
         vec::Vec
     },
@@ -35,9 +34,10 @@ impl Default for LogConfig {
 impl LogConfig {
     pub fn with_log_dir(&mut self, dir: &str) -> &mut Self {
         if dir.is_empty() == false {
-            if let Some(file) = self.file.as_ref() {
+            if let Some(file) = self.file.as_mut() {
                 if file.starts_with("/") == false {
-                    self.file = Some(format!("{dir}/{file}"));
+                    file.insert(0, '/');
+                    file.insert_str(0, dir.trim_end_matches('/'));
                 }
             }
         }

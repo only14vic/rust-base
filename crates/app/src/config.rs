@@ -1,13 +1,15 @@
 #[cfg(not(feature = "std"))]
 use {core::ffi::c_char, core::ffi::c_int};
 #[cfg(feature = "std")]
-use {
-    alloc::sync::Arc,
-    app_async::{http_server::ActixConfig, TokioConfig}
-};
+use app_async::{http_server::ActixConfig, TokioConfig};
 #[cfg(feature = "db")]
 use app_async::db::DbConfig;
-use {crate::AppOptions, alloc::format, app_base::prelude::*};
+use {
+    crate::AppOptions,
+    alloc::{format, sync::Arc},
+    app_base::prelude::*,
+    core::any::type_name
+};
 
 #[derive(Debug, Default, Extend)]
 pub struct AppConfig {
@@ -17,7 +19,7 @@ pub struct AppConfig {
     #[cfg(feature = "std")]
     pub tokio: TokioConfig,
     #[cfg(feature = "std")]
-    pub actix: ActixConfig,
+    pub actix: Arc<ActixConfig>,
     #[cfg(feature = "db")]
     pub db: Arc<DbConfig>
 }
@@ -44,6 +46,9 @@ impl AppConfig {
 
         config.base.log.with_log_dir(&config.dirs.log);
 
+        #[cfg(feature = "std")]
+        Self::try_mut(&mut config.actix)?.with_socket_dir(&config.dirs.runtime);
+
         Ok(config)
     }
 
@@ -51,7 +56,7 @@ impl AppConfig {
         #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<Args<'static>> {
-        let args = Args::new([
+        let mut args = Args::new([
             ("log-level", &["-l"][..], None),
             ("log-color", &[], None),
             ("log-file", &[], None),
@@ -62,9 +67,15 @@ impl AppConfig {
             ("config-dir", &["-c"], None),
             ("user-config-dir", &["-u"], None),
             ("log-dir", &[], None),
-            ("tokio-threads", &["-t"], None),
+            ("tokio-threads", &[], None),
+            ("actix-threads", &[], None),
+            ("actix-port", &[], None),
             ("db-url", &[], None)
         ])?;
+
+        if Env::is_test() {
+            args.allow_undefined(true);
+        }
 
         #[cfg(feature = "std")]
         let args = args.parse_args(std::env::args().collect())?;
@@ -72,6 +83,16 @@ impl AppConfig {
         let args = unsafe { args.parse_argc(argc, argv)? };
 
         Ok(args)
+    }
+
+    pub fn try_mut<T>(value: &mut Arc<T>) -> Ok<&mut T> {
+        Arc::get_mut(value).ok_or(
+            format!(
+                "Could not get mutable reference of Arc<{}>",
+                type_name::<T>()
+            )
+            .into()
+        )
     }
 }
 
@@ -83,9 +104,9 @@ impl LoadEnv for AppConfig {
             #[cfg(feature = "std")]
             &mut self.tokio,
             #[cfg(feature = "std")]
-            &mut self.actix,
+            Self::try_mut(&mut self.actix)?,
             #[cfg(feature = "db")]
-            Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
+            Self::try_mut(&mut self.db)?
         ];
 
         for config in list {
@@ -104,9 +125,9 @@ impl LoadArgs for AppConfig {
             #[cfg(feature = "std")]
             &mut self.tokio,
             #[cfg(feature = "std")]
-            &mut self.actix,
+            Self::try_mut(&mut self.actix)?,
             #[cfg(feature = "db")]
-            Arc::get_mut(&mut self.db).expect("Could not get mut ref of DbConfig")
+            Self::try_mut(&mut self.db)?
         ];
 
         for config in list {

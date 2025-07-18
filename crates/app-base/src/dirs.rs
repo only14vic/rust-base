@@ -12,7 +12,7 @@ use {
 
 const PATH_MAX: usize = libc::PATH_MAX as usize;
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, Clone, ExtendFromIter)]
 pub struct Dirs {
     exe: String,
     prefix: String,

@@ -406,6 +406,7 @@ dependencies = [
  "app-async",
  "app-base",
  "app-macros",
+ "app-testing",
  "bindgen",
  "cbindgen",
  "cc",
@@ -424,9 +425,11 @@ name = "app-async"
 version = "0.1.0"
 dependencies = [
  "actix",
+ "actix-http",
  "actix-web",
  "app",
  "app-base",
+ "app-testing",
  "dashmap",
  "futures",
  "itoa",

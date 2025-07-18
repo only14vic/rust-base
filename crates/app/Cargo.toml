@@ -51,4 +51,4 @@ sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 
 [dev-dependencies]
-#app-testing = { workspace = true }
+app-testing = { workspace = true }

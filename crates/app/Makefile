@@ -1,7 +1,6 @@
 ALL += build-app, \
 	   build-app no_std=1, \
 	   examples-app-c, \
-	   run-app, \
 	   run-app no_std=1, \
 	   run-app no_std=1 static=1, \
 	   examples-app, \
@@ -25,7 +24,7 @@ examples-app: flags
 
 .PHONY: tests-app
 tests-app: flags
-	cargo test -p app --tests $(CARGO_ARGS)
+	cargo test -p app --tests $(CARGO_ARGS) -- --nocapture --color always
 
 .PHONY: examples-app-c
 examples-app-c: flags

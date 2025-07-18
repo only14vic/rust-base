@@ -1,9 +1,10 @@
 .idea
-.env
+.env*
 .gdb*
 *.vim
 *.log
 perf.data*
 vgcore.*
+flamegraph*.svg
 target
 vendor/*

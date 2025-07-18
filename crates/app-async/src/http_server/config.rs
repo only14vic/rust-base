@@ -1,12 +1,22 @@
 use app_base::prelude::*;
 
-#[derive(Debug, Extend)]
+#[derive(Debug, ExtendFromIter)]
 pub struct ActixConfig {
     pub socket: String,
     pub listen: String,
     pub port: u16,
     pub threads: u8,
     pub blocking_threads_per_worker: u16
+}
+
+impl ActixConfig {
+    pub fn with_socket_dir(&mut self, dir: &str) -> &mut Self {
+        if dir.is_empty() == false && self.socket.starts_with("/") == false {
+            self.socket.insert(0, '/');
+            self.socket.insert_str(0, dir.trim_end_matches('/'));
+        }
+        self
+    }
 }
 
 impl Default for ActixConfig {

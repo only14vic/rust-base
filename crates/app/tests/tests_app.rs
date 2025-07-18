@@ -1,9 +1,15 @@
-use {app::App, app_base::prelude::*, std::env::set_current_dir};
+use {app::App, app_base::prelude::*, common::TEST};
 
-#[test]
-fn tests_app() -> Void {
-    set_current_dir(env!("PWD"))?;
-    let _app = App::boot()?;
+mod common;
 
-    ok()
+#[tokio::test]
+async fn tests_app_config() -> Void {
+    TEST.run(async {
+        let app = App::boot()?;
+
+        assert!(app.config().db.url.contains("dbname=app-test"));
+
+        ok()
+    })
+    .await
 }

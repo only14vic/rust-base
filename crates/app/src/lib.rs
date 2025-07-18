@@ -10,3 +10,8 @@ mod app;
 mod options;
 
 pub use {app::*, config::*, options::*};
+
+#[cfg(feature = "std")]
+mod http_server_configurator;
+#[cfg(feature = "std")]
+pub use http_server_configurator::*;

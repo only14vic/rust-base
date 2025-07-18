@@ -22,7 +22,8 @@ type ArgsMap = IndexMap<String, Option<String>>;
 #[derive(Debug, Default)]
 pub struct Args<'o> {
     pub opts: ArgsOpts<'o>,
-    pub args: ArgsMap
+    pub args: ArgsMap,
+    pub allow_undefined: bool
 }
 
 impl Deref for Args<'_> {
@@ -38,6 +39,11 @@ impl<'o> Args<'o> {
         opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
     ) -> Ok<Self> {
         Self::default().with_opts(opts)
+    }
+
+    pub fn allow_undefined(&mut self, allow: bool) -> &mut Self {
+        self.allow_undefined = allow;
+        self
     }
 
     pub fn with_opts(
@@ -138,7 +144,7 @@ impl<'o> Args<'o> {
             })
             .map(|(&n, _)| n.into_ok())
             .unwrap_or_else(|| {
-                if self.opts.is_empty() || arg == "0" {
+                if self.opts.is_empty() || arg == "0" || self.allow_undefined {
                     arg.into_ok()
                 } else {
                     Err(format!("Undefined option or argument: {arg}"))

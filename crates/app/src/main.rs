@@ -14,8 +14,34 @@ use {app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
+    use {
+        actix_web::{web, HttpRequest, HttpResponse},
+        app_async::{actix_with_tokio_start, http_server::HttpServer},
+        std::sync::Arc
+    };
+
     let mut app = App::boot()?;
-    app.run()
+    app.run()?;
+    let config = app.config();
+
+    actix_with_tokio_start(Some(&config.tokio), async {
+        let server = HttpServer::new(&config.actix);
+        let mut server_config =
+            HttpServerConfigurator::new(app.get::<AppConfig>().unwrap());
+
+        server_config.add(|srv, _| {
+            srv.default_service(web::to(|req: HttpRequest| {
+                let body = format!(
+                    "URI: {}\n\nAppConfig: {:?}",
+                    req.uri(),
+                    req.app_data::<Arc<AppConfig>>()
+                );
+                async move { HttpResponse::Ok().body(body) }
+            }));
+        });
+
+        server.run(server_config.configure()).await
+    })?
 }
 
 #[cfg(not(feature = "std"))]

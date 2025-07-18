@@ -110,8 +110,8 @@ impl Ini {
         ini.into_ok()
     }
 
-    pub fn dotenv(overwrite: bool) -> Ok<Self> {
-        Self::setenv_from_file(&".env", overwrite)
+    pub fn dotenv(path: &dyn AsRef<str>, overwrite: bool) -> Ok<Self> {
+        Self::setenv_from_file(path, overwrite)
     }
 
     extern "C" fn ini_parse_callback(
@@ -158,7 +158,7 @@ impl Ini {
 /// Otherwise returns int less zero.
 #[unsafe(no_mangle)]
 pub extern "C" fn dotenv(overwrite: bool) -> c_int {
-    match Ini::dotenv(overwrite) {
+    match Ini::dotenv(&".env", overwrite) {
         Ok(..) => 0,
         Err(e) => {
             match e.downcast_ref::<IniError>() {
