@@ -21,26 +21,28 @@ fn main() -> Void {
     };
 
     let mut app = App::boot()?;
-    app.run()?;
-    let config = app.config();
+    let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
         let server = HttpServer::new(&config.actix);
-        let mut server_config =
-            HttpServerConfigurator::new(app.get::<AppConfig>().unwrap());
+        let mut server_config = HttpServerConfigurator::new(&config);
 
         server_config.add(|srv, _| {
             srv.default_service(web::to(|req: HttpRequest| {
-                let body = format!(
-                    "URI: {}\n\nAppConfig: {:?}",
-                    req.uri(),
-                    req.app_data::<Arc<AppConfig>>()
-                );
-                async move { HttpResponse::Ok().body(body) }
+                async move {
+                    let body = format!(
+                        "URI: {}\n\nAppConfig: {:?}",
+                        req.uri(),
+                        req.app_data::<Arc<AppConfig>>()
+                    );
+                    HttpResponse::Ok().body(body)
+                }
             }));
         });
 
-        server.run(server_config.configure()).await
+        server.run(server_config.configure()).await?;
+
+        app.run()
     })?
 }
 

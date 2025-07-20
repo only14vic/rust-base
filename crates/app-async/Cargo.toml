@@ -26,7 +26,6 @@ sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 dashmap = { workspace = true }
 itoa = { workspace = true }
-yansi = { workspace = true }
 
 [dev-dependencies]
 app = { workspace = true, features = ["db"] }

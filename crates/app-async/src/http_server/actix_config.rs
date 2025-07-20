@@ -6,7 +6,8 @@ pub struct ActixConfig {
     pub listen: String,
     pub port: u16,
     pub threads: u8,
-    pub blocking_threads_per_worker: u16
+    pub blocking_threads_per_worker: u16,
+    pub static_path: String
 }
 
 impl ActixConfig {
@@ -26,7 +27,8 @@ impl Default for ActixConfig {
             listen: "0.0.0.0".into(),
             port: 80,
             threads: 4,
-            blocking_threads_per_worker: 4
+            blocking_threads_per_worker: 4,
+            static_path: "/public".into()
         }
     }
 }

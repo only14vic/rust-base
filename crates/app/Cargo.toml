@@ -24,6 +24,9 @@ std = [
   "dep:tokio",
   "dep:actix",
   "dep:actix-web",
+  "dep:actix-files",
+  "dep:actix-multipart",
+  "dep:actix-web-grants",
   "dep:futures",
 ]
 db = ["std", "app-async/db", "dep:sqlx"]
@@ -43,10 +46,12 @@ libc = { workspace = true }
 log = { workspace = true }
 ahash = { workspace = true }
 indexmap = { workspace = true }
-yansi = { workspace = true }
 tokio = { workspace = true, optional = true }
 actix = { workspace = true, optional = true }
 actix-web = { workspace = true, optional = true }
+actix-files = { workspace = true, optional = true }
+actix-multipart = { workspace = true, optional = true }
+actix-web-grants = { workspace = true, optional = true }
 sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 

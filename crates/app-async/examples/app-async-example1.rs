@@ -30,10 +30,10 @@ fn main() -> Void {
                 let mut buff_i = itoa::Buffer::new();
 
                 for i in 0..MAX_ITERS {
-                    let keys = [buff_j.format(j), buff_i.format(i)];
+                    let keys = ["example", buff_j.format(j), buff_i.format(i)];
 
                     cache
-                        .call("example", &keys, 2, async {
+                        .getset(&keys, 2, async {
                             let row = sqlx::query("select $1 as data")
                                 .bind("Hello SQL!")
                                 .fetch_one(conn.acquire().await?)
@@ -47,11 +47,7 @@ fn main() -> Void {
 
                     assert_eq!(
                         "Hello SQL!",
-                        cache
-                            .get::<String>("example", &keys)
-                            .await?
-                            .unwrap()
-                            .as_str()
+                        cache.get::<String>(&keys).await?.unwrap().as_str()
                     );
                 }
 

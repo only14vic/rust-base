@@ -1,5 +1,5 @@
-mod config;
+mod actix_config;
 mod http_server;
 
 #[allow(unused)]
-pub use {config::*, http_server::*};
+pub use {actix_config::*, http_server::*};

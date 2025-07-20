@@ -8,12 +8,11 @@ use {
 
 fn main() -> Void {
     let app = app::App::boot()?;
-    let config = app.config();
+    let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
         let server = HttpServer::new(&config.actix);
-        let mut server_config =
-            HttpServerConfigurator::new(app.get::<AppConfig>().unwrap());
+        let mut server_config = HttpServerConfigurator::new(&config);
 
         server_config.add(|srv, _| {
             srv.default_service(web::to(|req: HttpRequest| {
