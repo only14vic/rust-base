@@ -14,7 +14,7 @@ use {
     }
 };
 
-const MAINTAINE_TIMEOUT_SECS: u64 = 30;
+const MAINTAINE_TIMEOUT_SECS: u64 = 5;
 static DEFAULT_CACHE_CAPACITY: LazyLock<usize> = LazyLock::new(|| {
     option_env!("CACHE_CAPACITY")
         .unwrap_or("1000")

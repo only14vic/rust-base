@@ -5,11 +5,13 @@ use {
         db::db_pool
     },
     app_base::prelude::*,
-    sqlx::{Acquire, Postgres, Row}
+    core::sync::atomic::{AtomicU64, Ordering},
+    sqlx::{Acquire, Postgres, Row},
+    std::sync::Arc
 };
 
-const MAX_TASKS: usize = 100;
-const MAX_ITERS: usize = 1000;
+const MAX_TASKS: usize = 10_000;
+const MAX_ITERS: usize = 1_000;
 
 fn main() -> Void {
     let app = app::App::boot()?;
@@ -20,21 +22,27 @@ fn main() -> Void {
         let mut tasks = Vec::new();
         let cache = Cacher::<ArrayCache>::from_static();
 
+        log::info!("MAX iters: {}", MAX_TASKS * MAX_ITERS);
+
+        let sql_counter = Arc::new(AtomicU64::new(0));
+
         for j in 0..MAX_TASKS {
             let db = db.clone();
             let cache = cache.clone();
+            let sql_cn = sql_counter.clone();
 
             let task = tokio::task::spawn(async move {
                 let mut conn = db.acquire().await?;
                 let mut buff_j = itoa::Buffer::new();
-                let mut buff_i = itoa::Buffer::new();
 
-                for i in 0..MAX_ITERS {
-                    let keys = ["example", buff_j.format(j), buff_i.format(i)];
+                for _i in 0..MAX_ITERS {
+                    let keys = ["example", buff_j.format(j)];
 
                     cache
-                        .getset(&keys, 2, async {
-                            let row = sqlx::query("select $1 as data")
+                        .getset(&keys, 10, async {
+                            sql_cn.fetch_add(1, Ordering::Relaxed);
+
+                            let row = sqlx::query("select now(), $1 as data")
                                 .bind("Hello SQL!")
                                 .fetch_one(conn.acquire().await?)
                                 .await?;
@@ -64,9 +72,12 @@ fn main() -> Void {
                 let _ = r.unwrap().unwrap();
             });
 
-        assert_eq!(MAX_TASKS * MAX_ITERS, cache.len().await);
-
         cache.clear_all().await?;
+
+        log::info!(
+            "Executed SQL: {}",
+            sql_counter.load(Ordering::Relaxed)
+        );
 
         Ok("Hello, from Async!") as Result<&str, ErrAsync>
     })?;
