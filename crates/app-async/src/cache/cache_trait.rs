@@ -8,10 +8,6 @@ pub trait Cache {
         let mut str =
             String::with_capacity(keys.iter().fold(0, |acc, &key| acc + key.len() + 1));
 
-        if str.capacity() == 0 {
-            return str;
-        }
-
         keys.iter().for_each(|key| {
             str.push_str(key);
             str.push(':');

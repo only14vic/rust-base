@@ -5,11 +5,11 @@
 extern crate core;
 extern crate alloc;
 
-mod app_config;
 mod app;
-mod options;
+mod app_config;
+mod app_options;
 
-pub use {app::*, app_config::*, options::*};
+pub use {app::*, app_config::*, app_options::*};
 
 #[cfg(feature = "std")]
 mod http_server_configurator;

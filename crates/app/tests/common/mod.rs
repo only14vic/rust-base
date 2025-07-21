@@ -27,7 +27,7 @@ macro_rules! test_app {
             //actix_web_grants::GrantsMiddleware,
         };
 
-        let configure = $config.into_configure();
+        let configure = $config.configure();
 
         init_service(
             App::new()
