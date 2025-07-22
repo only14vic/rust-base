@@ -1,12 +1,9 @@
 use {
     actix_web::{
-        body::MessageBody,
-        dev::Service,
-        test::TestRequest,
-        web::{self, ServiceConfig},
-        HttpRequest, HttpResponse
+        body::MessageBody, dev::Service, test::TestRequest, web, HttpRequest,
+        HttpResponse
     },
-    app::App,
+    app::{App, AppConfig, HttpServerConfigurator},
     app_base::prelude::*,
     common::TEST
 };
@@ -14,17 +11,18 @@ use {
 mod common;
 
 #[actix_web::test]
-async fn test_http_server_success_response() -> Void {
+async fn test_app_http_server_success() -> Void {
     TEST.run(async {
-        let _app = App::boot()?;
+        let config = App::boot()?.get::<AppConfig>().unwrap();
+        let mut configurator = HttpServerConfigurator::new(&config);
 
-        let configure = |srv: &mut ServiceConfig| {
+        configurator.add(|srv, _cfg| {
             srv.default_service(web::to(|req: HttpRequest| {
                 async move { HttpResponse::Ok().body(req.uri().to_string()) }
             }));
-        };
+        });
 
-        let app = test_app!(configure);
+        let app = test_app!(configurator);
         let req = TestRequest::with_uri("/foo?bar=1").to_request();
         let res = app.call(req).await?;
 

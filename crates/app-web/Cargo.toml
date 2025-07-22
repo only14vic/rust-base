@@ -22,8 +22,7 @@ actix = { workspace = true }
 actix-web = { workspace = true }
 actix-http = { workspace = true }
 log = { workspace = true }
-sqlx = { workspace = true, optional = true }
-futures = { workspace = true, optional = true }
+futures = { workspace = true }
 dashmap = { workspace = true }
 itoa = { workspace = true }
 

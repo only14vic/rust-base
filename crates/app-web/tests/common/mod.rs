@@ -17,25 +17,13 @@ pub static TEST: LazyLock<Test> = LazyLock::new(|| {
 
 #[macro_export]
 macro_rules! test_app {
-    ($configurator:expr) => {{
-        use {
-            //actix_web::middleware::ErrorHandlers,
-            actix_web::test::init_service,
-            actix_web::App,
-            //app_web::http_server::middleware,
-            //actix_web_grants::GrantsMiddleware,
-        };
+    ($configure:expr) => {{
+        use actix_web::{test::init_service, App};
 
-        let configure = $configurator.configure();
+        let configure = $configure;
 
         init_service(
             App::new()
-                //.wrap(GrantsMiddleware::with_extractor(
-                //    middleware::auth_role_extract
-                //))
-                //.wrap(middleware::AuthRequired)
-                //.wrap(middleware::AuthHeader)
-                //.wrap(middleware::errors())
                 .wrap(actix_web::middleware::NormalizePath::trim())
                 .wrap(actix_web::middleware::DefaultHeaders::new())
                 .configure(move |srv| configure(srv))
