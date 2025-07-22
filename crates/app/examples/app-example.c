@@ -13,6 +13,4 @@ int main(int argc, const char *argv[]) {
 
     app_run(app);
     app_free(app);
-
-    malloc_stats();
 }

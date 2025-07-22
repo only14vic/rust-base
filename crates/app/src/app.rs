@@ -37,6 +37,10 @@ impl Drop for App {
         }
 
         log::trace!("App finished");
+
+        if let Ok(Some(log)) = self.get_mut::<&mut Logger>() {
+            log.log_close();
+        }
     }
 }
 
@@ -73,6 +77,7 @@ impl App {
         let mut di = Di::default();
         di.set(args);
         di.set(config);
+        di.set(log);
 
         let app = Self { di };
 

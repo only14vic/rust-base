@@ -43,6 +43,8 @@ impl Into<LevelFilter> for LogLevel {
     }
 }
 
+static LOGGER: AtomicPtr<Logger> = AtomicPtr::new(null_mut());
+
 /// Initializes logging
 ///
 /// Returns non-zero pointer if initialization is successfull.
@@ -100,8 +102,6 @@ impl DerefMut for Logger {
 
 impl Logger {
     pub fn init() -> Ok<&'static mut Self> {
-        static LOGGER: AtomicPtr<Logger> = AtomicPtr::new(null_mut());
-
         let mut logger_ptr = LOGGER.load(Ordering::Relaxed);
 
         if logger_ptr.is_null() == false {
@@ -150,7 +150,7 @@ impl Logger {
 
     /// Close log file descriptor
     #[unsafe(no_mangle)]
-    extern "C" fn log_close(&mut self) {
+    pub extern "C" fn log_close(&mut self) {
         if let Some(file) = self.file.take() {
             unsafe { libc::fclose(Box::into_raw(file)) };
 
