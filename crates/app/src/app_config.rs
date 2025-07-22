@@ -1,7 +1,7 @@
 #[cfg(not(feature = "std"))]
 use {core::ffi::c_char, core::ffi::c_int};
 #[cfg(feature = "std")]
-use app_async::{http_server::ActixConfig, TokioConfig};
+use {app_async::TokioConfig, app_web::ActixConfig};
 #[cfg(feature = "db")]
 use app_async::db::DbConfig;
 use {

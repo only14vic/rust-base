@@ -513,6 +513,7 @@ dependencies = [
  "app-base",
  "app-macros",
  "app-testing",
+ "app-web",
  "bindgen",
  "cbindgen",
  "cc",
@@ -530,7 +531,6 @@ name = "app-async"
 version = "0.1.0"
 dependencies = [
  "actix",
- "actix-http",
  "actix-web",
  "app",
  "app-base",
@@ -587,6 +587,25 @@ dependencies = [
  "criterion",
  "futures",
  "futures-lite",
+ "log",
+ "sqlx",
+ "tokio",
+]
+
+[[package]]
+name = "app-web"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-http",
+ "actix-web",
+ "app",
+ "app-async",
+ "app-base",
+ "app-testing",
+ "dashmap",
+ "futures",
+ "itoa",
  "log",
  "sqlx",
  "tokio",

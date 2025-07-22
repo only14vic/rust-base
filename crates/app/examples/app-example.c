@@ -12,7 +12,7 @@ int main(int argc, const char *argv[]) {
     log_msg(INFO, __FUNCTION__, "Starting...");
 
     app_run(app);
-    app_finish(app);
+    app_free(app);
 
     malloc_stats();
 }

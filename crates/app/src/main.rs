@@ -16,7 +16,8 @@ use {app::*, app_base::prelude::*};
 fn main() -> Void {
     use {
         actix_web::{web, HttpRequest, HttpResponse},
-        app_async::{actix_with_tokio_start, http_server::HttpServer},
+        app_async::actix_with_tokio_start,
+        app_web::HttpServer,
         std::sync::Arc
     };
 

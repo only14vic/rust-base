@@ -1,5 +1,5 @@
 [package]
-name = "app-async"
+name = "app-web"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,18 +8,19 @@ workspace = true
 
 [lib]
 path = "src/lib.rs"
-name = "app_async"
+name = "app_web"
 crate-type = ["lib"]
 
 [features]
-default = ["db"]
-db = ["dep:sqlx", "dep:futures"]
+default = []
 
 [dependencies]
 app-base = { workspace = true }
+app-async = { workspace = true }
 tokio = { workspace = true }
 actix = { workspace = true }
 actix-web = { workspace = true }
+actix-http = { workspace = true }
 log = { workspace = true }
 sqlx = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }

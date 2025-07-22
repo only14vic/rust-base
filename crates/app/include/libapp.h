@@ -11,6 +11,6 @@
 
 void *app_boot(int argc, const char *const *argv);
 
-void app_finish(void *app);
+void app_free(void *app);
 
 void app_run(void *app);

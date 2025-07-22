@@ -108,7 +108,7 @@ impl App {
     }
 
     #[unsafe(no_mangle)]
-    extern "C" fn app_finish(app: *mut c_void) {
+    extern "C" fn app_free(app: *mut c_void) {
         let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
     }
 

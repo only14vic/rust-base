@@ -1,8 +1,9 @@
 use {
     actix_web::{web, HttpRequest, HttpResponse},
     app::{AppConfig, HttpServerConfigurator},
-    app_async::{actix_with_tokio_start, http_server::HttpServer},
+    app_async::actix_with_tokio_start,
     app_base::prelude::*,
+    app_web::HttpServer,
     std::sync::Arc
 };
 
