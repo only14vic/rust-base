@@ -88,5 +88,6 @@ impl Di {
 
     pub fn clear(&mut self) {
         self.container = Default::default();
+        log::trace!("Di cleared");
     }
 }

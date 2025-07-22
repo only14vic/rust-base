@@ -3,7 +3,7 @@ use core::panic::PanicInfo;
 
 use {
     crate::AppConfig,
-    alloc::boxed::Box,
+    alloc::{boxed::Box, sync::Arc},
     app_base::prelude::*,
     core::{
         ffi::{c_char, c_int, c_void},
@@ -31,14 +31,18 @@ impl DerefMut for App {
 
 impl Drop for App {
     fn drop(&mut self) {
+        let global_di = Di::from_static();
+        let log = global_di.get::<&mut Logger>();
+
         if self.has::<AppConfig>() && self.config().options.clear_static_di {
-            Di::from_static().clear();
-            log::trace!("Static Di cleared");
+            global_di.clear();
         }
 
         log::trace!("App finished");
 
-        if let Ok(Some(log)) = self.get_mut::<&mut Logger>() {
+        if let Some(log) = log
+            && let Some(log) = Arc::into_inner(log)
+        {
             log.log_close();
         }
     }
@@ -77,7 +81,9 @@ impl App {
         let mut di = Di::default();
         di.set(args);
         di.set(config);
-        di.set(log);
+
+        let global_di = Di::from_static();
+        global_di.set(log);
 
         let app = Self { di };
 
@@ -86,8 +92,19 @@ impl App {
 
     #[cfg(not(feature = "std"))]
     fn panic_handler(info: &PanicInfo) {
-        Di::from_static().clear();
         eprintln!("ERROR: {info}");
+
+        log::error!("{info}");
+
+        let global_di = Di::from_static();
+        let log = global_di.remove::<&mut Logger>();
+        global_di.clear();
+
+        if let Some(log) = log
+            && let Some(log) = Arc::into_inner(log)
+        {
+            log.log_close();
+        }
     }
 
     pub fn run(&mut self) -> Void {
