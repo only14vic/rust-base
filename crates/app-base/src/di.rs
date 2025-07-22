@@ -8,15 +8,27 @@ use {
     }
 };
 
+static DI: AtomicPtr<Di> = AtomicPtr::new(null_mut());
+
 #[derive(Default)]
 pub struct Di {
     container: IndexMap<TypeId, Arc<dyn Any + Send + Sync>>
 }
 
+impl Drop for Di {
+    fn drop(&mut self) {
+        DI.compare_exchange(
+            self,
+            null_mut(),
+            Ordering::SeqCst,
+            Ordering::Relaxed
+        )
+        .ok();
+    }
+}
+
 impl Di {
     pub fn from_static() -> &'static mut Self {
-        static DI: AtomicPtr<Di> = AtomicPtr::new(null_mut());
-
         let mut di = DI.load(Ordering::Acquire);
 
         if di.is_null() {
@@ -88,6 +100,10 @@ impl Di {
 
     pub fn clear(&mut self) {
         self.container = Default::default();
-        log::trace!("Di cleared");
+        if self as *mut _ == DI.load(Ordering::Relaxed) {
+            log::trace!("Global Di cleared");
+        } else {
+            log::trace!("Di cleared");
+        }
     }
 }

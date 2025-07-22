@@ -33,8 +33,13 @@ impl Drop for App {
     fn drop(&mut self) {
         let global_di = Di::from_static();
         let log = global_di.get::<&mut Logger>();
+        let config = self.get::<AppConfig>();
 
-        if self.has::<AppConfig>() && self.config().options.clear_static_di {
+        self.clear();
+
+        if let Some(config) = config
+            && config.options.clear_static_di
+        {
             global_di.clear();
         }
 
@@ -97,7 +102,7 @@ impl App {
         log::error!("{info}");
 
         let global_di = Di::from_static();
-        let log = global_di.remove::<&mut Logger>();
+        let log = global_di.get::<&mut Logger>();
         global_di.clear();
 
         if let Some(log) = log
@@ -137,6 +142,10 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut c_void) {
         let app = unsafe { &mut *app.cast::<Self>() };
-        let _ = app.run().inspect_err(|e| panic!("{e}"));
+        let _ = app.run().inspect_err(|e| {
+            log::error!("{e}");
+            let _ = unsafe { Box::from_raw(app) };
+            panic!("{e}")
+        });
     }
 }
