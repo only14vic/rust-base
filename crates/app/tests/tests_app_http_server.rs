@@ -13,16 +13,17 @@ mod common;
 #[actix_web::test]
 async fn test_app_http_server_success() -> Void {
     TEST.run(async {
-        let config = App::boot()?.get::<AppConfig>().unwrap();
-        let mut configurator = HttpServerConfigurator::new(&config);
+        let app = App::boot()?;
+        let config = app.get::<AppConfig>().unwrap();
+        let mut server_config = HttpServerConfigurator::new(&config);
 
-        configurator.add(|srv, _cfg| {
+        server_config.add(|srv, _cfg| {
             srv.default_service(web::to(|req: HttpRequest| {
                 async move { HttpResponse::Ok().body(req.uri().to_string()) }
             }));
         });
 
-        let app = test_app!(configurator);
+        let app = test_app!(server_config);
         let req = TestRequest::with_uri("/foo?bar=1").to_request();
         let res = app.call(req).await?;
 
