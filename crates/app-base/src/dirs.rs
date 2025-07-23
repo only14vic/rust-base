@@ -21,12 +21,15 @@ pub struct Dirs {
     pub user_config: String,
     pub bin: String,
     pub lib: String,
+    pub include: String,
     pub config: String,
     pub data: String,
     pub cache: String,
-    pub runtime: String,
+    pub run: String,
     pub state: String,
     pub log: String,
+    pub man: String,
+    pub doc: String,
     pub tmp: String
 }
 
@@ -40,12 +43,15 @@ impl Default for Dirs {
             user_config: "~/.config".into(),
             bin: "bin".into(),
             lib: "lib".into(),
+            include: "include".into(),
             config: "etc".into(),
             data: "share".into(),
             state: "var/lib".into(),
             cache: "var/cache".into(),
-            runtime: "var/run".into(),
+            run: "var/run".into(),
             log: "var/log".into(),
+            man: "share/man".into(),
+            doc: "share/doc".into(),
             tmp: "/tmp".into()
         };
         this.init();
@@ -54,8 +60,6 @@ impl Default for Dirs {
 }
 
 impl Dirs {
-    const CONFIG_DIR_ENV: &str = "CONFIG_DIR";
-
     fn init(&mut self) -> &mut Self {
         let (home, prefix, suffix) = (
             self.home.clone(),
@@ -180,17 +184,17 @@ impl Dirs {
 
     fn prefixed_dirs(&mut self) -> impl IntoIterator<Item = &mut String> {
         [
-            &mut self.lib, &mut self.bin, &mut self.config, &mut self.data,
-            &mut self.cache, &mut self.runtime, &mut self.state, &mut self.log,
-            &mut self.tmp
+            &mut self.lib, &mut self.bin, &mut self.include, &mut self.config,
+            &mut self.data, &mut self.cache, &mut self.run, &mut self.state,
+            &mut self.log, &mut self.man, &mut self.doc, &mut self.tmp
         ]
     }
 
     fn suffixed_dirs(&mut self) -> impl IntoIterator<Item = &mut String> {
         [
-            &mut self.lib, &mut self.config, &mut self.user_config, &mut self.data,
-            &mut self.cache, &mut self.runtime, &mut self.state, &mut self.log,
-            &mut self.tmp
+            &mut self.lib, &mut self.include, &mut self.config, &mut self.user_config,
+            &mut self.data, &mut self.cache, &mut self.run, &mut self.state,
+            &mut self.log, &mut self.man, &mut self.doc, &mut self.tmp
         ]
     }
 
@@ -293,7 +297,7 @@ impl LoadEnv for Dirs {
         #[rustfmt::skip]
         self.extend(
             [
-                ("config", getenv(Self::CONFIG_DIR_ENV)),
+                ("config", getenv("CONFIG_DIR")),
             ]
             .iter()
             .map(convert::tuple_option_string_to_str)

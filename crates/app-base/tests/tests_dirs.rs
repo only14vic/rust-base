@@ -21,7 +21,7 @@ fn tests_dirs() -> Void {
     assert_eq!(&dirs.data, "share");
     assert_eq!(&dirs.state, "var/lib");
     assert_eq!(&dirs.cache, "var/cache");
-    assert_eq!(&dirs.runtime, "var/run");
+    assert_eq!(&dirs.run, "var/run");
     assert_eq!(&dirs.log, "var/log");
     assert_eq!(&dirs.tmp, "/tmp");
 
@@ -40,7 +40,7 @@ fn tests_dirs() -> Void {
     assert_eq!(&dirs.data, "/usr/local/share/myapp");
     assert_eq!(&dirs.state, "/usr/local/var/lib/myapp");
     assert_eq!(&dirs.cache, "/usr/local/var/cache/myapp");
-    assert_eq!(&dirs.runtime, "/usr/local/var/run/myapp");
+    assert_eq!(&dirs.run, "/usr/local/var/run/myapp");
     assert_eq!(&dirs.log, "/usr/local/var/log/myapp");
     assert_eq!(&dirs.tmp, "/tmp/myapp");
 
@@ -57,7 +57,7 @@ fn tests_dirs() -> Void {
     assert_eq!(&dirs.data, &format!("{pwd}/share/app"));
     assert_eq!(&dirs.state, &format!("{pwd}/var/lib/app"));
     assert_eq!(&dirs.cache, &format!("{pwd}/var/cache/app"));
-    assert_eq!(&dirs.runtime, &format!("{pwd}/var/run/app"));
+    assert_eq!(&dirs.run, &format!("{pwd}/var/run/app"));
     assert_eq!(&dirs.log, &format!("{pwd}/var/log/app"));
     assert_eq!(&dirs.tmp, "/tmp/app");
 
