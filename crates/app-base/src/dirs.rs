@@ -18,11 +18,12 @@ pub struct Dirs {
     prefix: String,
     suffix: String,
     home: String,
+    pub config: String,
     pub user_config: String,
     pub bin: String,
+    pub sbin: String,
     pub lib: String,
     pub include: String,
-    pub config: String,
     pub data: String,
     pub cache: String,
     pub run: String,
@@ -37,14 +38,15 @@ impl Default for Dirs {
     fn default() -> Self {
         let mut this = Self {
             exe: Self::exe_path().unwrap(),
-            prefix: "".into(),
-            suffix: "".into(),
+            prefix: option_env!("PREFIX").unwrap_or_default().into(),
+            suffix: option_env!("SUFFIX").unwrap_or_default().into(),
+            config: option_env!("CONFDIR").unwrap_or("etc").into(),
             home: "~".into(),
             user_config: "~/.config".into(),
             bin: "bin".into(),
+            sbin: "sbin".into(),
             lib: "lib".into(),
             include: "include".into(),
-            config: "etc".into(),
             data: "share".into(),
             state: "var/lib".into(),
             cache: "var/cache".into(),
@@ -184,17 +186,17 @@ impl Dirs {
 
     fn prefixed_dirs(&mut self) -> impl IntoIterator<Item = &mut String> {
         [
-            &mut self.lib, &mut self.bin, &mut self.include, &mut self.config,
-            &mut self.data, &mut self.cache, &mut self.run, &mut self.state,
-            &mut self.log, &mut self.man, &mut self.doc, &mut self.tmp
+            &mut self.lib, &mut self.bin, &mut self.sbin, &mut self.include,
+            &mut self.config, &mut self.data, &mut self.cache, &mut self.run,
+            &mut self.state, &mut self.log, &mut self.man, &mut self.doc, &mut self.tmp
         ]
     }
 
     fn suffixed_dirs(&mut self) -> impl IntoIterator<Item = &mut String> {
         [
-            &mut self.lib, &mut self.include, &mut self.config, &mut self.user_config,
-            &mut self.data, &mut self.cache, &mut self.run, &mut self.state,
-            &mut self.log, &mut self.man, &mut self.doc, &mut self.tmp
+            &mut self.include, &mut self.config, &mut self.user_config, &mut self.data,
+            &mut self.cache, &mut self.run, &mut self.state, &mut self.log,
+            &mut self.man, &mut self.doc, &mut self.tmp
         ]
     }
 
