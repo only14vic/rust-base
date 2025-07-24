@@ -147,7 +147,7 @@ impl<'o> Args<'o> {
                 if self.opts.is_empty() || arg == "0" || self.allow_undefined {
                     arg.into_ok()
                 } else {
-                    Err(format!("Undefined option or argument: {arg}"))
+                    Err(format!("Undefined command line argument: {arg}"))
                 }
             })
     }
