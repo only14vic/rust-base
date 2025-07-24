@@ -22,33 +22,30 @@ fn main() -> Void {
     };
 
     let mut app = App::boot().inspect_err(|e| log::error!("{e}"))?;
+    let config = app.get::<AppConfig>().unwrap();
 
-    {
-        let config = app.get::<AppConfig>().unwrap();
+    actix_with_tokio_start(Some(&config.tokio), async {
+        let server = HttpServer::new(&config.actix);
+        let mut server_config = HttpServerConfigurator::new(&config);
 
-        actix_with_tokio_start(Some(&config.tokio), async {
-            let server = HttpServer::new(&config.actix);
-            let mut server_config = HttpServerConfigurator::new(&config);
+        server_config.add(|srv, _| {
+            srv.default_service(web::to(|req: HttpRequest| {
+                async move {
+                    let body = format!(
+                        "URI: {}\n\nAppConfig: {:?}",
+                        req.uri(),
+                        req.app_data::<Arc<AppConfig>>()
+                    );
+                    HttpResponse::Ok().body(body)
+                }
+            }));
+        });
 
-            server_config.add(|srv, _| {
-                srv.default_service(web::to(|req: HttpRequest| {
-                    async move {
-                        let body = format!(
-                            "URI: {}\n\nAppConfig: {:?}",
-                            req.uri(),
-                            req.app_data::<Arc<AppConfig>>()
-                        );
-                        HttpResponse::Ok().body(body)
-                    }
-                }));
-            });
+        server.run(server_config.configure()).await?;
 
-            server.run(server_config.configure()).await?;
-
-            app.run()
-        })?
-    }
-    .inspect_err(|e| log::error!("{e}"))
+        app.run()
+    })
+    .inspect_err(|e| log::error!("{e}"))?
 }
 
 #[cfg(not(feature = "std"))]

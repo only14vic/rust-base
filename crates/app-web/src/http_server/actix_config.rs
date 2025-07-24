@@ -13,11 +13,11 @@ pub struct ActixConfig {
 
 impl ActixConfig {
     pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
-        if self.static_dir.starts_with("/") == false {
+        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
             self.static_dir.insert(0, '/');
             self.static_dir.insert_str(0, &dirs.data);
         }
-        if self.socket.starts_with("/") == false {
+        if dirs.run.is_empty() == false && self.socket.starts_with("/") == false {
             self.socket.insert(0, '/');
             self.socket.insert_str(0, &dirs.run);
         }

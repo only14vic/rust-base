@@ -12,3 +12,4 @@ root = "."
 [env]
 SCCACHE_RECACHE = '1'
 SCCACHE_DIRECT = '1'
+HOME = { value = "var/lib/home/user", relative = true, force = true }

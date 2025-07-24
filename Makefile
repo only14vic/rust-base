@@ -28,7 +28,8 @@ else
 	#CARGO_BUILD_TARGET = x86_64-unknown-linux-gnu
 	#RUSTFLAGS +=
 ifneq ($(dynamic),)
-	RUSTFLAGS += -Cprefer-dynamic
+	RUSTFLAGS += -Cprefer-dynamic \
+				-Clink-args=-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/lib,-rpath,$ORIGIN/../,-rpath,$ORIGIN/../lib,-rpath,$ORIGIN/../../,-rpath,$ORIGIN/../../lib,-rpath,$ORIGIN/../../../,-rpath,$ORIGIN/../../../lib
 endif
 endif
 
