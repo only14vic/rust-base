@@ -3,7 +3,7 @@ use {
     alloc::{boxed::Box, format, sync::Arc},
     core::{
         any::{type_name, Any, TypeId},
-        ptr::null_mut,
+        ptr::{addr_eq, null_mut},
         sync::atomic::{AtomicPtr, Ordering}
     }
 };
@@ -100,7 +100,7 @@ impl Di {
 
     pub fn clear(&mut self) {
         self.container = Default::default();
-        if self as *mut _ == DI.load(Ordering::Relaxed) {
+        if addr_eq(self, DI.load(Ordering::Relaxed)) {
             log::trace!("Global Di cleared");
         } else {
             log::trace!("Di cleared");

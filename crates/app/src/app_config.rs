@@ -33,6 +33,8 @@ impl AppConfig {
             dirs.load_args(args)?;
         }
 
+        dirs.init();
+
         let config_file = format!("{}/{config_file_name}", &dirs.config);
         let ini = Ini::from_file(&config_file)?;
 
@@ -44,6 +46,7 @@ impl AppConfig {
             config.load_args(args)?;
         }
 
+        config.dirs.init();
         config.base.log.with_log_dir(&config.dirs.log);
 
         #[cfg(feature = "std")]
