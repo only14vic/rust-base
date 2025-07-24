@@ -63,8 +63,7 @@ impl HttpServerConfigurator {
     fn with_static_files(&mut self) -> &mut Self {
         self.add(|srv, cfg| {
             srv.service(Files::new(
-                &cfg.config.actix.static_path,
-                cfg.config.dirs.data.to_owned() + &cfg.config.actix.static_path
+                &cfg.config.actix.static_path, &cfg.config.actix.static_dir
             ));
         })
     }

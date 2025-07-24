@@ -87,6 +87,7 @@ impl App {
 
         let global_di = Di::from_static();
         global_di.set(log);
+        global_di.add(di.get::<AppConfig>().unwrap());
 
         let app = Self { di };
 

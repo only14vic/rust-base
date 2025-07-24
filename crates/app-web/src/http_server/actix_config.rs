@@ -7,14 +7,19 @@ pub struct ActixConfig {
     pub port: u16,
     pub threads: u8,
     pub blocking_threads_per_worker: u16,
-    pub static_path: String
+    pub static_path: String,
+    pub static_dir: String
 }
 
 impl ActixConfig {
-    pub fn with_socket_dir(&mut self, dir: &str) -> &mut Self {
-        if dir.is_empty() == false && self.socket.starts_with("/") == false {
+    pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
+        if self.static_dir.starts_with("/") == false {
+            self.static_dir.insert(0, '/');
+            self.static_dir.insert_str(0, &dirs.data);
+        }
+        if self.socket.starts_with("/") == false {
             self.socket.insert(0, '/');
-            self.socket.insert_str(0, dir.trim_end_matches('/'));
+            self.socket.insert_str(0, &dirs.run);
         }
         self
     }
@@ -28,7 +33,8 @@ impl Default for ActixConfig {
             port: 80,
             threads: 4,
             blocking_threads_per_worker: 4,
-            static_path: "/public".into()
+            static_path: "/public".into(),
+            static_dir: "public".into()
         }
     }
 }

@@ -52,7 +52,7 @@ impl AppConfig {
         config.base.log.with_log_dir(&config.dirs.log);
 
         #[cfg(feature = "std")]
-        Self::try_mut(&mut config.actix)?.with_socket_dir(&config.dirs.run);
+        Self::try_mut(&mut config.actix)?.with_dirs(&config.dirs);
 
         Ok(config)
     }
