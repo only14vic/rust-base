@@ -25,7 +25,9 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn load(config_file_name: &str, args: Option<&Args<'_>>) -> Ok<Self> {
+    pub const CONFIG_FILE_NAME: &str = "app.ini";
+
+    pub fn load(args: Option<&Args<'_>>) -> Ok<Self> {
         let mut dirs = Dirs::default();
         dirs.load_env()?;
 
@@ -35,7 +37,7 @@ impl AppConfig {
 
         dirs.init();
 
-        let config_file = format!("{}/{config_file_name}", &dirs.config);
+        let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
         let ini = Ini::from_file(&config_file)?;
 
         let mut config = Self::default();

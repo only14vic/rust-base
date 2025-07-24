@@ -54,8 +54,6 @@ impl Drop for App {
 }
 
 impl App {
-    const CONFIG_FILE_NAME: &str = "app.ini";
-
     #[inline]
     pub fn config(&self) -> &AppConfig {
         self.get_ref::<AppConfig>()
@@ -78,7 +76,7 @@ impl App {
         #[cfg(not(feature = "std"))]
         let args = AppConfig::parse_args(argc, argv)?;
 
-        let config = AppConfig::load(Self::CONFIG_FILE_NAME, Some(&args))?;
+        let config = AppConfig::load(Some(&args))?;
 
         log.configure(&config.base.log)?;
         log::trace!("Loaded: {config:#?}");
