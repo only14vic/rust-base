@@ -91,6 +91,7 @@ impl Dirs {
 
             for (.., dir) in list.iter() {
                 let mut dir = dir.borrow_mut();
+                Self::normalize_path(*dir);
 
                 if dir.contains('{') && dir.contains('}') {
                     for (name, subdir) in list.iter() {
@@ -99,8 +100,6 @@ impl Dirs {
                                 Self::normalize_path(*subdir);
                                 dir.replace_range(pos..pos + name.len(), *subdir);
                             }
-
-                            Self::normalize_path(*dir);
 
                             if let Some((pos1, pos2)) =
                                 subdir.find('{').zip(subdir.find('}'))
@@ -138,7 +137,11 @@ impl Dirs {
             path.replace_range(pos..pos + 2, "/");
         }
 
-        *path = path.trim_end_matches("/").to_string();
+        while let Some(pos) = path.rfind("/")
+            && pos == path.len() - 1
+        {
+            path.replace_range(pos..pos + 1, "");
+        }
     }
 
     pub fn dirname(path: &str) -> Ok<String> {
