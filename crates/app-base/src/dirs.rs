@@ -134,13 +134,13 @@ impl Dirs {
         }
 
         while let Some(pos) = path.find("//") {
-            path.replace_range(pos..pos + 2, "/");
+            path.remove(pos);
         }
 
         while let Some(pos) = path.rfind("/")
             && pos == path.len() - 1
         {
-            path.replace_range(pos..pos + 1, "");
+            path.remove(pos);
         }
     }
 
