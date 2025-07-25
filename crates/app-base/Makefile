@@ -1,4 +1,9 @@
-ALL += tests-base, \
+ALL += build-base, \
+		build-base no_std=1, \
+		build-base static=1, \
+		build-base static=1 no_std=1, \
+
+TESTS += tests-base, \
 		build-base, \
 		build-base no_std=1, \
 		build-base static=1, \
@@ -22,14 +27,12 @@ examples-base: flags
 	cargo run -p app-base --example app-base-example1 $(CARGO_ARGS)
 
 .PHONY: examples-base-c
-examples-base-c: flags
-	cc -std=gnu18 -Os -g -pipe -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin \
-		-fPIC -Wall -Wextra \
-		-Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$(target_dir)' \
-		-L$(target_dir) -lapp_base \
-		-o $(target_dir)/app-base-example-c \
+examples-base-c: flags objs
+	$(MAKE_CC) $(MAKE_CFLAGS) \
+		-lapp_base \
+		-o $(TARGET_DIR)/app-base-example-c \
 		crates/app-base/examples/app-base-example.c
-	$(target_dir)/app-base-example-c
+	$(TARGET_DIR)/app-base-example-c
 
 .PHONY: tests-base
 tests-base: flags

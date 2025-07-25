@@ -1,4 +1,4 @@
-ALL += examples-async,
+TESTS += examples-async,
 
 .PHONY: examples-async
 examples-async:

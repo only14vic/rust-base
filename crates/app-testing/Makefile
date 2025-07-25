@@ -1,4 +1,4 @@
-ALL += tests-testing,
+TESTS += tests-testing,
 
 .PHONY: tests-testing
 tests-testing:

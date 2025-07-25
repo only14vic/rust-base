@@ -1,4 +1,5 @@
 #![allow(unused)]
+#![allow(clippy::all)]
 
 extern crate alloc;
 
@@ -6,8 +7,8 @@ use {
     alloc::{rc::Rc, sync::Arc},
     app_macros::*,
     core::{
-        cell::RefCell, error::Error, ffi::*, marker::PhantomData, num::NonZero,
-        ptr::NonNull, str::FromStr
+        cell::RefCell, error::Error, ffi::*, marker::PhantomData, num::NonZero, ptr::NonNull,
+        str::FromStr
     },
     std::{
         collections::{HashMap, HashSet},
@@ -99,10 +100,7 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
     assert_eq!(foo.b, Some(Box::new(None)));
     assert_eq!(foo.c, true.into());
     assert_eq!(foo.d, Some('X'));
-    assert_eq!(
-        foo.e,
-        Box::new(Rc::new(RefCell::new(1.23))).into()
-    );
+    assert_eq!(foo.e, Box::new(Rc::new(RefCell::new(1.23))).into());
     assert_eq!(foo.f, "World".into());
     assert_eq!(foo.g, vec!["zzz", "a", "b", "c"]);
     assert_eq!(foo.h, Some("Predefined value".into()));
@@ -110,8 +108,8 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
     assert_eq!(
         foo.m,
         Some(HashSet::from_iter([
-            NonZero::new(111).into(),
-            NonZero::new(-1111).into(),
+            NonZero::new(111),
+            NonZero::new(-1111),
             None
         ]))
     );
@@ -127,9 +125,8 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
         HashMap::from_iter([("fooooo", "Foooooo".into()), ("baaaar", "Baaaaar".into())])
     );
     assert_eq!(
-        foo.p.map(|p| unsafe {
-            CStr::from_ptr(p.as_ptr() as *const i8).to_str().unwrap()
-        }),
+        foo.p
+            .map(|p| unsafe { CStr::from_ptr(p.as_ptr() as *const i8).to_str().unwrap() }),
         "C void".into()
     );
     assert_eq!(foo.r.to_str().unwrap(), "C str");

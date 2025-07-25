@@ -1,4 +1,4 @@
-ALL += tests-macros, \
+TESTS += tests-macros, \
 
 .PHONY: tests-macros
 tests-macros: flags

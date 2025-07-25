@@ -69,7 +69,7 @@ fn main() -> Void {
             .await
             .into_iter()
             .for_each(|r| {
-                let _ = r.unwrap().unwrap();
+                r.unwrap().unwrap();
             });
 
         cache.clear_all().await?;

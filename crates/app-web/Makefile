@@ -1,4 +1,4 @@
-ALL +=
+TESTS += tests-web,
 
 .PHONY: tests-web
 tests-web: flags
