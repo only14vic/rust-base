@@ -7,8 +7,8 @@ use {
         any::Any,
         future::Future,
         sync::{
-            atomic::{AtomicBool, Ordering},
-            Arc, LazyLock
+            Arc, LazyLock,
+            atomic::{AtomicBool, Ordering}
         },
         time::{Duration, Instant, SystemTime, UNIX_EPOCH}
     }
@@ -24,9 +24,8 @@ static DEFAULT_CACHE_CAPACITY: LazyLock<usize> = LazyLock::new(|| {
 
 #[inline]
 fn now() -> u64 {
-    static TIME: LazyLock<Instant> = LazyLock::new(|| {
-        Instant::now() - SystemTime::now().duration_since(UNIX_EPOCH).unwrap()
-    });
+    static TIME: LazyLock<Instant> =
+        LazyLock::new(|| Instant::now() - SystemTime::now().duration_since(UNIX_EPOCH).unwrap());
 
     TIME.elapsed().as_secs()
 }
@@ -78,10 +77,7 @@ impl Cacher<ArrayCache> {
 }
 
 impl Cache for ArrayCache {
-    async fn get<T: Send + Sync + 'static>(
-        &self,
-        keys: &[&str]
-    ) -> OkAsync<Option<Arc<T>>> {
+    async fn get<T: Send + Sync + 'static>(&self, keys: &[&str]) -> OkAsync<Option<Arc<T>>> {
         let key = self.get_key(keys);
 
         match self.buffer.get(&key) {

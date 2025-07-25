@@ -1,6 +1,6 @@
 use {
     super::ActixConfig,
-    actix_web::{middleware, web::ServiceConfig, App},
+    actix_web::{App, middleware, web::ServiceConfig},
     //actix_web::middleware::from_fn,
     //actix_web_grants::GrantsMiddleware,
     app_base::prelude::*,
@@ -16,10 +16,7 @@ impl HttpServer {
         Self { config: config.clone() }
     }
 
-    pub async fn run(
-        self,
-        configure: impl Fn(&mut ServiceConfig) + Send + Sync + 'static
-    ) -> Void {
+    pub async fn run(self, configure: impl Fn(&mut ServiceConfig) + Send + Sync + 'static) -> Void {
         log::debug!("Starting HttpServer: {:?}", &self.config);
 
         let configure = Arc::new(configure);

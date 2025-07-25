@@ -45,8 +45,11 @@ ifdef args
 endif
 
 ALL =
--include crates/*/Makefile
+-include */Makefile
+-include */*/Makefile
 ALL += info
+
+#################
 
 all: clean check
 	echo $(ALL) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"

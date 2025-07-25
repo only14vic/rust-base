@@ -42,6 +42,9 @@ impl Default for Dirs {
             prefix: option_env!("PREFIX").unwrap_or(".").into(),
             suffix: option_env!("SUFFIX").unwrap_or("").into(),
             var: option_env!("VARDIR").unwrap_or("{prefix}/var").into(),
+            data: option_env!("DATADIR")
+                .unwrap_or("{prefix}/share/{suffix}")
+                .into(),
             config: option_env!("CONFDIR")
                 .unwrap_or("{prefix}/etc/{suffix}")
                 .into(),
@@ -51,7 +54,6 @@ impl Default for Dirs {
             sbin: "{prefix}/sbin".into(),
             lib: "{prefix}/lib".into(),
             include: "{prefix}/include/{suffix}".into(),
-            data: "{prefix}/share/{suffix}".into(),
             man: "{prefix}/share/man/{suffix}".into(),
             doc: "{prefix}/share/doc/{suffix}".into(),
             state: "{var}/lib/{suffix}".into(),
