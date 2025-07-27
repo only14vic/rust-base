@@ -17,11 +17,16 @@ endif
 
 DESTDIR = $(PWD)
 CARGO_ARGS =
+CLANG_VERSION = $(shell clang --version | grep -o "version [0-9]\+")
 RUSTFLAGS = -Ctarget-cpu=native \
-			-Clinker=clang \
-			-Clinker-plugin-lto \
-			-Clink-arg=-fuse-ld=lld \
-			-Clink-arg=-lc
+			-Clink-arg=-fuse-ld=lld
+
+ifeq ($(CLANG_VERSION),version 20)
+	RUSTFLAGS += -Clinker=clang \
+				-Clinker-plugin-lto \
+				-Clink-arg=-lc
+endif
+
 MAKE_CC = cc
 MAKE_CFLAGS = -std=gnu18 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin
 
@@ -113,7 +118,8 @@ flags:
 	@echo TARGET: $(CARGO_BUILD_TARGET)
 	@echo CARGO_ARGS: $(CARGO_ARGS)
 	@echo RUSTFLAGS: $(RUSTFLAGS)
-	@echo CFLAGS: $(MAKE_CFLAGS)
+	@echo MAKE_CFLAGS: $(MAKE_CFLAGS)
+	@echo CLANG_VERSION: $(CLANG_VERSION)
 	@echo TESTS: $(TESTS)
 	@echo ALL: $(ALL)
 	@echo "------------------------"

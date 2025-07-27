@@ -6,7 +6,7 @@ use {
         vec::Vec
     },
     core::{
-        ffi::{c_char, c_int, CStr},
+        ffi::{CStr, c_char, c_int},
         ops::Deref,
         str
     }
@@ -80,6 +80,8 @@ impl<'o> Args<'o> {
     }
 
     pub fn parse_args(mut self, args: Vec<String>) -> Ok<Self> {
+        log::trace!("Command line arguments: {args:?}");
+
         let mut i = 0;
         let mut n = 0;
 
