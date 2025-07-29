@@ -30,6 +30,9 @@ endif
 MAKE_CC = cc
 MAKE_CFLAGS = -std=gnu18 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin
 
+ifeq ($(APP_DEBUG),1)
+	debug = 1
+endif
 ifeq ($(debug),)
 	CARGO_ARGS += --release
 endif
@@ -126,14 +129,6 @@ flags:
 
 gdb_args = --readnow -iex "set auto-load safe-path /" -x .gdb_local \
 		--directory "$$(ls -1d ~/.cargo/registry/src/* ~/.rustup/toolchains/*/lib/rustlib/src/rust/library | xargs echo | sed s/\ /:/g)"
-
-.PHONY: gdb
-gdb:
-ifdef f
-	rust-gdb $(gdb_args) --args $(f)
-else
-	rust-gdb $(gdb_args)
-endif
 
 objs: $(MAKE_OBJS)
 
