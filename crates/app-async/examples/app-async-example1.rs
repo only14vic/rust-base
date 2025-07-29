@@ -74,10 +74,7 @@ fn main() -> Void {
 
         cache.clear_all().await?;
 
-        log::info!(
-            "Executed SQL: {}",
-            sql_counter.load(Ordering::Relaxed)
-        );
+        log::info!("Executed SQL: {}", sql_counter.load(Ordering::Relaxed));
 
         Ok("Hello, from Async!") as Result<&str, ErrAsync>
     })?;

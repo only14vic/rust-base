@@ -3,7 +3,7 @@ mod common;
 use {
     app_base::prelude::*,
     common::*,
-    futures::{future::join_all, lock::Mutex, stream::FuturesUnordered, FutureExt},
+    futures::{FutureExt, future::join_all, lock::Mutex, stream::FuturesUnordered},
     std::{sync::LazyLock, time::Duration},
     tokio::time::sleep
 };

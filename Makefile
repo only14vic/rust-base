@@ -98,7 +98,7 @@ check:
 	cargo check --workspace --no-default-features --exclude app
 	cargo check --workspace
 	cargo clippy --no-deps --fix --allow-dirty --allow-staged
-	rustup run nightly rustfmt --check crates/*/src/**/*.rs
+	find crates -type f -name "*.rs" | xargs rustup run nightly rustfmt --check
 
 .PHONY: info
 info:

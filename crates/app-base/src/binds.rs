@@ -3,7 +3,4 @@
 #![allow(non_snake_case)]
 #![allow(unused)]
 
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/include/bindings.rs"
-));
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/include/bindings.rs"));

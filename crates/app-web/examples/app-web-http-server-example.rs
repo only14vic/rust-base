@@ -1,5 +1,5 @@
 use {
-    actix_web::{web, HttpRequest, HttpResponse},
+    actix_web::{HttpRequest, HttpResponse, web},
     app::{AppConfig, HttpServerConfigurator},
     app_async::actix_with_tokio_start,
     app_base::prelude::*,

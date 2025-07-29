@@ -5,7 +5,7 @@ use {
     },
     alloc::{boxed::Box, format, string::String},
     core::{
-        ffi::{c_char, CStr},
+        ffi::{CStr, c_char},
         mem::{forget, transmute, zeroed},
         ops::{Deref, DerefMut},
         ptr::null_mut,
@@ -130,10 +130,8 @@ impl Logger {
         if let Some(path) = self.config.file.as_ref() {
             if path.is_empty() == false {
                 unsafe {
-                    let file = libc::fopen(
-                        CString::from_str(path.as_str())?.as_ptr(),
-                        c"a+".as_ptr()
-                    );
+                    let file =
+                        libc::fopen(CString::from_str(path.as_str())?.as_ptr(), c"a+".as_ptr());
                     if file.is_null() {
                         Err(format!("Could not open log file: {path}"))?;
                     }

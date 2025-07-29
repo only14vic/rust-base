@@ -45,8 +45,7 @@ impl Env {
     #[inline]
     pub fn is_prod() -> bool {
         #[cfg(feature = "std")]
-        return Self::is_release()
-            || std::env::var("APP_ENV").unwrap_or_default() == "prod";
+        return Self::is_release() || std::env::var("APP_ENV").unwrap_or_default() == "prod";
         #[cfg(not(feature = "std"))]
         return Self::is_release();
     }

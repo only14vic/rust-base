@@ -9,7 +9,7 @@ use {
     alloc::{boxed::Box, ffi::CString, format, string::String, vec::Vec},
     core::{
         error::Error,
-        ffi::{c_char, c_int, c_void, CStr},
+        ffi::{CStr, c_char, c_int, c_void},
         fmt::Display,
         ops::Deref,
         str::FromStr

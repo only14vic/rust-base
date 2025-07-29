@@ -15,7 +15,7 @@ use {app::*, app_base::prelude::*};
 #[cfg(feature = "std")]
 fn main() -> Void {
     use {
-        actix_web::{web, HttpRequest, HttpResponse},
+        actix_web::{HttpRequest, HttpResponse, web},
         app_async::actix_with_tokio_start,
         app_web::HttpServer,
         std::sync::Arc

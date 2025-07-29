@@ -103,12 +103,10 @@ impl Dirs {
                                 dir.replace_range(pos..pos + name.len(), *subdir);
                             }
 
-                            if let Some((pos1, pos2)) =
-                                subdir.find('{').zip(subdir.find('}'))
+                            if let Some((pos1, pos2)) = subdir.find('{').zip(subdir.find('}'))
                                 && pos2 > pos1
                             {
-                                need_repeat =
-                                    list.contains_key(subdir.get(pos1..=pos2).unwrap());
+                                need_repeat = list.contains_key(subdir.get(pos1..=pos2).unwrap());
                             }
                         }
                     }
@@ -148,8 +146,7 @@ impl Dirs {
 
     pub fn dirname(path: &str) -> Ok<String> {
         let path_c = ManuallyDrop::new(CString::from_str(path)?);
-        let dir_ptr =
-            unsafe { dirname(realpath(path_c.as_ptr().cast_mut(), null_mut())) };
+        let dir_ptr = unsafe { dirname(realpath(path_c.as_ptr().cast_mut(), null_mut())) };
 
         if dir_ptr.is_null() {
             return Err("Could not get dirname.")?;

@@ -8,8 +8,7 @@ use {
     core::pin::Pin
 };
 
-type ServiceConfigFn =
-    Pin<Box<dyn Fn(&mut ServiceConfig, &HttpServerConfigurator) + Send + Sync>>;
+type ServiceConfigFn = Pin<Box<dyn Fn(&mut ServiceConfig, &HttpServerConfigurator) + Send + Sync>>;
 
 pub struct HttpServerConfigurator {
     pub config: Arc<AppConfig>,

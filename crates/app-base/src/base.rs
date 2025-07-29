@@ -11,7 +11,7 @@ use {
         hash::BuildHasherDefault,
         ops::Deref
     },
-    serde::{de::DeserializeOwned, Deserialize, Serialize}
+    serde::{Deserialize, Serialize, de::DeserializeOwned}
 };
 
 pub type IndexMap<K, V, S = BuildHasherDefault<AHasher>> = indexmap::IndexMap<K, V, S>;

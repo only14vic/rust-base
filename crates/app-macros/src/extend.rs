@@ -10,11 +10,11 @@ use {
     },
     proc_macro::TokenStream,
     proc_macro2::{Span, TokenStream as TokenStream2, TokenTree},
-    quote::{quote, ToTokens},
+    quote::{ToTokens, quote},
     syn::{
-        parse_macro_input, parse_str, punctuated::Punctuated, token::Comma, Attribute,
-        Data, DeriveInput, Field, Fields, GenericParam, Generics, Ident, ImplGenerics,
-        Lifetime, LifetimeParam, Path, TypePath, WhereClause
+        Attribute, Data, DeriveInput, Field, Fields, GenericParam, Generics, Ident, ImplGenerics,
+        Lifetime, LifetimeParam, Path, TypePath, WhereClause, parse_macro_input, parse_str,
+        punctuated::Punctuated, token::Comma
     }
 };
 #[cfg(not(feature = "std"))]
@@ -57,8 +57,7 @@ impl ExtendMacros {
 
         #[cfg(feature = "std")]
         let map_type: TypePath =
-            syn::parse_str("::std::collections::HashMap<&'iter str, Option<&'iter str>>")
-                .unwrap();
+            syn::parse_str("::std::collections::HashMap<&'iter str, Option<&'iter str>>").unwrap();
 
         #[cfg(not(feature = "std"))]
         let map_type: TypePath = syn::parse_str(
@@ -208,10 +207,10 @@ impl ExtendMacros {
                     token
                 }
             },
-            ty @ ("i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32"
-            | "u64" | "u128" | "f32" | "f64" | "f128" | "isize" | "usize"
-            | "c_char" | "c_short" | "c_ushort" | "c_int" | "c_uint" | "c_long"
-            | "c_ulong" | "c_longlong" | "c_ulonglong" | "c_double" | "c_float") => {
+            ty @ ("i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32" | "u64" | "u128"
+            | "f32" | "f64" | "f128" | "isize" | "usize" | "c_char" | "c_short"
+            | "c_ushort" | "c_int" | "c_uint" | "c_long" | "c_ulong" | "c_longlong"
+            | "c_ulonglong" | "c_double" | "c_float") => {
                 let token = quote! {
                     v.parse::<#ty_ident>().map_err(|_| format!("Failed parse '{v}' to type {}", #ty)).unwrap()
                 };

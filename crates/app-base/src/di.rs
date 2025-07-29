@@ -2,7 +2,7 @@ use {
     crate::prelude::*,
     alloc::{boxed::Box, format, sync::Arc},
     core::{
-        any::{type_name, Any, TypeId},
+        any::{Any, TypeId, type_name},
         ptr::{addr_eq, null_mut},
         sync::atomic::{AtomicPtr, Ordering}
     }
@@ -17,13 +17,8 @@ pub struct Di {
 
 impl Drop for Di {
     fn drop(&mut self) {
-        DI.compare_exchange(
-            self,
-            null_mut(),
-            Ordering::SeqCst,
-            Ordering::Relaxed
-        )
-        .ok();
+        DI.compare_exchange(self, null_mut(), Ordering::SeqCst, Ordering::Relaxed)
+            .ok();
     }
 }
 
@@ -33,12 +28,9 @@ impl Di {
 
         if di.is_null() {
             di = Box::leak(Self::default().into());
-            if let Err(prev) = DI.compare_exchange(
-                null_mut(),
-                di,
-                Ordering::SeqCst,
-                Ordering::Relaxed
-            ) {
+            if let Err(prev) =
+                DI.compare_exchange(null_mut(), di, Ordering::SeqCst, Ordering::Relaxed)
+            {
                 let _ = unsafe { Box::from_raw(di) };
                 di = prev;
             }

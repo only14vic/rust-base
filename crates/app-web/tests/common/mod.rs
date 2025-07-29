@@ -18,7 +18,7 @@ pub static TEST: LazyLock<Test> = LazyLock::new(|| {
 #[macro_export]
 macro_rules! test_app {
     ($configure:expr) => {{
-        use actix_web::{test::init_service, App};
+        use actix_web::{App, test::init_service};
 
         let configure = $configure;
 

@@ -1,10 +1,10 @@
 use {
     actix_web::{
+        HttpRequest, HttpResponse,
         body::MessageBody,
         dev::Service,
         test::TestRequest,
-        web::{self, ServiceConfig},
-        HttpRequest, HttpResponse
+        web::{self, ServiceConfig}
     },
     app::App,
     app_base::prelude::*,
