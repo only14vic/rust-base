@@ -58,6 +58,15 @@ ifdef args
 	CARGO_ARGS += -- $(args)
 endif
 
+export RUSTFLAGS
+
+ifdef CARGO_BUILD_TARGET
+export CARGO_BUILD_TARGET
+endif
+ifdef CARGO_TARGET_DIR
+export CARGO_TARGET_DIR
+endif
+
 TARGET_DIR = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)/release
 MAKE_AOBJS = $(wildcard $(TARGET_DIR)/*.a)
 MAKE_OBJS = $(MAKE_AOBJS:.a=.o)
