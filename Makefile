@@ -72,8 +72,6 @@ TESTS =
 ALL += info
 TESTS += info
 
-export
-
 #################
 
 all: clean check
@@ -127,8 +125,9 @@ flags:
 	@echo ALL: $(ALL)
 	@echo "------------------------"
 
-gdb_args = --readnow -iex "set auto-load safe-path /" -x .gdb_local \
-		--directory "$$(ls -1d ~/.cargo/registry/src/* ~/.rustup/toolchains/*/lib/rustlib/src/rust/library | xargs echo | sed s/\ /:/g)"
+.PHONY: env
+env:
+	env|sort
 
 objs: $(MAKE_OBJS)
 
