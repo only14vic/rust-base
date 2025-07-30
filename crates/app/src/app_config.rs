@@ -82,8 +82,10 @@ impl AppConfig {
             ("user-config-dir", &["-u"], None),
             ("log-dir", &[], None),
             ("tokio-threads", &[], None),
-            ("actix-threads", &[], None),
+            ("actix-socket", &[], None),
+            ("actix-listen", &[], None),
             ("actix-port", &[], None),
+            ("actix-threads", &[], None),
             ("db-url", &[], None)
         ])?;
 
