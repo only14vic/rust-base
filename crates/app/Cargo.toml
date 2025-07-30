@@ -15,6 +15,10 @@ crate-type = ["lib"]
 path = "src/main.rs"
 name = "app"
 
+[[bin]]
+path = "src/main_config.rs"
+name = "app_config"
+
 [features]
 default = ["std", "db"]
 std = [

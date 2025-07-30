@@ -180,8 +180,11 @@ impl ExtendMacros {
         let Some((n, mut ty)) = types.next() else {
             return quote! {};
         };
-        if ty.contains('(') || ty.contains(',') || ty.contains(' ') {
+        if attrs.iter().any(|a| a.path().is_ident("skip")) {
             return quote! {};
+        }
+        if ty.contains('(') || ty.contains(',') || ty.contains(' ') {
+            panic!("Tuple does not supported yet.");
         }
         if let Some(pos) = ty.rfind("::") {
             ty = ty.get(pos + 2..).unwrap().to_string();
@@ -294,6 +297,16 @@ impl ExtendMacros {
                     quote! { self.#name_ident.extend(#token); }
                 } else {
                     quote! { #ty_ident::from_iter(#token) }
+                }
+            },
+            ty if ty.starts_with("(") && ty.ends_with(")") => {
+                let token = quote! {
+                    v.parse::<#ty_ident>().map_err(|_| format!("Failed parse '{v}' to type {}", #ty)).unwrap()
+                };
+                if n == 0 {
+                    quote! { self.#name_ident = #token; }
+                } else {
+                    token
                 }
             },
             _ if is_parse => {

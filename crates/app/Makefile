@@ -7,12 +7,18 @@ TESTS += build-app, \
 		examples-app-c, \
 		run-app no_std=1, \
 		run-app no_std=1 static=1, \
+		run-config no_std=1, \
+		run-config no_std=1 static=1, \
 		examples-app, \
 		tests-app, \
 
 .PHONY: run-app
 run-app: flags
 	cargo run -p app --bin app $(CARGO_ARGS)
+
+.PHONY: run-config
+run-config: flags
+	cargo run -p app --bin app-config $(CARGO_ARGS)
 
 .PHONY: build-app
 build-app: flags

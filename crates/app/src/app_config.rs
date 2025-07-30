@@ -6,7 +6,13 @@ use {app_async::TokioConfig, app_web::ActixConfig};
 use app_async::db::DbConfig;
 use {
     crate::AppOptions,
-    alloc::{format, sync::Arc},
+    alloc::{
+        boxed::Box,
+        fmt::{Debug, Display},
+        format,
+        string::{String, ToString},
+        sync::Arc
+    },
     app_base::prelude::*,
     core::any::type_name
 };
@@ -25,7 +31,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub const CONFIG_FILE_NAME: &str = "app.ini";
+    pub const CONFIG_FILE_NAME: &'static str = "app.ini";
 
     pub fn load(args: Option<&Args<'_>>) -> Ok<Self> {
         let mut dirs = Dirs::default();
@@ -62,7 +68,10 @@ impl AppConfig {
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<Args<'static>> {
         let mut args = Args::new([
-            ("log-level", &["-l"][..], None),
+            ("exe", &["0"][..], None),
+            ("command", &["1"][..], None),
+            ("value", &["2"], None),
+            ("log-level", &["-l"], None),
             ("log-color", &[], None),
             ("log-file", &[], None),
             ("log-filter", &[], None),
@@ -98,6 +107,88 @@ impl AppConfig {
             )
             .into()
         )
+    }
+
+    /// Creates iterator of string options
+    ///
+    /// May cause a memory leak!
+    pub fn iter(&self) -> impl Iterator<Item = (&str, String)> {
+        [
+            &[
+                (
+                    "options.clear_static_di",
+                    &self.options.clear_static_di as &(dyn Display + Send + Sync)
+                ),
+                ("base.language", &self.base.language),
+                ("base.timezone", &self.base.timezone),
+                ("base.log.level", &self.base.log.level),
+                ("base.log.color", &self.base.log.color),
+                (
+                    "base.log.filter",
+                    Box::leak(Box::new(
+                        self.base
+                            .log
+                            .filter
+                            .as_ref()
+                            .map(|v| v.join(","))
+                            .unwrap_or_default()
+                    ))
+                ),
+                (
+                    "base.log.file",
+                    Box::leak(Box::new(self.base.log.file.as_deref().unwrap_or_default()))
+                ),
+                ("dirs.bin", &self.dirs.bin),
+                ("dirs.sbin", &self.dirs.sbin),
+                ("dirs.lib", &self.dirs.lib),
+                ("dirs.man", &self.dirs.man),
+                ("dirs.doc", &self.dirs.doc),
+                ("dirs.var", &self.dirs.var),
+                ("dirs.run", &self.dirs.run),
+                ("dirs.log", &self.dirs.log),
+                ("dirs.data", &self.dirs.data),
+                ("dirs.cache", &self.dirs.cache),
+                ("dirs.state", &self.dirs.state),
+                ("dirs.config", &self.dirs.config),
+                ("dirs.user_config", &self.dirs.user_config),
+                ("dirs.home", &self.dirs.home),
+                ("dirs.include", &self.dirs.include),
+                ("dirs.tmp", &self.dirs.tmp),
+                ("dirs.prefix", &self.dirs.prefix),
+                ("dirs.suffix", &self.dirs.suffix)
+            ] as &[(&str, &(dyn Display + Send + Sync))],
+            #[cfg(feature = "std")]
+            &[
+                ("tokio.threads", &self.tokio.threads),
+                ("tokio.blocking_threads", &self.tokio.blocking_threads),
+                ("tokio.thread_name", &self.tokio.thread_name),
+                ("actix.port", &self.actix.port),
+                ("actix.socket", &self.actix.socket),
+                ("actix.listen", &self.actix.listen),
+                ("actix.threads", &self.actix.threads),
+                (
+                    "actix.blocking_threads_per_worker", &self.actix.blocking_threads_per_worker
+                ),
+                ("actix.static_dir", &self.actix.static_dir),
+                ("actix.static_path", &self.actix.static_path)
+            ],
+            #[cfg(feature = "db")]
+            &[
+                ("db.url", &self.db.url),
+                (
+                    "db.schema",
+                    Box::leak(Box::new(self.db.schema.as_deref().unwrap_or_default()))
+                ),
+                ("db.min_conn", &self.db.min_conn),
+                ("db.max_conn", &self.db.max_conn),
+                ("db.idle_timeout", &self.db.idle_timeout),
+                ("db.max_lifetime", &self.db.max_lifetime),
+                ("db.acquire_timeout", &self.db.acquire_timeout)
+            ]
+        ]
+        .concat()
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
     }
 }
 
