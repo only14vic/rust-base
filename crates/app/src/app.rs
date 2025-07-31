@@ -12,7 +12,8 @@ use {
 };
 
 pub struct App {
-    di: Di
+    di: Di,
+    modules: Vec<Box<dyn FnOnce(&mut App) -> Void>>
 }
 
 impl Deref for App {
@@ -89,9 +90,25 @@ impl App {
         global_di.set(log);
         global_di.add(di.get::<AppConfig>().unwrap());
 
-        let app = Self { di };
+        let app = Self { di, modules: Default::default() };
 
         Ok(app)
+    }
+
+    pub fn register_module(
+        &mut self,
+        module: impl FnOnce(&mut App) -> Void + 'static
+    ) -> &mut Self {
+        self.modules.push(Box::new(module));
+        self
+    }
+
+    pub fn load_modules(&mut self) -> Void {
+        let modules = core::mem::take(&mut self.modules);
+        for module in modules {
+            module(self)?
+        }
+        ok()
     }
 
     #[cfg(not(feature = "std"))]

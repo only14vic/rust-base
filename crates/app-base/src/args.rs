@@ -50,16 +50,17 @@ impl<'o> Args<'o> {
         mut self,
         opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
     ) -> Ok<Self> {
-        let mut all_opts = Vec::with_capacity(100);
-
         for (n, o, v) in opts {
             if self.opts.contains_key(n) {
-                return Err(format!("Not unique option: {n}"))?;
+                Err(format!("Not unique option: {n}"))?;
             }
-            if let Some(o) = all_opts.iter().find(|&v| o.contains(v)) {
-                return Err(format!("Not unique option: {o}"))?;
+            if let Some(o) = self
+                .opts
+                .iter()
+                .find_map(|(.., &ol)| ol.iter().find(|v| o.contains(v)))
+            {
+                Err(format!("Not unique option: {o}"))?;
             }
-            o.iter().for_each(|&v| all_opts.push(v));
 
             self.opts.insert(n, o);
             self.args.insert(n.into(), v.map(|s| s.into()));

@@ -12,6 +12,13 @@ use core::ffi::{c_char, c_int};
 #[allow(unused_imports)]
 use {app::*, app_base::prelude::*};
 
+static MODULE_APP: fn(&mut App) -> Void = module_init;
+
+fn module_init(_app: &mut App) -> Void {
+    log::trace!("App module loaded");
+    ok()
+}
+
 #[cfg(feature = "std")]
 fn main() -> Void {
     use {
@@ -22,6 +29,9 @@ fn main() -> Void {
     };
 
     let mut app = App::boot().inspect_err(|e| log::error!("{e}"))?;
+    app.register_module(MODULE_APP);
+    app.load_modules()?;
+
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
