@@ -11,9 +11,11 @@ use {
     }
 };
 
+type Modules = Vec<Box<dyn FnOnce(&mut App) -> Void>>;
+
 pub struct App {
     di: Di,
-    modules: Vec<Box<dyn FnOnce(&mut App) -> Void>>
+    modules: Modules
 }
 
 impl Deref for App {
