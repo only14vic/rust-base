@@ -17,8 +17,9 @@ pub struct Di {
 
 impl Drop for Di {
     fn drop(&mut self) {
-        DI.compare_exchange(self, null_mut(), Ordering::SeqCst, Ordering::Relaxed)
-            .ok();
+        if self.container.is_empty() == false {
+            self.clear();
+        }
     }
 }
 
@@ -27,7 +28,7 @@ impl Di {
         let mut di = DI.load(Ordering::Acquire);
 
         if di.is_null() {
-            di = Box::leak(Self::default().into());
+            di = Box::leak(Box::new(Self::default()));
             if let Err(prev) =
                 DI.compare_exchange(null_mut(), di, Ordering::SeqCst, Ordering::Relaxed)
             {
@@ -90,8 +91,13 @@ impl Di {
         self.container.contains_key(&TypeId::of::<T>())
     }
 
+    pub fn len(&self) -> usize {
+        self.container.len()
+    }
+
     pub fn clear(&mut self) {
-        self.container = Default::default();
+        core::mem::take(&mut self.container);
+
         if addr_eq(self, DI.load(Ordering::Relaxed)) {
             log::trace!("Global Di cleared");
         } else {

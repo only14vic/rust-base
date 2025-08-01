@@ -22,7 +22,7 @@ fn panic(info: &PanicInfo<'_>) -> ! {
     if handler.is_null() == false {
         unsafe { (*handler)(info) };
     } else {
-        eprintln!("ERROR: {info}");
+        eprintln!("PANIC: {info}");
     }
     unsafe { abort() };
 }

@@ -6,11 +6,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+size_t module_handler(App *app, AppEvent event);
+
 int main(int argc, const char *argv[]) {
-    void *app = app_boot(argc, argv);
+    size_t (*modules[])(App *, AppEvent) = {module_handler};
 
-    log_msg(INFO, __FUNCTION__, "Starting...");
+    App *app = app_new(modules, 1);
 
+    app_boot(app, argc, argv);
     app_run(app);
     app_free(app);
+
+    return 0;
+}
+
+size_t module_handler(App *, AppEvent event) {
+    char msg[100] = "";
+    sprintf(msg, "Catched event: %d", event);
+    log_msg(INFO, __FUNCTION__, msg);
+
+    if (event == APP_RUN) {
+        log_msg(INFO, __FUNCTION__, "Application running...");
+    }
+
+    return 0;
 }

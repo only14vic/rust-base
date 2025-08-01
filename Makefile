@@ -15,6 +15,13 @@ ifneq ($(env),)
 endif
 endif
 
+ifeq ($(APP_DEBUG),1)
+	debug = 1
+endif
+ifeq ($(debug),)
+	CARGO_ARGS += --release
+endif
+
 DESTDIR = $(PWD)
 CARGO_ARGS =
 CLANG_VERSION = $(shell clang --version | grep -o "version [0-9]\+")
@@ -27,22 +34,25 @@ ifeq ($(CLANG_VERSION),version 20)
 				-Clink-arg=-lc
 endif
 
+ifneq ($(static),)
+	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
+endif
+
+TARGET_DIR = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)
+
+ifneq ($(debug),)
+	TARGET_DIR := $(TARGET_DIR)/debug
+else
+	TARGET_DIR := $(TARGET_DIR)/release
+endif
+
 MAKE_CC = cc
 MAKE_CFLAGS = -std=gnu18 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin
 
-ifeq ($(APP_DEBUG),1)
-	debug = 1
-endif
-ifeq ($(debug),)
-	CARGO_ARGS += --release
-endif
-
 ifneq ($(static),)
-	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
 	RUSTFLAGS += -Ctarget-feature=+crt-static
 	MAKE_CFLAGS += -static -static-pie
 else
-	#CARGO_BUILD_TARGET = x86_64-unknown-linux-gnu
 	MAKE_CFLAGS += -pipe -Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$(TARGET_DIR)'
 ifneq ($(dynamic),)
 	RUSTFLAGS += -Cprefer-dynamic \
@@ -67,7 +77,6 @@ ifdef CARGO_TARGET_DIR
 export CARGO_TARGET_DIR
 endif
 
-TARGET_DIR = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)/release
 MAKE_AOBJS = $(wildcard $(TARGET_DIR)/*.a)
 MAKE_OBJS = $(MAKE_AOBJS:.a=.o)
 
@@ -107,6 +116,17 @@ info:
 		-a \( -executable -o -name "*.a" -o -name "*.so" \) \
 		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
 		-exec ls -sh {} \; -exec ldd {} 2>/dev/null \; -exec echo -e "------------------------" \;
+
+gdb_args = --readnow -iex "set auto-load safe-path /" -x .gdb_local \
+		--directory "$$(ls -1d ~/.cargo/registry/src/* ~/.rustup/toolchains/*/lib/rustlib/src/rust/library | xargs echo | sed s/\ /:/g)"
+
+.PHONY: gdb
+gdb:
+ifdef f
+	rust-gdb $(gdb_args) --args $(f)
+else
+	rust-gdb $(gdb_args)
+endif
 
 .PHONY: doc
 doc:

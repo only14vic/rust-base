@@ -3,19 +3,35 @@ use core::panic::PanicInfo;
 
 use {
     crate::AppConfig,
-    alloc::{boxed::Box, sync::Arc},
+    alloc::{boxed::Box, format, sync::Arc, vec::Vec},
     app_base::prelude::*,
     core::{
-        ffi::{c_char, c_int, c_void},
+        ffi::{c_char, c_int, c_uint},
+        mem,
         ops::{Deref, DerefMut}
     }
 };
 
-type Modules = Vec<Box<dyn FnOnce(&mut App) -> Void>>;
+pub type AppModule = fn(&mut App, AppEvent) -> Void;
 
+#[derive(Default)]
 pub struct App {
     di: Di,
-    modules: Modules
+    modules: Vec<AppModule>,
+    commands: IndexMap<&'static str, AppModule>
+}
+
+#[repr(C)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AppEvent {
+    APP_INIT,
+    APP_LOAD_ENV,
+    APP_LOAD_ARGS,
+    APP_LOAD_CONFIG,
+    APP_BOOT,
+    APP_RUN,
+    APP_END
 }
 
 impl Deref for App {
@@ -34,14 +50,19 @@ impl DerefMut for App {
 
 impl Drop for App {
     fn drop(&mut self) {
+        let _ = self.trigger_event(AppEvent::APP_END);
+
         let global_di = Di::from_static();
         let log = global_di.get::<&mut Logger>();
         let config = self.get::<AppConfig>();
 
-        self.clear();
+        mem::take(&mut self.di);
+        mem::take(&mut self.commands);
+        mem::forget(mem::take(&mut self.modules));
 
         if let Some(config) = config
             && config.options.clear_static_di
+            && global_di.len() > 0
         {
             global_di.clear();
         }
@@ -57,6 +78,14 @@ impl Drop for App {
 }
 
 impl App {
+    pub fn new(modules: impl IntoIterator<Item = AppModule>) -> Self {
+        Self {
+            di: Di::default(),
+            modules: modules.into_iter().collect(),
+            commands: Default::default()
+        }
+    }
+
     #[inline]
     pub fn config(&self) -> &AppConfig {
         self.get_ref::<AppConfig>()
@@ -64,59 +93,100 @@ impl App {
     }
 
     pub fn boot(
+        &mut self,
         #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
-    ) -> Ok<Self> {
+    ) -> Ok<&mut Self> {
         #[cfg(not(feature = "std"))]
         set_panic_handler(Self::panic_handler);
 
         dotenv(false);
-        let log = Logger::init()?;
-
-        #[cfg(feature = "std")]
-        let args = AppConfig::parse_args()?;
-
-        #[cfg(not(feature = "std"))]
-        let args = AppConfig::parse_args(argc, argv)?;
-
-        let config = AppConfig::load(Some(&args))?;
-
-        log.configure(&config.base.log)?;
-        log::trace!("Loaded: {config:#?}");
-
-        let mut di = Di::default();
-        di.set(args);
-        di.set(config);
 
         let global_di = Di::from_static();
-        global_di.set(log);
-        global_di.add(di.get::<AppConfig>().unwrap());
+        Logger::init()?;
+        global_di.set(Logger::init()?);
 
-        let app = Self { di, modules: Default::default() };
+        self.set(AppConfig::new());
+        self.set(AppConfig::args()?);
 
-        Ok(app)
+        self.trigger_event(AppEvent::APP_INIT)?;
+        self.trigger_event(AppEvent::APP_LOAD_ENV)?;
+
+        let args = self.get_mut::<Args>()?.unwrap();
+        #[cfg(feature = "std")]
+        args.parse_args(std::env::args().collect())?;
+        #[cfg(not(feature = "std"))]
+        unsafe {
+            args.parse_argc(argc, argv)?
+        };
+
+        self.trigger_event(AppEvent::APP_LOAD_ARGS)?;
+
+        let args = self.get::<Args>().unwrap();
+        let config = self.get_mut::<AppConfig>()?.unwrap();
+        config.load(Some(args.as_ref()))?;
+
+        let log = global_di.get_mut::<&mut Logger>()?.unwrap();
+        log.configure(&config.base.log)?;
+
+        log::trace!("Loaded: {config:#?}");
+
+        self.trigger_event(AppEvent::APP_LOAD_CONFIG)?;
+        self.trigger_event(AppEvent::APP_BOOT)?;
+
+        Ok(self)
     }
 
-    pub fn register_module(
-        &mut self,
-        module: impl FnOnce(&mut App) -> Void + 'static
-    ) -> &mut Self {
-        self.modules.push(Box::new(module));
+    pub fn register_command(&mut self, command: &'static str, module: AppModule) -> &mut Self {
+        self.commands.insert(command, module);
         self
     }
 
-    pub fn load_modules(&mut self) -> Void {
-        let modules = core::mem::take(&mut self.modules);
-        for module in modules {
-            module(self)?
+    pub fn register_module(&mut self, module: AppModule) -> &mut Self {
+        self.modules.push(module);
+        self
+    }
+
+    fn trigger_event(&mut self, event: AppEvent) -> Void {
+        log::trace!("Triggering event: {event:#?}");
+
+        for module in self.modules.clone() {
+            module(self, event)?;
         }
+
         ok()
+    }
+
+    pub fn run(&mut self) -> Void {
+        let args = self.get_ref::<Args>().unwrap();
+        let command = args
+            .get("command")
+            .ok_or("Command line argument 'command' is undefined")?
+            .as_ref()
+            .ok_or("Command not specified")?;
+
+        if let Some(module) = self
+            .commands
+            .iter()
+            .find_map(|(name, module)| name.eq(&command).then_some(module))
+        {
+            log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN);
+            module(self, AppEvent::APP_RUN)
+        } else if command == AppConfig::DEFAULT_COMMAND
+            && self.commands.is_empty()
+            && self.modules.len() == 1
+            && let Some(module) = self.modules.first()
+        {
+            log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN);
+            module(self, AppEvent::APP_RUN)
+        } else {
+            Err(format!("Invalid command '{command}'"))?
+        }
     }
 
     #[cfg(not(feature = "std"))]
     fn panic_handler(info: &PanicInfo) {
-        eprintln!("ERROR: {info}");
-
+        eprintln!("PANIC: {info}");
         log::error!("{info}");
 
         let global_di = Di::from_static();
@@ -130,40 +200,44 @@ impl App {
         }
     }
 
-    pub fn run(&mut self) -> Void {
-        mem_stats();
-        ok()
-    }
-
     #[unsafe(no_mangle)]
-    #[allow(unused_variables)]
-    extern "C" fn app_boot(argc: c_int, argv: *const *const c_char) -> *mut c_void {
-        #[rustfmt::skip]
-        #[cfg(feature = "std")]
-        let app = Self::boot()
-            .inspect_err(|e| panic!("{e}"))
-            .unwrap();
-
-        #[cfg(not(feature = "std"))]
-        let app = Self::boot(argc, argv)
-            .inspect_err(|e| panic!("{e}"))
-            .unwrap();
-
+    extern "C" fn app_new(modules: *mut fn(&mut App, AppEvent) -> Void, count: c_uint) -> *mut App {
+        let modules = unsafe { Vec::from_raw_parts(modules, count as usize, count as usize) };
+        let app = Self::new(modules);
         Box::into_raw(app.into()).cast()
     }
 
     #[unsafe(no_mangle)]
-    extern "C" fn app_free(app: *mut c_void) {
-        let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
+    #[allow(unused_variables)]
+    extern "C" fn app_boot(app: *mut App, argc: c_int, argv: *const *const c_char) {
+        let app = unsafe { &mut *app.cast::<Self>() };
+
+        #[cfg(feature = "std")]
+        let _ = app.boot().inspect_err(|e| panic!("{e}"));
+
+        #[cfg(not(feature = "std"))]
+        let _ = app.boot(argc, argv).inspect_err(|e| panic!("{e}"));
     }
 
     #[unsafe(no_mangle)]
-    extern "C" fn app_run(app: *mut c_void) {
+    extern "C" fn app_run(app: *mut App) {
         let app = unsafe { &mut *app.cast::<Self>() };
         let _ = app.run().inspect_err(|e| {
-            log::error!("{e}");
-            let _ = unsafe { Box::from_raw(app) };
-            panic!("{e}")
+            #[cfg(not(feature = "std"))]
+            Di::from_static().set(unsafe { Box::from_raw(app) });
+
+            #[cfg(feature = "std")]
+            {
+                log::error!("{e}");
+                let _ = unsafe { Box::from_raw(app) };
+            }
+
+            panic!("{e}");
         });
+    }
+
+    #[unsafe(no_mangle)]
+    extern "C" fn app_free(app: *mut App) {
+        let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
     }
 }

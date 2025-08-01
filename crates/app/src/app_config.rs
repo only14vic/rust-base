@@ -1,5 +1,3 @@
-#[cfg(not(feature = "std"))]
-use {core::ffi::c_char, core::ffi::c_int};
 #[cfg(feature = "std")]
 use {app_async::TokioConfig, app_web::ActixConfig};
 #[cfg(feature = "db")]
@@ -32,8 +30,13 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub const CONFIG_FILE_NAME: &'static str = "app.ini";
+    pub const DEFAULT_COMMAND: &'static str = "run";
 
-    pub fn load(args: Option<&Args<'_>>) -> Ok<Self> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn load(&mut self, args: Option<&Args>) -> Ok<&mut Self> {
         let mut dirs = Dirs::default();
         dirs.load_env()?;
 
@@ -46,30 +49,26 @@ impl AppConfig {
         let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
         let ini = Ini::from_file(&config_file)?;
 
-        let mut config = Self::default();
-        config.extend(&ini);
-        config.load_env()?;
+        self.extend(&ini);
+        self.load_env()?;
 
         if let Some(args) = args {
-            config.load_args(args)?;
+            self.load_args(args)?;
         }
 
-        config.dirs.init();
-        config.base.log.with_log_dir(&config.dirs.log);
+        self.dirs.init();
+        self.base.log.with_log_dir(&self.dirs.log);
 
         #[cfg(feature = "std")]
-        Self::try_mut(&mut config.actix)?.with_dirs(&config.dirs);
+        Self::try_mut(&mut self.actix)?.with_dirs(&self.dirs);
 
-        Ok(config)
+        Ok(self)
     }
 
-    pub fn parse_args(
-        #[cfg(not(feature = "std"))] argc: c_int,
-        #[cfg(not(feature = "std"))] argv: *const *const c_char
-    ) -> Ok<Args<'static>> {
+    pub fn args() -> Ok<Args> {
         let mut args = Args::new([
             ("exe", &["0"][..], None),
-            ("command", &["1"][..], None),
+            ("command", &["1"][..], Some(Self::DEFAULT_COMMAND)),
             ("value", &["2"], None),
             ("log-level", &["-l"], None),
             ("log-color", &[], None),
@@ -92,11 +91,6 @@ impl AppConfig {
         if Env::is_test() {
             args.allow_undefined(true);
         }
-
-        #[cfg(feature = "std")]
-        let args = args.parse_args(std::env::args().collect())?;
-        #[cfg(not(feature = "std"))]
-        let args = unsafe { args.parse_argc(argc, argv)? };
 
         Ok(args)
     }

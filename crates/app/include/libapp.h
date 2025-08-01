@@ -9,8 +9,22 @@
 #include "../../app-base/include/libapp_base.h"
 
 
-void *app_boot(int argc, const char *const *argv);
+typedef enum AppEvent {
+  APP_INIT,
+  APP_LOAD_ENV,
+  APP_LOAD_ARGS,
+  APP_LOAD_CONFIG,
+  APP_BOOT,
+  APP_RUN,
+  APP_END,
+} AppEvent;
 
-void app_free(void *app);
+typedef struct App App;
 
-void app_run(void *app);
+struct App *app_new(size_t (**modules)(struct App*, enum AppEvent), unsigned int count);
+
+void app_boot(struct App *app, int argc, const char *const *argv);
+
+void app_run(struct App *app);
+
+void app_free(struct App *app);

@@ -16,17 +16,17 @@ pub trait LoadArgs {
     fn load_args(&mut self, args: &Args) -> Void;
 }
 
-type ArgsOpts<'o> = IndexMap<&'o str, &'o [&'o str]>;
+type ArgsOpts = IndexMap<&'static str, &'static [&'static str]>;
 type ArgsMap = IndexMap<String, Option<String>>;
 
 #[derive(Debug, Default)]
-pub struct Args<'o> {
-    pub opts: ArgsOpts<'o>,
+pub struct Args {
+    pub opts: ArgsOpts,
     pub args: ArgsMap,
     pub allow_undefined: bool
 }
 
-impl Deref for Args<'_> {
+impl Deref for Args {
     type Target = ArgsMap;
 
     fn deref(&self) -> &Self::Target {
@@ -34,11 +34,13 @@ impl Deref for Args<'_> {
     }
 }
 
-impl<'o> Args<'o> {
+impl Args {
     pub fn new(
-        opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
+        opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
     ) -> Ok<Self> {
-        Self::default().with_opts(opts)
+        let mut args = Self::default();
+        args.with_opts(opts)?;
+        Ok(args)
     }
 
     pub fn allow_undefined(&mut self, allow: bool) -> &mut Self {
@@ -47,9 +49,9 @@ impl<'o> Args<'o> {
     }
 
     pub fn with_opts(
-        mut self,
-        opts: impl IntoIterator<Item = (&'o str, &'o [&'o str], Option<&'o str>)>
-    ) -> Ok<Self> {
+        &mut self,
+        opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
+    ) -> Ok<&mut Self> {
         for (n, o, v) in opts {
             if self.opts.contains_key(n) {
                 Err(format!("Not unique option: {n}"))?;
@@ -69,7 +71,7 @@ impl<'o> Args<'o> {
         Ok(self)
     }
 
-    pub unsafe fn parse_argc(self, argc: c_int, argv: *const *const c_char) -> Ok<Self> {
+    pub unsafe fn parse_argc(&mut self, argc: c_int, argv: *const *const c_char) -> Ok<&mut Self> {
         let mut args = Vec::with_capacity(argc as usize);
 
         for arg in unsafe { slice::from_raw_parts(argv, argc as usize) } {
@@ -80,7 +82,7 @@ impl<'o> Args<'o> {
         self.parse_args(args)
     }
 
-    pub fn parse_args(mut self, args: Vec<String>) -> Ok<Self> {
+    pub fn parse_args(&mut self, args: Vec<String>) -> Ok<&mut Self> {
         log::trace!("Command line arguments: {args:?}");
 
         let mut i = 0;

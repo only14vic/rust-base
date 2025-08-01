@@ -32,7 +32,7 @@ fn main(argc: c_int, argv: *const *const c_char) -> c_int {
     dotenv(false);
     log_init();
 
-    let args = Args::new([
+    let mut args = Args::new([
         ("self", &["0"][..], None),
         ("command", &["1", "-c"], None),
         ("subcommand", &["2", "-s"], None),
@@ -41,7 +41,7 @@ fn main(argc: c_int, argv: *const *const c_char) -> c_int {
         ("zoo", &["-z"], None)
     ])
     .unwrap();
-    let args = unsafe { args.parse_argc(argc, argv).unwrap() };
+    unsafe { args.parse_argc(argc, argv).unwrap() };
 
     log::debug!("{:#?}", &*args);
 
