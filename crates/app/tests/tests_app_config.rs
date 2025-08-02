@@ -5,7 +5,8 @@ mod common;
 #[actix_web::test]
 async fn tests_app_config() -> Void {
     TEST.run(async {
-        let app = App::boot()?;
+        let mut app = App::new([]);
+        app.boot()?;
 
         assert!(app.config().db.url.contains("dbname=app-test"));
 

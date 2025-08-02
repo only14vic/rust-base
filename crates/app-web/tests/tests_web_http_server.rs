@@ -16,7 +16,8 @@ mod common;
 #[actix_web::test]
 async fn test_http_server_success_response() -> Void {
     TEST.run(async {
-        let _app = App::boot()?;
+        let mut app = App::new([]);
+        app.boot()?;
 
         let configure = |srv: &mut ServiceConfig| {
             srv.default_service(web::to(|req: HttpRequest| {

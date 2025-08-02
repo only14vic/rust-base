@@ -14,7 +14,8 @@ const MAX_TASKS: usize = 10_000;
 const MAX_ITERS: usize = 1_000;
 
 fn main() -> Void {
-    let app = app::App::boot()?;
+    let mut app = app::App::new([]);
+    app.boot()?;
     let config = app.config();
 
     let res = actix_with_tokio_start(Some(&config.tokio), async {

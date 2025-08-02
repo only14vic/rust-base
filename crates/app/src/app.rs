@@ -7,7 +7,6 @@ use {
     app_base::prelude::*,
     core::{
         ffi::{c_char, c_int, c_uint},
-        mem,
         ops::{Deref, DerefMut}
     }
 };
@@ -26,8 +25,6 @@ pub struct App {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AppEvent {
     APP_INIT,
-    APP_LOAD_ENV,
-    APP_LOAD_ARGS,
     APP_LOAD_CONFIG,
     APP_BOOT,
     APP_RUN,
@@ -56,13 +53,13 @@ impl Drop for App {
         let log = global_di.get::<&mut Logger>();
         let config = self.get::<AppConfig>();
 
-        mem::take(&mut self.di);
-        mem::take(&mut self.commands);
-        mem::forget(mem::take(&mut self.modules));
+        core::mem::take(&mut self.di);
+        core::mem::take(&mut self.commands);
+        core::mem::forget(core::mem::take(&mut self.modules));
 
         if let Some(config) = config
             && config.options.clear_static_di
-            && global_di.len() > 0
+            && !global_di.is_empty()
         {
             global_di.clear();
         }
@@ -81,7 +78,7 @@ impl App {
     pub fn new(modules: impl IntoIterator<Item = AppModule>) -> Self {
         Self {
             di: Di::default(),
-            modules: modules.into_iter().collect(),
+            modules: Vec::from_iter(modules),
             commands: Default::default()
         }
     }
@@ -110,7 +107,6 @@ impl App {
         self.set(AppConfig::args()?);
 
         self.trigger_event(AppEvent::APP_INIT)?;
-        self.trigger_event(AppEvent::APP_LOAD_ENV)?;
 
         let args = self.get_mut::<Args>()?.unwrap();
         #[cfg(feature = "std")]
@@ -119,8 +115,6 @@ impl App {
         unsafe {
             args.parse_argc(argc, argv)?
         };
-
-        self.trigger_event(AppEvent::APP_LOAD_ARGS)?;
 
         let args = self.get::<Args>().unwrap();
         let config = self.get_mut::<AppConfig>()?.unwrap();
@@ -201,7 +195,7 @@ impl App {
     }
 
     #[unsafe(no_mangle)]
-    extern "C" fn app_new(modules: *mut fn(&mut App, AppEvent) -> Void, count: c_uint) -> *mut App {
+    extern "C" fn app_new(modules: *mut AppModule, count: c_uint) -> *mut App {
         let modules = unsafe { Vec::from_raw_parts(modules, count as usize, count as usize) };
         let app = Self::new(modules);
         Box::into_raw(app.into()).cast()

@@ -12,7 +12,8 @@ mod common;
 #[actix_web::test]
 async fn test_app_http_server_success() -> Void {
     TEST.run(async {
-        let app = App::boot()?;
+        let mut app = App::new([]);
+        app.boot()?;
         let config = app.get::<AppConfig>().unwrap();
         let mut server_config = HttpServerConfigurator::new(&config);
 

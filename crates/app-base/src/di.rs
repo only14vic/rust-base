@@ -95,6 +95,10 @@ impl Di {
         self.container.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.container.is_empty()
+    }
+
     pub fn clear(&mut self) {
         core::mem::take(&mut self.container);
 

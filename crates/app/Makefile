@@ -18,7 +18,7 @@ run-app: flags
 
 .PHONY: run-config
 run-config: flags
-	cargo run -p app --bin app-config $(CARGO_ARGS)
+	cargo run -p app --bin app $(CARGO_ARGS) -- config
 
 .PHONY: build-app
 build-app: flags

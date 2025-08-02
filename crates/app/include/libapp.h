@@ -11,8 +11,6 @@
 
 typedef enum AppEvent {
   APP_INIT,
-  APP_LOAD_ENV,
-  APP_LOAD_ARGS,
   APP_LOAD_CONFIG,
   APP_BOOT,
   APP_RUN,
@@ -21,7 +19,13 @@ typedef enum AppEvent {
 
 typedef struct App App;
 
-struct App *app_new(size_t (**modules)(struct App*, enum AppEvent), unsigned int count);
+typedef size_t (*AppModule)(struct App*, enum AppEvent);
+
+#define MODULE_APP module_app
+
+#define MODULE_APP_CONFIG module_app_config
+
+struct App *app_new(AppModule *modules, unsigned int count);
 
 void app_boot(struct App *app, int argc, const char *const *argv);
 

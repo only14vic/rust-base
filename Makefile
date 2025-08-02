@@ -8,6 +8,7 @@ ifndef VERBOSE
 endif
 
 make = make --no-print-directory
+CARGO_ARGS =
 
 ifdef env
 ifneq ($(env),)
@@ -23,7 +24,6 @@ ifeq ($(debug),)
 endif
 
 DESTDIR = $(PWD)
-CARGO_ARGS =
 CLANG_VERSION = $(shell clang --version | grep -o "version [0-9]\+")
 RUSTFLAGS = -Ctarget-cpu=native \
 			-Clink-arg=-fuse-ld=lld
@@ -40,10 +40,10 @@ endif
 
 TARGET_DIR = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)
 
-ifneq ($(debug),)
-	TARGET_DIR := $(TARGET_DIR)/debug
-else
+ifeq ($(debug),)
 	TARGET_DIR := $(TARGET_DIR)/release
+else
+	TARGET_DIR := $(TARGET_DIR)/debug
 endif
 
 MAKE_CC = cc
@@ -143,6 +143,7 @@ strip:
 .PHONY: flags
 flags:
 	@echo "---=== MAKE FLAGS ===---"
+	@echo DEBUG: $(debug)
 	@echo DESTDIR: $(DESTDIR)
 	@echo TARGET_DIR: $(TARGET_DIR)
 	@echo TARGET: $(CARGO_BUILD_TARGET)

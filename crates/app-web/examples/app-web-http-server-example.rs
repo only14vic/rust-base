@@ -8,7 +8,8 @@ use {
 };
 
 fn main() -> Void {
-    let app = app::App::boot()?;
+    let mut app = app::App::new([]);
+    app.boot()?;
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {

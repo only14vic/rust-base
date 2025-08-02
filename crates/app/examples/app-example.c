@@ -27,6 +27,7 @@ size_t module_handler(App *, AppEvent event) {
 
     if (event == APP_RUN) {
         log_msg(INFO, __FUNCTION__, "Application running...");
+        malloc_stats();
     }
 
     return 0;
