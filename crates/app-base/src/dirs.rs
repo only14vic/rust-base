@@ -211,7 +211,9 @@ impl LoadEnv for Dirs {
         #[rustfmt::skip]
         self.extend(
             [
-                ("config", getenv("CONFIG_DIR")),
+                ("config", getenv("CONFDIR")),
+                ("data", getenv("DATADIR")),
+                ("var", getenv("VARDIR")),
             ]
             .iter()
             .map(convert::tuple_option_string_to_str)
