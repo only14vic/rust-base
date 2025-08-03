@@ -12,7 +12,6 @@ int main(int argc, const char *argv[]) {
     size_t (*modules[])(App *, AppEvent) = {module_handler};
 
     App *app = app_new(modules, 1);
-
     app_boot(app, argc, argv);
     app_run(app);
     app_free(app);
