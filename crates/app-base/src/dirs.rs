@@ -52,10 +52,16 @@ impl Default for Dirs {
             user_config: "{home}/.config/{suffix}".into(),
             bin: "{prefix}/bin".into(),
             sbin: "{prefix}/sbin".into(),
-            lib: "{prefix}/lib".into(),
-            include: "{prefix}/include/{suffix}".into(),
-            man: "{prefix}/share/man/{suffix}".into(),
-            doc: "{prefix}/share/doc/{suffix}".into(),
+            lib: option_env!("LIBDIR").unwrap_or("{prefix}/lib").into(),
+            include: option_env!("INCDIR")
+                .unwrap_or("{prefix}/include/{suffix}")
+                .into(),
+            man: option_env!("MANDIR")
+                .unwrap_or("{prefix}/share/man/{suffix}")
+                .into(),
+            doc: option_env!("DOCDIR")
+                .unwrap_or("{prefix}/share/doc/{suffix}")
+                .into(),
             state: "{var}/lib/{suffix}".into(),
             cache: "{var}/cache/{suffix}".into(),
             run: "{var}/run/{suffix}".into(),
@@ -214,6 +220,10 @@ impl LoadEnv for Dirs {
                 ("config", getenv("CONFDIR")),
                 ("data", getenv("DATADIR")),
                 ("var", getenv("VARDIR")),
+                ("man", getenv("MANDIR")),
+                ("doc", getenv("DOCDIR")),
+                ("lib", getenv("LIBDIR")),
+                ("include", getenv("INCDIR")),
             ]
             .iter()
             .map(convert::tuple_option_string_to_str)
