@@ -14,19 +14,10 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
             let name = args.get("value").ok_or("Undefined argument 'value'")?;
 
             if args.get("help").unwrap().is_some() {
-                let exe = args
-                    .get("exe")
-                    .ok_or("Undefined argument 'exe'")?
-                    .as_ref()
-                    .map(|s| {
-                        let mut s = s.clone();
-                        s.replace_range(0..=s.rfind("/").unwrap_or(0), "");
-                        s
-                    })
-                    .ok_or("Argument 'exe' must be defined")?;
+                let exe_file = config.dirs.exe_file();
                 println!(
                     r#"
-Usage: {exe} config [name] [options]
+Usage: {exe_file} config [name] [options]
 
 This command display config options.
 If "name" is defined then it displays the value of the option by its name.

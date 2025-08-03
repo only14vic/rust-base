@@ -197,6 +197,13 @@ impl Dirs {
     pub fn exe(&self) -> &str {
         &self.exe
     }
+
+    #[inline]
+    pub fn exe_file(&self) -> &str {
+        self.exe
+            .get(self.exe.rfind("/").map(|p| p + 1).unwrap_or(0)..self.exe.len())
+            .unwrap()
+    }
 }
 
 impl LoadEnv for Dirs {
