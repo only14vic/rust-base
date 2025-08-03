@@ -12,13 +12,17 @@ TESTS += build-app, \
 		examples-app, \
 		tests-app, \
 
+.PHONY: install-app
+install-app:
+	$(RUST) cargo install --no-track --force --path=crates/app --root=.
+
 .PHONY: run-app
 run-app: flags
-	cargo run -p app --bin app $(CARGO_ARGS)
+	cargo run -p app --bin $(APP_BIN) $(CARGO_ARGS)
 
 .PHONY: run-config
 run-config: flags
-	cargo run -p app --bin app $(CARGO_ARGS) -- config
+	cargo run -p app --bin $(APP_BIN) $(CARGO_ARGS) -- config
 
 .PHONY: build-app
 build-app: flags
