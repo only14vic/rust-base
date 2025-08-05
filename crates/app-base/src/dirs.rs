@@ -45,13 +45,11 @@ impl Default for Dirs {
             data: option_env!("DATADIR")
                 .unwrap_or("{prefix}/share/{suffix}")
                 .into(),
-            config: option_env!("CONFDIR")
-                .unwrap_or("{prefix}/etc/{suffix}")
-                .into(),
+            config: option_env!("CONFDIR").unwrap_or("/etc/{suffix}").into(),
             home: "~".into(),
             user_config: "{home}/.config/{suffix}".into(),
-            bin: "{prefix}/bin".into(),
-            sbin: "{prefix}/sbin".into(),
+            bin: option_env!("BINDIR").unwrap_or("{prefix}/bin").into(),
+            sbin: option_env!("SBINDIR").unwrap_or("{prefix}/sbin").into(),
             lib: option_env!("LIBDIR").unwrap_or("{prefix}/lib").into(),
             include: option_env!("INCDIR")
                 .unwrap_or("{prefix}/include/{suffix}")
@@ -62,11 +60,15 @@ impl Default for Dirs {
             doc: option_env!("DOCDIR")
                 .unwrap_or("{prefix}/share/doc/{suffix}")
                 .into(),
-            state: "{var}/lib/{suffix}".into(),
-            cache: "{var}/cache/{suffix}".into(),
-            run: "{var}/run/{suffix}".into(),
-            log: "{var}/log/{suffix}".into(),
-            tmp: "/tmp/{suffix}".into()
+            state: option_env!("STATEDIR")
+                .unwrap_or("{var}/lib/{suffix}")
+                .into(),
+            cache: option_env!("CACHEDIR")
+                .unwrap_or("{var}/cache/{suffix}")
+                .into(),
+            run: option_env!("RUNDIR").unwrap_or("{var}/run/{suffix}").into(),
+            log: option_env!("LOGDIR").unwrap_or("{var}/log/{suffix}").into(),
+            tmp: option_env!("TMPDIR").unwrap_or("/tmp/{suffix}").into()
         }
     }
 }
