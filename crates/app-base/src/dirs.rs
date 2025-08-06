@@ -45,9 +45,7 @@ impl Default for Dirs {
             data: option_env!("DATADIR")
                 .unwrap_or("{prefix}/share/{suffix}")
                 .into(),
-            config: option_env!("CONFDIR")
-                .unwrap_or("{prefix}/etc/{suffix}")
-                .into(),
+            config: option_env!("CONFDIR").unwrap_or("/etc/{suffix}").into(),
             home: "~".into(),
             user_config: "{home}/.config/{suffix}".into(),
             bin: option_env!("BINDIR").unwrap_or("{prefix}/bin").into(),
