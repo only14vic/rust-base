@@ -1,8 +1,12 @@
-use {app_base::prelude::*, std::env::current_exe};
+use {
+    app_base::prelude::*,
+    std::env::{current_exe, set_current_dir}
+};
 
 #[test]
 fn tests_dirs() -> Void {
     let home = getenv("HOME").unwrap();
+    set_current_dir(env!("PWD"))?;
     let pwd = Dirs::cwd()?;
 
     let cur_exe_path = current_exe()?;
