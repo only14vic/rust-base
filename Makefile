@@ -99,8 +99,7 @@ tests: clean check
 	echo $(TESTS) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
 clean:
-	find ./target \
-		-path "./target/*" -name "*app*" -type f -executable -delete
+	 find target -type f -executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" -delete
 
 check:
 	$(eval RUSTFLAGS=)
