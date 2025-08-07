@@ -146,6 +146,7 @@ sqlx = { version = "0.8", default-features = false, features = [
 sqlx-core = { version = "0.8" }
 sqlx-postgres = { version = "0.8" }
 sqlx-sqlite = { version = "0.8" }
+validator = { version = "0.20", features = ["derive"] }
 
 app = { path = "crates/app", default-features = false }
 app-base = { path = "crates/app-base", default-features = false }

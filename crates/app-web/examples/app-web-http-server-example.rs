@@ -3,7 +3,7 @@ use {
     app::{AppConfig, HttpServerConfigurator},
     app_async::actix_with_tokio_start,
     app_base::prelude::*,
-    app_web::HttpServer,
+    app_web::{HttpServer, OkHttp},
     std::sync::Arc
 };
 
@@ -18,12 +18,15 @@ fn main() -> Void {
 
         server_config.add(|srv, _| {
             srv.default_service(web::to(|req: HttpRequest| {
-                let body = format!(
-                    "URI: {}\n\nAppConfig: {:?}",
-                    req.uri(),
-                    req.app_data::<Arc<AppConfig>>()
-                );
-                async move { HttpResponse::Ok().body(body) }
+                async move {
+                    let body = format!(
+                        "URI: {}\n\nAppConfig: {:?}",
+                        req.uri(),
+                        req.app_data::<Arc<AppConfig>>()
+                    );
+
+                    HttpResponse::Ok().body(body).into_ok() as OkHttp
+                }
             }));
         });
 

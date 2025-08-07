@@ -21,6 +21,7 @@ tokio = { workspace = true }
 actix = { workspace = true }
 actix-web = { workspace = true }
 actix-http = { workspace = true }
+validator = { workspace = true }
 log = { workspace = true }
 futures = { workspace = true }
 dashmap = { workspace = true }
