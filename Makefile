@@ -111,9 +111,7 @@ check:
 .PHONY: info
 info:
 	find ./target -type f \
-		-path "*/release/*" -a ! -path "*/deps/*" -a ! -path "*/build/*"  \
-		-a \( -executable -o -name "*.a" -o -name "*.so" \) \
-		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
+		-executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" \
 		-exec ls -sh {} \; -exec ldd {} 2>/dev/null \; -exec echo -e "------------------------" \;
 
 gdb_args = --readnow -iex "set auto-load safe-path /" -x .gdb_local \
