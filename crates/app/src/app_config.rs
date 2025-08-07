@@ -29,7 +29,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub const CONFIG_FILE_NAME: &'static str = "app.ini";
+    pub const CONFIG_FILE_NAME: &'static str = concat!(env!("APP_BIN"), ".ini");
     pub const DEFAULT_COMMAND: &'static str = "run";
 
     pub fn new() -> Self {
