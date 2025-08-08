@@ -1,9 +1,9 @@
 mod actix_config;
-mod http_server;
+mod web_config;
 mod response;
 
 pub mod middleware;
 pub mod ext;
 
 #[allow(unused)]
-pub use {actix_config::*, http_server::*, response::*};
+pub use {actix_config::*, response::*, web_config::*};

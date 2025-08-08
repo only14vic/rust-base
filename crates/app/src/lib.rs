@@ -14,6 +14,6 @@ mod app_options;
 pub use {app::*, app_config::*, app_config_module::*, app_module::*, app_options::*};
 
 #[cfg(feature = "std")]
-mod http_server_configurator;
+mod http_server;
 #[cfg(feature = "std")]
-pub use http_server_configurator::*;
+pub use http_server::*;

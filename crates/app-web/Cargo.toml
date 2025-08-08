@@ -30,5 +30,4 @@ itoa = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]
-app = { workspace = true, features = ["db"] }
 app-testing = { workspace = true }

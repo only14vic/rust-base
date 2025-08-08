@@ -6,7 +6,6 @@ use {
         test::TestRequest,
         web::{self, ServiceConfig}
     },
-    app::App,
     app_base::prelude::*,
     common::TEST
 };
@@ -16,9 +15,6 @@ mod common;
 #[actix_web::test]
 async fn test_http_server_success_response() -> Void {
     TEST.run(async {
-        let mut app = App::new([]);
-        app.boot()?;
-
         let configure = |srv: &mut ServiceConfig| {
             srv.default_service(web::to(|req: HttpRequest| {
                 async move { HttpResponse::Ok().body(req.uri().to_string()) }

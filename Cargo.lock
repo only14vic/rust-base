@@ -615,7 +615,6 @@ dependencies = [
  "actix-cors",
  "actix-http",
  "actix-web",
- "app",
  "app-async",
  "app-base",
  "app-testing",

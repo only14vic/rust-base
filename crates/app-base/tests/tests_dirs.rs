@@ -13,6 +13,7 @@ fn tests_dirs() -> Void {
     let cur_exe_path = cur_exe_path.to_string_lossy();
 
     let mut dirs = Dirs::default();
+    dirs.config = "{prefix}/etc/{suffix}".into();
     dirs.init();
 
     assert_eq!(dirs.exe(), cur_exe_path);
@@ -35,6 +36,7 @@ fn tests_dirs() -> Void {
     assert_eq!(&dirs.tmp, "/tmp");
 
     dirs = Dirs::default();
+    dirs.config = "{prefix}/etc/{suffix}".into();
     dirs.home = "/home/foo".into();
     dirs.prefix = "/usr/local".into();
     dirs.suffix = "myapp".into();

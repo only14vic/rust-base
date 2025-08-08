@@ -2,7 +2,7 @@ use {
     actix_web::{
         HttpRequest, HttpResponse, body::MessageBody, dev::Service, test::TestRequest, web
     },
-    app::{App, AppConfig, HttpServerConfigurator},
+    app::{App, AppConfig, HttpServer},
     app_base::prelude::*,
     common::TEST
 };
@@ -14,10 +14,11 @@ async fn test_app_http_server_success() -> Void {
     TEST.run(async {
         let mut app = App::new([]);
         app.boot()?;
-        let config = app.get::<AppConfig>().unwrap();
-        let mut server_config = HttpServerConfigurator::new(&config);
 
-        server_config.add(|srv, _cfg| {
+        let config = app.get::<AppConfig>().unwrap();
+        let mut server_config = HttpServer::new(&config);
+
+        server_config.add_service(|srv, _cfg| {
             srv.default_service(web::to(|req: HttpRequest| {
                 async move { HttpResponse::Ok().body(req.uri().to_string()) }
             }));

@@ -48,17 +48,16 @@ fn server_run(app: &mut App) -> Void {
     use {
         actix_web::{HttpRequest, HttpResponse, web},
         app_async::actix_with_tokio_start,
-        app_web::{HttpServer, OkHttp},
+        app_web::OkHttp,
         std::sync::Arc
     };
 
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
-        let server = HttpServer::new(&config.actix, &config.web);
-        let mut server_config = HttpServerConfigurator::new(&config);
+        let mut server = HttpServer::new(&config);
 
-        server_config.add(|srv, _| {
+        server.add_service(|srv, _| {
             srv.default_service(web::to(|req: HttpRequest| {
                 async move {
                     let body = format!(
@@ -71,6 +70,6 @@ fn server_run(app: &mut App) -> Void {
             }));
         });
 
-        server.run(server_config.configure()).await
+        server.run().await
     })?
 }
