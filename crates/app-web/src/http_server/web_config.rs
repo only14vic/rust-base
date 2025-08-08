@@ -43,7 +43,9 @@ impl LoadEnv for WebConfig {
                 ("hostname", getenv("WEB_HOSTNAME")),
                 ("url", getenv("WEB_URL")),
                 ("trusted_hosts", getenv("WEB_TRUSTED_HOSTS")),
-                ("accept_hosts", getenv("WEB_ACCEPT_HOSTS"))
+                ("accept_hosts", getenv("WEB_ACCEPT_HOSTS")),
+                ("static_dir", getenv("WEB_STATIC_DIR")),
+                ("static_path", getenv("WEB_STATIC_PATH"))
             ]
             .iter()
             .map(convert::tuple_option_str)
@@ -60,7 +62,9 @@ impl LoadArgs for WebConfig {
                 ("hostname", args.get("web-hostname")),
                 ("url", args.get("web-url")),
                 ("trusted_hosts", args.get("web-trusted-hosts")),
-                ("accept_hosts", args.get("web-accept-hosts"))
+                ("accept_hosts", args.get("web-accept-hosts")),
+                ("static_dir", args.get("web-static-dir")),
+                ("static_path", args.get("web-static-path"))
             ]
             .iter()
             .map(convert::tuple_option_option_str)

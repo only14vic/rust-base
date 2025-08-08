@@ -93,7 +93,9 @@ impl AppConfig {
             ("db-url", &[], None),
             ("web-host", &[], None),
             ("web-hostname", &[], None),
-            ("web-url", &[], None)
+            ("web-url", &[], None),
+            ("web-static-dir", &[], None),
+            ("web-static-path", &[], None)
         ])?;
 
         if Env::is_test() {
