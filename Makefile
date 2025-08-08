@@ -133,8 +133,7 @@ doc:
 .PHONY: strip
 strip:
 	find ./target -type f -executable \
-		-path "*/release/*" -a ! -path "*/deps/*" -a -name "*app*" \
-		-a -regextype sed ! -regex '.*-[a-f0-9]\{16\}.*' \
+		-executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" \
 		-exec strip {} \;
 
 .PHONY: flags
