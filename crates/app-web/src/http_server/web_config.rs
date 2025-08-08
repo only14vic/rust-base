@@ -20,7 +20,7 @@ impl LoadEnv for WebConfig {
                 ("accept_hosts", getenv("WEB_ACCEPT_HOSTS"))
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -37,7 +37,7 @@ impl LoadArgs for WebConfig {
                 ("accept_hosts", args.get("web-accept-hosts"))
             ]
             .iter()
-            .map(convert::tuple_option_option_string_to_str)
+            .map(convert::tuple_option_option_str)
         );
         ok()
     }

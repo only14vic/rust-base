@@ -55,7 +55,7 @@ impl LoadEnv for LogConfig {
                 ("filter", getenv("LOG_FILTER"))
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -72,7 +72,7 @@ impl LoadArgs for LogConfig {
                 ("filter", args.get("log-filter")),
             ]
             .iter()
-            .map(convert::tuple_option_option_string_to_str)
+            .map(convert::tuple_option_option_str)
         );
         ok()
     }

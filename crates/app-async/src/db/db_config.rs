@@ -35,7 +35,7 @@ impl LoadEnv for DbConfig {
                 ("schema", getenv("DATABASE_SCHEMA"))
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -46,7 +46,7 @@ impl LoadArgs for DbConfig {
         self.extend(
             [("url", args.get("db-url"))]
                 .iter()
-                .map(convert::tuple_option_option_string_to_str)
+                .map(convert::tuple_option_option_str)
         );
         ok()
     }

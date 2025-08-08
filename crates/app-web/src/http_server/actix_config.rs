@@ -49,7 +49,7 @@ impl LoadEnv for ActixConfig {
                 ("threads", getenv("ACTIX_THREADS"))
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -65,7 +65,7 @@ impl LoadArgs for ActixConfig {
                 ("threads", args.get("actix-threads"))
             ]
             .iter()
-            .map(convert::tuple_option_option_string_to_str)
+            .map(convert::tuple_option_option_str)
         );
         ok()
     }

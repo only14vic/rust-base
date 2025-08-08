@@ -22,7 +22,7 @@ impl LoadEnv for TokioConfig {
         self.extend(
             [("threads", getenv("TOKIO_THREADS"))]
                 .iter()
-                .map(convert::tuple_option_string_to_str)
+                .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -33,7 +33,7 @@ impl LoadArgs for TokioConfig {
         self.extend(
             [("threads", args.get("tokio-threads"))]
                 .iter()
-                .map(convert::tuple_option_option_string_to_str)
+                .map(convert::tuple_option_option_str)
         );
         ok()
     }

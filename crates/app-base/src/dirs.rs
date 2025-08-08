@@ -228,7 +228,7 @@ impl LoadEnv for Dirs {
                 ("include", getenv("INCDIR")),
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }
@@ -244,7 +244,7 @@ impl LoadArgs for Dirs {
                 ("log", args.get("log-dir"))
             ]
             .iter()
-            .map(convert::tuple_option_option_string_to_str)
+            .map(convert::tuple_option_option_str)
         );
         ok()
     }

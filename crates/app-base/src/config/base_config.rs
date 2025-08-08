@@ -30,7 +30,7 @@ impl LoadEnv for BaseConfig {
                 ("timezone", getenv("TZ"))
             ]
             .iter()
-            .map(convert::tuple_option_string_to_str)
+            .map(convert::tuple_option_str)
         );
 
         if self.language.len() > 2 {
@@ -50,7 +50,7 @@ impl LoadArgs for BaseConfig {
                 ("language", args.get("language")),
                 ("timezone", args.get("timezone")),
             ]
-            .iter().map(convert::tuple_option_option_string_to_str)
+            .iter().map(convert::tuple_option_option_str)
         );
         self.log.load_args(args)?;
         ok()
