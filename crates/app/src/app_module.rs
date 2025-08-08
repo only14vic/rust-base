@@ -32,7 +32,8 @@ fn show_help(app: &App) -> Void {
 Usage: {exe_file} [command] [options]
 
 Commands:
-    {default} - run http server (default)
+    {default}       - run http server (default)
+    config    - show config options
 
 Options:
     -h, --help - show usage help

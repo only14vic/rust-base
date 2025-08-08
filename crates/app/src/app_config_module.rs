@@ -31,10 +31,12 @@ fn show_help(app: &App) -> Void {
 Usage: {exe_file} config [name] [options]
 
 This command display config options.
-If "name" is defined then it displays the value of the option by its name.
+
+Arguments:
+    name - if defined then it displays the value of the option by its name
 
 Options:
-    -h, --help - show usage help
+    -h, --help  - show usage help
 "#,
     );
     ok()
