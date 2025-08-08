@@ -18,7 +18,7 @@ use {
 
 type IniMap = crate::base::IndexMap<Box<str>, Option<Box<str>>>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum IniError {
     FileNotFound(String),
     InvalidParse(String)

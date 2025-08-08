@@ -49,9 +49,21 @@ impl AppConfig {
         dirs.init();
 
         let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
-        let ini = Ini::from_file(&config_file)?;
+        match Ini::from_file(&config_file) {
+            Ok(ini) => {
+                self.extend(&ini);
+            },
+            Err(e) => {
+                match e.downcast_ref::<IniError>() {
+                    Some(IniError::FileNotFound(e)) => {
+                        log::warn!("{e}");
+                    },
+                    Some(..) => Err(e)?,
+                    None => Err(e)?
+                }
+            },
+        };
 
-        self.extend(&ini);
         self.load_env()?;
 
         if let Some(args) = args {
