@@ -1,5 +1,5 @@
 #[cfg(feature = "std")]
-use {app_async::TokioConfig, app_web::ActixConfig};
+use {app_async::TokioConfig, app_web::ActixConfig, app_web::WebConfig};
 #[cfg(feature = "db")]
 use app_async::db::DbConfig;
 use {
@@ -24,6 +24,8 @@ pub struct AppConfig {
     pub tokio: TokioConfig,
     #[cfg(feature = "std")]
     pub actix: Arc<ActixConfig>,
+    #[cfg(feature = "std")]
+    pub web: Arc<WebConfig>,
     #[cfg(feature = "db")]
     pub db: Arc<DbConfig>
 }
@@ -86,7 +88,10 @@ impl AppConfig {
             ("actix-listen", &[], None),
             ("actix-port", &[], None),
             ("actix-threads", &[], None),
-            ("db-url", &[], None)
+            ("db-url", &[], None),
+            ("web-host", &[], None),
+            ("web-hostname", &[], None),
+            ("web-url", &[], None)
         ])?;
 
         if Env::is_test() {
@@ -167,7 +172,18 @@ impl AppConfig {
                     "actix.blocking_threads_per_worker", &self.actix.blocking_threads_per_worker
                 ),
                 ("actix.static_dir", &self.actix.static_dir),
-                ("actix.static_path", &self.actix.static_path)
+                ("actix.static_path", &self.actix.static_path),
+                ("web.host", &self.web.host),
+                ("web.hostname", &self.web.hostname),
+                ("web.url", &self.web.url),
+                (
+                    "web.trusted_hosts",
+                    Box::leak(Box::new(self.web.trusted_hosts.join(",")))
+                ),
+                (
+                    "web.accept_hosts",
+                    Box::leak(Box::new(self.web.accept_hosts.join(",")))
+                )
             ],
             #[cfg(feature = "db")]
             &[
@@ -198,6 +214,8 @@ impl LoadEnv for AppConfig {
             &mut self.tokio,
             #[cfg(feature = "std")]
             Self::try_mut(&mut self.actix)?,
+            #[cfg(feature = "std")]
+            Self::try_mut(&mut self.web)?,
             #[cfg(feature = "db")]
             Self::try_mut(&mut self.db)?
         ];
@@ -219,6 +237,8 @@ impl LoadArgs for AppConfig {
             &mut self.tokio,
             #[cfg(feature = "std")]
             Self::try_mut(&mut self.actix)?,
+            #[cfg(feature = "std")]
+            Self::try_mut(&mut self.web)?,
             #[cfg(feature = "db")]
             Self::try_mut(&mut self.db)?
         ];

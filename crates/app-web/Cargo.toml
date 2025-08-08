@@ -21,11 +21,13 @@ tokio = { workspace = true }
 actix = { workspace = true }
 actix-web = { workspace = true }
 actix-http = { workspace = true }
+actix-cors = { workspace = true }
 validator = { workspace = true }
 log = { workspace = true }
 futures = { workspace = true }
 dashmap = { workspace = true }
 itoa = { workspace = true }
+regex = { workspace = true }
 
 [dev-dependencies]
 app = { workspace = true, features = ["db"] }

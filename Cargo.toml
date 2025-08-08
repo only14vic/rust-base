@@ -97,6 +97,7 @@ actix-http = { version = "3", features = ["http2", "ws", "compress-zstd"] }
 actix-rt = { version = "2.10" }
 actix-files = { version = "0.6" }
 actix-test = { version = "0.1" }
+actix-cors = { version = "0.7" }
 actix-ws = { version = "0" }
 actix-web-grants = { version = "3" }
 actix-multipart = { version = "0.7" }

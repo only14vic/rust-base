@@ -13,7 +13,7 @@ fn main() -> Void {
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
-        let server = HttpServer::new(&config.actix);
+        let server = HttpServer::new(&config.actix, &config.web);
         let mut server_config = HttpServerConfigurator::new(&config);
 
         server_config.add(|srv, _| {

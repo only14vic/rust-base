@@ -1,23 +1,26 @@
 use {
     super::ActixConfig,
+    crate::WebConfig,
     actix_web::{App, middleware, web::ServiceConfig},
-    //actix_web::middleware::from_fn,
-    //actix_web_grants::GrantsMiddleware,
     app_base::prelude::*,
     std::sync::Arc
 };
 
 pub struct HttpServer {
-    pub config: Arc<ActixConfig>
+    pub actix_config: Arc<ActixConfig>,
+    pub web_config: Arc<WebConfig>
 }
 
 impl HttpServer {
-    pub fn new(config: &Arc<ActixConfig>) -> Self {
-        Self { config: config.clone() }
+    pub fn new(actix_config: &Arc<ActixConfig>, web_config: &Arc<WebConfig>) -> Self {
+        Self {
+            actix_config: actix_config.clone(),
+            web_config: web_config.clone()
+        }
     }
 
     pub async fn run(self, configure: impl Fn(&mut ServiceConfig) + Send + Sync + 'static) -> Void {
-        log::debug!("Starting HttpServer: {:?}", &self.config);
+        log::info!("Starting HttpServer: {:?}", &self.actix_config);
 
         let configure = Arc::new(configure);
 
@@ -33,8 +36,8 @@ impl HttpServer {
                 .wrap(from_fn(super::middleware::no_cache))
                 .wrap(super::middleware::AuthHeader)
                 .wrap(super::middleware::errors())
-                .wrap(super::middleware::cors())
                 */
+                .wrap(super::middleware::cors(self.web_config.clone()))
                 .wrap(middleware::NormalizePath::trim())
                 .wrap(middleware::DefaultHeaders::new())
                 .wrap(middleware::Logger::default())
@@ -44,10 +47,10 @@ impl HttpServer {
                     move |srv| configure(srv)
                 })
         })
-        .workers(self.config.threads as usize)
-        .worker_max_blocking_threads(self.config.blocking_threads_per_worker as usize)
-        .bind((self.config.listen.clone(), self.config.port))?
-        .bind_uds(&self.config.socket)?
+        .workers(self.actix_config.threads as usize)
+        .worker_max_blocking_threads(self.actix_config.blocking_threads_per_worker as usize)
+        .bind((self.actix_config.listen.clone(), self.actix_config.port))?
+        .bind_uds(&self.actix_config.socket)?
         .run()
         .await?;
 
