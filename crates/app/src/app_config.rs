@@ -63,6 +63,8 @@ impl AppConfig {
 
         #[cfg(feature = "std")]
         Self::try_mut(&mut self.actix)?.with_dirs(&self.dirs);
+        #[cfg(feature = "std")]
+        Self::try_mut(&mut self.web)?.with_dirs(&self.dirs);
 
         Ok(self)
     }
@@ -171,8 +173,6 @@ impl AppConfig {
                 (
                     "actix.blocking_threads_per_worker", &self.actix.blocking_threads_per_worker
                 ),
-                ("actix.static_dir", &self.actix.static_dir),
-                ("actix.static_path", &self.actix.static_path),
                 ("web.host", &self.web.host),
                 ("web.hostname", &self.web.hostname),
                 ("web.url", &self.web.url),
@@ -183,7 +183,9 @@ impl AppConfig {
                 (
                     "web.accept_hosts",
                     Box::leak(Box::new(self.web.accept_hosts.join(",")))
-                )
+                ),
+                ("web.static_dir", &self.web.static_dir),
+                ("web.static_path", &self.web.static_path)
             ],
             #[cfg(feature = "db")]
             &[

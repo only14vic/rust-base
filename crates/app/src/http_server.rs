@@ -103,7 +103,7 @@ impl HttpServer {
     fn with_static_files(&mut self) -> &mut Self {
         self.add_service(|srv, cfg| {
             srv.service(Files::new(
-                &cfg.config.actix.static_path, &cfg.config.actix.static_dir
+                &cfg.config.web.static_path, &cfg.config.web.static_dir
             ));
         })
     }

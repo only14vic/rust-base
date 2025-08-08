@@ -1,12 +1,38 @@
 use app_base::prelude::*;
 
-#[derive(Debug, Default, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter)]
 pub struct WebConfig {
     pub host: String,
     pub hostname: String,
     pub url: String,
     pub trusted_hosts: Vec<String>,
-    pub accept_hosts: Vec<String>
+    pub accept_hosts: Vec<String>,
+    pub static_path: String,
+    pub static_dir: String
+}
+
+impl WebConfig {
+    pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
+        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
+            self.static_dir.insert(0, '/');
+            self.static_dir.insert_str(0, &dirs.data);
+        }
+        self
+    }
+}
+
+impl Default for WebConfig {
+    fn default() -> Self {
+        Self {
+            host: Default::default(),
+            hostname: Default::default(),
+            url: Default::default(),
+            trusted_hosts: Default::default(),
+            accept_hosts: Default::default(),
+            static_path: "/public".into(),
+            static_dir: "public".into()
+        }
+    }
 }
 
 impl LoadEnv for WebConfig {
