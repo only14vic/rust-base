@@ -100,7 +100,6 @@ impl App {
         dotenv(false);
 
         let global_di = Di::from_static();
-        Logger::init()?;
         global_di.set(Logger::init()?);
 
         self.set(AppConfig::new());
