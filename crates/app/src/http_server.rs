@@ -31,6 +31,8 @@ impl HttpServer {
         let config_ref = config.clone();
         let configure = Arc::new(self.configure());
 
+        log::info!("Starting HttpServer: {:?}", &config.actix);
+
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 /*

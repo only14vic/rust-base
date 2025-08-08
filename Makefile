@@ -99,7 +99,7 @@ tests: clean check
 	echo $(TESTS) | sed 's/[,\ ]\+$$//g' | sed 's/\s*,\+\s*/\n/g' | xargs -I '{}' sh -c "$(make) {}"
 
 clean:
-	 find target -type f -executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" -delete
+	 find target -type f -executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" -delete || true
 
 check:
 	$(eval RUSTFLAGS=)
@@ -133,8 +133,8 @@ doc:
 .PHONY: strip
 strip:
 	find ./target -type f -executable \
-		-executable -regextype sed -regex ".*/\(release\|debug\)/[^\/]\+" \
-		-exec strip {} \;
+		-executable -regextype sed -regex ".*/release/[^\/]\+" \
+		-exec strip {} \; || true
 
 .PHONY: flags
 flags:
