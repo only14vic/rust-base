@@ -62,6 +62,7 @@ fn main() {
         .blocklist_type("_IO_lock_t")
         .blocklist_type("__off_t")
         .blocklist_type("__off64_t")
+        .blocklist_type("__uint64_t")
         .blocklist_type("FILE")
         .use_core()
         .header("vendor/inih/ini.h")
