@@ -166,11 +166,11 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
     ));
 
     let mut body = Value::Object(Default::default());
-    if let Some(bytes) = payload {
-        if bytes.is_empty().not() {
-            body = serde_json::from_slice(bytes.as_ref())
-                .map_err(|_| ErrorBadRequest("Invalid json body."))?;
-        }
+    if let Some(bytes) = payload
+        && bytes.is_empty().not()
+    {
+        body = serde_json::from_slice(bytes.as_ref())
+            .map_err(|_| ErrorBadRequest("Invalid json body."))?;
     }
 
     if let Some(obj) = body.as_object_mut() {
@@ -283,13 +283,13 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
                 .cloned()
                 .collect::<Vec<_>>();
 
-            if let Ok(token) = res.json::<AuthToken>().await {
-                if token.access_token().is_empty().not() {
-                    api_req.headers_mut().insert(
-                        reqwest::header::AUTHORIZATION,
-                        HeaderValue::from_str(&format!("Bearer {}", token.access_token()))?
-                    );
-                }
+            if let Ok(token) = res.json::<AuthToken>().await
+                && token.access_token().is_empty().not()
+            {
+                api_req.headers_mut().insert(
+                    reqwest::header::AUTHORIZATION,
+                    HeaderValue::from_str(&format!("Bearer {}", token.access_token()))?
+                );
             }
         }
     }
@@ -312,7 +312,7 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
     let body = api_res.bytes().await?;
 
     if status.is_client_error() || status.is_server_error() {
-        let json = Value::from_json_slice(&*body)?;
+        let json = Value::from_json_slice(&body)?;
         res = res_builder.json(json).into();
     } else if [Method::PATCH].contains(&method) && *body == *b"[]" {
         return Err(ErrorNotFound("Data not found."))?;
