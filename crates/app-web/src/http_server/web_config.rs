@@ -24,11 +24,11 @@ impl WebConfig {
 impl Default for WebConfig {
     fn default() -> Self {
         Self {
-            host: Default::default(),
-            hostname: Default::default(),
-            url: Default::default(),
-            trusted_hosts: Default::default(),
-            accept_hosts: Default::default(),
+            host: "localhost:80".into(),
+            hostname: "localhost".into(),
+            url: "http://localhost:80".into(),
+            trusted_hosts: vec!["localhost".into()],
+            accept_hosts: vec!["localhost".into()],
             static_path: "/public".into(),
             static_dir: "public".into()
         }
