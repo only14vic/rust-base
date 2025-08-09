@@ -312,7 +312,7 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
     let body = api_res.bytes().await?;
 
     if status.is_client_error() || status.is_server_error() {
-        let json = String::from_utf8_lossy(&*body).to_json()?;
+        let json = Value::from_json_slice(&*body)?;
         res = res_builder.json(json).into();
     } else if [Method::PATCH].contains(&method) && *body == *b"[]" {
         return Err(ErrorNotFound("Data not found."))?;
