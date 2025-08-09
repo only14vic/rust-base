@@ -63,10 +63,10 @@ impl Cacher<ArrayCache> {
                 loop {
                     sleep(Duration::from_secs(MAINTAINE_TIMEOUT_SECS)).await;
 
-                    if let Ok(num) = cacher.remove_expired().await {
-                        if num > 0 {
-                            log::trace!("Removed expired cache items: {num}");
-                        }
+                    if let Ok(num) = cacher.remove_expired().await
+                        && num > 0
+                    {
+                        log::trace!("Removed expired cache items: {num}");
                     }
                 }
             });

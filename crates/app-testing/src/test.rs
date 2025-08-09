@@ -55,10 +55,10 @@ impl<'a> Test<'a> {
     async fn run_inner<R>(&self, order: Option<u32>, test: TestFuture<'a, Ok<R>>) -> Ok<R> {
         let mut lock = if let Some(order) = order {
             loop {
-                if let Some(lock) = self.init.try_lock() {
-                    if order == self.order.load(Ordering::Acquire) {
-                        break lock;
-                    }
+                if let Some(lock) = self.init.try_lock()
+                    && order == self.order.load(Ordering::Acquire)
+                {
+                    break lock;
                 }
 
                 yield_now().await;

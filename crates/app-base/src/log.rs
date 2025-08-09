@@ -127,16 +127,15 @@ impl Logger {
         self.log_close();
         self.config.clone_from(config);
 
-        if let Some(path) = self.config.file.as_ref() {
-            if path.is_empty() == false {
-                unsafe {
-                    let file =
-                        libc::fopen(CString::from_str(path.as_str())?.as_ptr(), c"a+".as_ptr());
-                    if file.is_null() {
-                        Err(format!("Could not open log file: {path}"))?;
-                    }
-                    self.file = Box::from_raw(file).into();
+        if let Some(path) = self.config.file.as_ref()
+            && path.is_empty() == false
+        {
+            unsafe {
+                let file = libc::fopen(CString::from_str(path.as_str())?.as_ptr(), c"a+".as_ptr());
+                if file.is_null() {
+                    Err(format!("Could not open log file: {path}"))?;
                 }
+                self.file = Box::from_raw(file).into();
             }
         }
 

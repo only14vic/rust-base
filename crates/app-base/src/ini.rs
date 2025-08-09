@@ -137,11 +137,13 @@ impl Ini {
 
         let mut value: String = value.to_string_lossy().into_owned();
 
-        if let (Some(fc), Some(lc)) = (value.chars().next(), value.chars().last()) {
-            if ['\'', '\"'].contains(&fc) && fc == lc && value.chars().count() > 1 {
-                value = value.trim_matches(fc).into();
-            };
-        }
+        if let (Some(fc), Some(lc)) = (value.chars().next(), value.chars().last())
+            && ['\'', '\"'].contains(&fc)
+            && fc == lc
+            && value.chars().count() > 1
+        {
+            value = value.trim_matches(fc).into();
+        };
 
         items.insert(
             key.into(),

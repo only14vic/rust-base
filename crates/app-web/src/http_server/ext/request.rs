@@ -9,15 +9,15 @@ pub trait RequestExt {}
 impl RequestExt for HttpRequest {}
 
 pub trait RequestHeadExt {
-    fn remote_ip(&self) -> Option<Cow<str>>;
+    fn remote_ip(&self) -> Option<Cow<'_, str>>;
 
-    fn user_agent(&self) -> Option<Cow<str>>;
+    fn user_agent(&self) -> Option<Cow<'_, str>>;
 
     fn is_mobile(&self) -> bool;
 }
 
 impl RequestHeadExt for RequestHead {
-    fn remote_ip(&self) -> Option<Cow<str>> {
+    fn remote_ip(&self) -> Option<Cow<'_, str>> {
         let ip = self
             .headers
             .get(header::X_FORWARDED_FOR)
@@ -34,7 +34,7 @@ impl RequestHeadExt for RequestHead {
         None
     }
 
-    fn user_agent(&self) -> Option<Cow<str>> {
+    fn user_agent(&self) -> Option<Cow<'_, str>> {
         if let Some(v) = self.headers.get(header::USER_AGENT) {
             return v.to_str().map(|s| s.into()).ok();
         }
