@@ -105,7 +105,7 @@ check:
 	$(eval RUSTFLAGS=)
 	cargo check --workspace --no-default-features --exclude app
 	cargo check --workspace
-	cargo clippy --no-deps --fix --allow-dirty --allow-staged
+	cargo clippy --workspace --no-deps --fix --allow-dirty --allow-staged
 	find crates -type f -name "*.rs" | xargs rustup run nightly rustfmt --check
 
 .PHONY: info

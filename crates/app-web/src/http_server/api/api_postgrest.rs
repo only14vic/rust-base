@@ -114,6 +114,7 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
                 .acquire()
                 .await
                 .unwrap();
+
             time = sqlx::query!("select now() as time")
                 .fetch_one(db.acquire().await?)
                 .await?
