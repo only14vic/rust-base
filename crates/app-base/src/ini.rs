@@ -69,7 +69,7 @@ impl Ini {
         unsafe {
             if libc::access(c_path.as_ptr(), libc::F_OK) != 0 {
                 Err(IniError::FileNotFound(format!(
-                    "Ini file not found: {}",
+                    "Config file not found: {}",
                     path.as_ref()
                 )))?;
             }
@@ -81,7 +81,7 @@ impl Ini {
             ) != 0
             {
                 Err(IniError::InvalidParse(format!(
-                    "Could not parse Ini file: {}",
+                    "Could not parse config file: {}",
                     path.as_ref()
                 )))?;
             }
