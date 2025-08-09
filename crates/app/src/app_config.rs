@@ -57,8 +57,7 @@ impl AppConfig {
             Err(e) => {
                 match e.downcast_ref::<IniError>() {
                     Some(IniError::FileNotFound(..)) => (),
-                    Some(..) => Err(e)?,
-                    None => Err(e)?
+                    _ => Err(e)?
                 }
             },
         };
@@ -72,8 +71,7 @@ impl AppConfig {
             Err(e) => {
                 match e.downcast_ref::<IniError>() {
                     Some(IniError::FileNotFound(..)) => (),
-                    Some(..) => Err(e)?,
-                    None => Err(e)?
+                    _ => Err(e)?
                 }
             },
         };
