@@ -1,4 +1,13 @@
-use {crate::*, app_base::prelude::*};
+use {
+    crate::*,
+    actix_http::header,
+    actix_web::{
+        dev::Service,
+        http::header::{ContentType, TryIntoHeaderValue}
+    },
+    app_base::prelude::*,
+    app_web::api::api_postgrest
+};
 
 pub const MODULE_APP: AppModule = module_app;
 
@@ -57,7 +66,27 @@ fn server_run(app: &mut App) -> Void {
     actix_with_tokio_start(Some(&config.tokio), async {
         let mut server = HttpServer::new(&config);
 
-        server.add_service(|srv, _| {
+        server.add_service(|srv, cfg| {
+            srv.service({
+                web::scope(&cfg.config.web.api.path)
+                    .wrap_fn(|mut req, srv| {
+                        if req.headers().get(header::ACCEPT).is_none() {
+                            req.headers_mut().insert(
+                                header::ACCEPT,
+                                ContentType::json().try_into_value().unwrap()
+                            );
+                        }
+                        if req.headers().get(header::CONTENT_TYPE).is_none() {
+                            req.headers_mut().insert(
+                                header::CONTENT_TYPE,
+                                ContentType::json().try_into_value().unwrap()
+                            );
+                        }
+                        srv.call(req)
+                    })
+                    .default_service(web::to(api_postgrest))
+            });
+
             srv.default_service(web::to(|req: HttpRequest| {
                 async move {
                     let body = format!(

@@ -1,12 +1,22 @@
 use {
+    crate::WebConfig,
     actix_web::{HttpRequest, dev::RequestHead, http::header},
     regex::Regex,
-    std::{borrow::Cow, sync::LazyLock}
+    std::{
+        borrow::Cow,
+        sync::{Arc, LazyLock}
+    }
 };
 
-pub trait RequestExt {}
+pub trait RequestExt {
+    fn web_config(&self) -> &WebConfig;
+}
 
-impl RequestExt for HttpRequest {}
+impl RequestExt for HttpRequest {
+    fn web_config(&self) -> &WebConfig {
+        self.app_data::<Arc<WebConfig>>().unwrap().as_ref()
+    }
+}
 
 pub trait RequestHeadExt {
     fn remote_ip(&self) -> Option<Cow<'_, str>>;

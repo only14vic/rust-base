@@ -4,9 +4,14 @@ use {
     actix_multipart::form::tempfile::TempFileConfig,
     actix_web::web::ServiceConfig,
     alloc::{boxed::Box, sync::Arc, vec::Vec},
-    app_async::cache::{ArrayCache, Cacher},
+    app_async::{
+        cache::{ArrayCache, Cacher},
+        db::db_pool
+    },
     app_base::prelude::*,
-    core::pin::Pin
+    core::pin::Pin,
+    futures::executor::block_on,
+    sqlx::Postgres
 };
 
 type ServiceConfigFn = Pin<Box<dyn Fn(&mut ServiceConfig, &HttpServer) + Send + Sync>>;
@@ -19,7 +24,8 @@ pub struct HttpServer {
 impl HttpServer {
     pub fn new(config: &Arc<AppConfig>) -> Self {
         let mut this = Self { config: config.clone(), services: Default::default() };
-        this.with_app_config()
+        this.with_configs()
+            .with_db_pool()
             .with_multipart()
             .with_cache()
             .with_static_files();
@@ -58,7 +64,7 @@ impl HttpServer {
         })
         .workers(config.actix.threads as usize)
         .worker_max_blocking_threads(config.actix.blocking_threads_per_worker as usize)
-        .bind((config.actix.listen.clone(), config.actix.port))?
+        .bind((config.actix.listen.to_owned(), config.actix.port))?
         .bind_uds(&config.actix.socket)?
         .run()
         .await?;
@@ -82,9 +88,18 @@ impl HttpServer {
         }
     }
 
-    fn with_app_config(&mut self) -> &mut Self {
+    fn with_configs(&mut self) -> &mut Self {
         self.add_service(move |srv, cfg| {
             srv.app_data(cfg.config.clone());
+            srv.app_data(cfg.config.web.clone());
+        })
+    }
+
+    fn with_db_pool(&mut self) -> &mut Self {
+        self.add_service(move |srv, cfg| {
+            srv.app_data(block_on(async {
+                db_pool::<Postgres>(Some(&cfg.config.db)).await.unwrap()
+            }));
         })
     }
 

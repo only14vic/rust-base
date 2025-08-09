@@ -22,3 +22,4 @@ pub mod args;
 pub mod convert;
 pub mod dirs;
 pub mod di;
+pub mod serde;

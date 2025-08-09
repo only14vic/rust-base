@@ -25,6 +25,7 @@ std = [
   "dep:tokio",
   "dep:actix",
   "dep:actix-web",
+  "dep:actix-http",
   "dep:actix-files",
   "dep:actix-multipart",
   "dep:actix-web-grants",
@@ -51,6 +52,7 @@ indexmap = { workspace = true }
 tokio = { workspace = true, optional = true }
 actix = { workspace = true, optional = true }
 actix-web = { workspace = true, optional = true }
+actix-http = { workspace = true, optional = true }
 actix-files = { workspace = true, optional = true }
 actix-multipart = { workspace = true, optional = true }
 actix-web-grants = { workspace = true, optional = true }
