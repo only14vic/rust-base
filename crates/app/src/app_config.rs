@@ -51,13 +51,27 @@ impl AppConfig {
         let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
         match Ini::from_file(&config_file) {
             Ok(ini) => {
+                log::trace!("Loading: {config_file}");
                 self.extend(&ini);
             },
             Err(e) => {
                 match e.downcast_ref::<IniError>() {
-                    Some(IniError::FileNotFound(e)) => {
-                        log::warn!("{e}");
-                    },
+                    Some(IniError::FileNotFound(..)) => (),
+                    Some(..) => Err(e)?,
+                    None => Err(e)?
+                }
+            },
+        };
+
+        let user_config_file = format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
+        match Ini::from_file(&user_config_file) {
+            Ok(ini) => {
+                log::trace!("Loading: {user_config_file}");
+                self.extend(&ini);
+            },
+            Err(e) => {
+                match e.downcast_ref::<IniError>() {
+                    Some(IniError::FileNotFound(..)) => (),
                     Some(..) => Err(e)?,
                     None => Err(e)?
                 }
