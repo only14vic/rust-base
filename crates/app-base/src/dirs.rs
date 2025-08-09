@@ -47,7 +47,9 @@ impl Default for Dirs {
                 .into(),
             config: option_env!("CONFDIR").unwrap_or("/etc/{suffix}").into(),
             home: "~".into(),
-            user_config: "{home}/.config/{suffix}".into(),
+            user_config: option_env!("USERCONFDIR")
+                .unwrap_or("{home}/.config/{suffix}")
+                .into(),
             bin: option_env!("BINDIR").unwrap_or("{prefix}/bin").into(),
             sbin: option_env!("SBINDIR").unwrap_or("{prefix}/sbin").into(),
             lib: option_env!("LIBDIR").unwrap_or("{prefix}/lib").into(),
@@ -219,12 +221,20 @@ impl LoadEnv for Dirs {
         #[rustfmt::skip]
         self.extend(
             [
+                ("bin", getenv("BINDIR")),
+                ("sbin", getenv("SBINDIR")),
                 ("config", getenv("CONFDIR")),
+                ("user_config", getenv("USERCONFDIR")),
                 ("data", getenv("DATADIR")),
                 ("var", getenv("VARDIR")),
+                ("run", getenv("RUNDIR")),
+                ("log", getenv("LOGDIR")),
+                ("tmp", getenv("TMPDIR")),
                 ("man", getenv("MANDIR")),
                 ("doc", getenv("DOCDIR")),
                 ("lib", getenv("LIBDIR")),
+                ("cache", getenv("CACHEDIR")),
+                ("state", getenv("STATEDIR")),
                 ("include", getenv("INCDIR")),
             ]
             .iter()
@@ -241,7 +251,13 @@ impl LoadArgs for Dirs {
                 ("home", args.get("home-dir")),
                 ("config", args.get("config-dir")),
                 ("user_config", args.get("user-config-dir")),
-                ("log", args.get("log-dir"))
+                ("log", args.get("log-dir")),
+                ("var", args.get("var-dir")),
+                ("run", args.get("run-dir")),
+                ("data", args.get("data-dir")),
+                ("cache", args.get("cache-dir")),
+                ("state", args.get("state-dir")),
+                ("tmp", args.get("tmp-dir"))
             ]
             .iter()
             .map(convert::tuple_option_option_str)
