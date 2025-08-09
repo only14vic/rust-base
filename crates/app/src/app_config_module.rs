@@ -1,6 +1,7 @@
 use {crate::*, alloc::format, app_base::prelude::*};
 
 pub const MODULE_APP_CONFIG: AppModule = module_app_config;
+
 fn module_app_config(app: &mut App, event: AppEvent) -> Void {
     match event {
         AppEvent::APP_INIT => {
