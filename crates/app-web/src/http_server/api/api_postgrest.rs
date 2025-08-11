@@ -91,12 +91,10 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
         } else {
             url.set_path(path);
         }
+    } else if url.scheme() == "unix" {
+        url.set_path(&[url.path(), path].concat());
     } else {
-        if url.scheme() == "unix" {
-            url.set_path(&[url.path(), path].concat());
-        } else {
-            url.set_path(path);
-        }
+        url.set_path(path);
     }
 
     let mut query_params =
