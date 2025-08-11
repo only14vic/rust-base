@@ -40,7 +40,6 @@ const POSTGREST_QUERY_PARAMS: &[&str] = &[
     "not.and"
 ];
 
-const API_PREFIX: &str = "/api";
 const FORCE_GET_TO_POST_PATHS: &[&str] = &[
     "/rpc/login", "/rpc/login_confirm", "/rpc/logout", "/rpc/refresh_token"
 ];
@@ -69,6 +68,7 @@ static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
 
 pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
     let config = req.web_config();
+    let api_proxy_path = config.api.path.as_str();
 
     let mut url = Url::parse(&config.api.proxy_url)?;
     let mut path = req.match_pattern().unwrap_or(req.path().to_string());
@@ -81,8 +81,8 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
     }
     let path = path.trim_end_matches('/');
 
-    if path.starts_with(&[API_PREFIX, "/"].concat()) || path == API_PREFIX {
-        let mut path = path.trim_start_matches(API_PREFIX);
+    if path.starts_with(&[api_proxy_path, "/"].concat()) || path == api_proxy_path {
+        let mut path = path.trim_start_matches(api_proxy_path);
         if path.is_empty() {
             path = "/";
         }
