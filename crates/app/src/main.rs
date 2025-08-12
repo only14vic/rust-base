@@ -14,17 +14,21 @@ use {app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
-    let mut app = App::new([MODULE_APP, MODULE_APP_CONFIG]);
-    app.boot().inspect_err(|e| log::error!("{e}"))?;
-    app.run().inspect_err(|e| log::error!("{e}"))
+    App::new([MODULE_APP, MODULE_APP_CONFIG])
+        .boot()
+        .inspect_err(|e| log::error!("{e}"))?
+        .run()
+        .inspect_err(|e| log::error!("{e}"))
 }
 
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
-    let mut app = App::new([MODULE_APP, MODULE_APP_CONFIG]);
-    let _ = app.boot(argc, argv).inspect_err(|e| panic!("{e}"));
-    let _ = app.run().inspect_err(|e| panic!("{e}"));
+    App::new([MODULE_APP, MODULE_APP_CONFIG])
+        .boot(argc, argv)
+        .unwrap_or_else(|e| panic!("{e}"))
+        .run()
+        .unwrap_or_else(|e| panic!("{e}"));
 
     libc::EXIT_SUCCESS
 }
