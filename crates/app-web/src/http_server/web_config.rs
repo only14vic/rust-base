@@ -1,5 +1,8 @@
 use {
-    crate::{api::ApiConfig, ext::JwtConfig},
+    crate::{
+        api::ApiConfig,
+        ext::{AuthConfig, FirewallConfig, JwtConfig}
+    },
     app_base::prelude::*
 };
 
@@ -13,7 +16,9 @@ pub struct WebConfig {
     pub static_path: String,
     pub static_dir: String,
     pub api: ApiConfig,
-    pub jwt: JwtConfig
+    pub jwt: JwtConfig,
+    pub auth: AuthConfig,
+    pub firewall: FirewallConfig
 }
 
 impl WebConfig {
@@ -37,7 +42,9 @@ impl Default for WebConfig {
             static_path: "/public".into(),
             static_dir: "public".into(),
             api: Default::default(),
-            jwt: Default::default()
+            jwt: Default::default(),
+            auth: Default::default(),
+            firewall: Default::default()
         }
     }
 }
@@ -59,6 +66,8 @@ impl LoadEnv for WebConfig {
         );
         self.api.load_env()?;
         self.jwt.load_env()?;
+        self.auth.load_env()?;
+        self.firewall.load_env()?;
         ok()
     }
 }
@@ -79,7 +88,9 @@ impl LoadArgs for WebConfig {
             .map(convert::tuple_option_option_str)
         );
         self.api.load_args(args)?;
-        self.api.load_args(args)?;
+        self.jwt.load_args(args)?;
+        self.auth.load_args(args)?;
+        self.firewall.load_args(args)?;
         ok()
     }
 }

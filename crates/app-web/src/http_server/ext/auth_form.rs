@@ -6,6 +6,7 @@ use {
     validator::Validate
 };
 
+#[non_exhaustive]
 #[derive(Debug, Default, Deserialize, Serialize, Validate)]
 #[serde(default)]
 pub struct AuthForm {
@@ -17,9 +18,7 @@ pub struct AuthForm {
     #[validate(required(message = "Required."))]
     #[validate(length(max = 100, message = "Too long."))]
     #[serde(deserialize_with = "skip_empty_string")]
-    pub password: Option<String>
-    //#[serde(flatten)]
-    //pub captcha: CaptchaForm
+    pub password: Option<String> /* pub captcha: CaptchaForm */
 }
 
 impl AuthForm {

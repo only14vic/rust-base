@@ -178,7 +178,7 @@ impl ExtendMacros {
         iterable: &mut bool
     ) -> TokenStream2 {
         let Some((n, mut ty)) = types.next() else {
-            return quote! {};
+            return quote! { v };
         };
         if attrs.iter().any(|a| a.path().is_ident("skip")) {
             return quote! {};
@@ -322,7 +322,10 @@ impl ExtendMacros {
                      map.iter()
                         .filter_map(|(&name, &value)| {
                             name.starts_with(concat!(#name, "."))
-                                .then(|| (name.trim_start_matches(concat!(#name, ".")), value))
+                                .then(|| (
+                                    name.trim_start_matches(concat!(#name, ".")).into(),
+                                    value.map(|v| v.into())
+                                ))
                         })
                 };
                 if n == 0 {

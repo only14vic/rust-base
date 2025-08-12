@@ -15,7 +15,7 @@ crate-type = ["lib"]
 default = []
 
 [dependencies]
-app-base = { workspace = true }
+app-base = { workspace = true, features = ["std"] }
 app-async = { workspace = true }
 tokio = { workspace = true }
 actix = { workspace = true }
@@ -34,6 +34,7 @@ itoa = { workspace = true }
 bytes = { workspace = true }
 regex = { workspace = true }
 url = { workspace = true }
+urlencoding = { workspace = true }
 sqlx = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -44,6 +45,7 @@ tera = { workspace = true }
 flate2 = { workspace = true }
 base64 = { workspace = true }
 glob = { workspace = true }
+ahash = { workspace = true }
 
 [dev-dependencies]
 app-testing = { workspace = true }

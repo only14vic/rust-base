@@ -2,7 +2,8 @@ use {
     crate::AppConfig,
     actix_files::Files,
     actix_multipart::form::tempfile::TempFileConfig,
-    actix_web::web::ServiceConfig,
+    actix_web::{middleware::from_fn, web::ServiceConfig},
+    actix_web_grants::GrantsMiddleware,
     alloc::{boxed::Box, sync::Arc, vec::Vec},
     app_async::{
         cache::{ArrayCache, Cacher},
@@ -43,17 +44,15 @@ impl HttpServer {
 
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
-                /*
                 .wrap(GrantsMiddleware::with_extractor(
-                    super::middleware::auth_role_extract
+                    app_web::middleware::auth_role_extract
                 ))
-                .wrap(super::middleware::AuthRequired)
-                .wrap(from_fn(super::middleware::captcha))
-                .wrap(from_fn(super::middleware::firewall))
-                .wrap(from_fn(super::middleware::no_cache))
-                .wrap(super::middleware::AuthHeader)
-                .wrap(super::middleware::errors())
-                */
+                .wrap(app_web::middleware::AuthRequired)
+                //.wrap(from_fn(app_web::middleware::captcha))
+                //.wrap(from_fn(app_web::middleware::firewall))
+                .wrap(from_fn(app_web::middleware::no_cache))
+                .wrap(app_web::middleware::AuthHeader)
+                //.wrap(super::middleware::errors())
                 .wrap(app_web::middleware::cors(config_ref.web.clone()))
                 .wrap(actix_web::middleware::NormalizePath::trim())
                 .wrap(actix_web::middleware::DefaultHeaders::new())

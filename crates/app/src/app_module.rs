@@ -1,13 +1,4 @@
-use {
-    crate::*,
-    actix_http::header,
-    actix_web::{
-        dev::Service,
-        http::header::{ContentType, TryIntoHeaderValue}
-    },
-    app_base::prelude::*,
-    app_web::api::api_postgrest
-};
+use {crate::*, app_base::prelude::*};
 
 pub const MODULE_APP: AppModule = module_app;
 
@@ -55,8 +46,15 @@ Options:
 #[cfg(feature = "std")]
 fn server_run(app: &mut App) -> Void {
     use {
-        actix_web::{HttpRequest, HttpResponse, web},
+        actix_http::header,
+        actix_web::{
+            HttpRequest, HttpResponse,
+            dev::Service,
+            http::header::{ContentType, TryIntoHeaderValue},
+            web
+        },
         app_async::actix_with_tokio_start,
+        app_web::api::api_postgrest,
         std::sync::Arc
     };
 

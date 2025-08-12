@@ -34,7 +34,7 @@ where
     l: Option<Box<Lang>>,
     m: Option<HashSet<Option<NonZero<i32>>>>,
     n: Option<Rc<RefCell<HashMap<&'a str, Option<&'a str>>>>>,
-    o: HashMap<&'a str, Option<&'a str>>,
+    o: HashMap<&'a str, Option<String>>,
     p: Option<NonNull<c_void>>,
     r: Box<CStr>,
     s: CString,
@@ -122,7 +122,10 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
     );
     assert_eq!(
         foo.o,
-        HashMap::from_iter([("fooooo", "Foooooo".into()), ("baaaar", "Baaaaar".into())])
+        HashMap::from_iter([
+            ("fooooo", Some("Foooooo".into())),
+            ("baaaar", Some("Baaaaar".into()))
+        ])
     );
     assert_eq!(
         foo.p

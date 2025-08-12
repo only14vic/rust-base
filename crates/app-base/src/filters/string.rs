@@ -61,15 +61,13 @@ impl StringExt for String {}
 impl StringExt for &str {}
 
 pub fn base64_encode(data: impl AsRef<[u8]>, pad: bool) -> Result<String, EncodeSliceError> {
-    let mut buf = Vec::new();
-    buf.resize(data.as_ref().len() * 4 / 3 + 4, 0);
-    let len;
+    let mut buf = alloc::vec![0; data.as_ref().len() * 4 / 3 + 4];
 
-    if pad {
-        len = general_purpose::STANDARD.encode_slice(data, &mut buf)?;
+    let len = if pad {
+        general_purpose::STANDARD.encode_slice(data, &mut buf)?
     } else {
-        len = general_purpose::STANDARD_NO_PAD.encode_slice(data, &mut buf)?;
-    }
+        general_purpose::STANDARD_NO_PAD.encode_slice(data, &mut buf)?
+    };
 
     buf.truncate(len);
 
@@ -79,13 +77,12 @@ pub fn base64_encode(data: impl AsRef<[u8]>, pad: bool) -> Result<String, Encode
 pub fn base64_decode(str: &str, pad: bool) -> Result<String, DecodeSliceError> {
     let mut buf = Vec::default();
     buf.resize(str.len(), 0);
-    let len;
 
-    if pad {
-        len = general_purpose::STANDARD.decode_slice(str, &mut buf)?;
+    let len = if pad {
+        general_purpose::STANDARD.decode_slice(str, &mut buf)?
     } else {
-        len = general_purpose::STANDARD_NO_PAD.decode_slice(str, &mut buf)?;
-    }
+        general_purpose::STANDARD_NO_PAD.decode_slice(str, &mut buf)?
+    };
 
     buf.truncate(len);
 
