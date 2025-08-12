@@ -4,7 +4,7 @@ use {
     alloc::string::{String, ToString}
 };
 
-#[derive(Debug, Extend)]
+#[derive(Debug, ExtendFromIter)]
 pub struct BaseConfig {
     pub language: String,
     pub timezone: String,

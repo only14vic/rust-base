@@ -14,9 +14,9 @@ pub struct ErrHttp(Err);
 
 pub type OkHttp = Result<HttpResponse, ErrHttp>;
 
-impl<T: Into<Box<dyn Error>>> From<T> for ErrHttp {
+impl<E: Into<Box<dyn Error>>> From<E> for ErrHttp {
     #[inline(always)]
-    fn from(value: T) -> Self {
+    fn from(value: E) -> Self {
         Self(Err::new(value.into()))
     }
 }

@@ -9,6 +9,7 @@ use {
         db::db_pool
     },
     app_base::prelude::*,
+    app_web::ext::{DbWeb, JwtEncoder},
     core::pin::Pin,
     futures::executor::block_on,
     sqlx::Postgres
@@ -25,7 +26,8 @@ impl HttpServer {
     pub fn new(config: &Arc<AppConfig>) -> Self {
         let mut this = Self { config: config.clone(), services: Default::default() };
         this.with_configs()
-            .with_db_pool()
+            .with_jwt()
+            .with_db()
             .with_multipart()
             .with_cache()
             .with_static_files();
@@ -91,15 +93,23 @@ impl HttpServer {
     fn with_configs(&mut self) -> &mut Self {
         self.add_service(move |srv, cfg| {
             srv.app_data(cfg.config.clone());
+            srv.app_data(cfg.config.base.clone());
             srv.app_data(cfg.config.web.clone());
         })
     }
 
-    fn with_db_pool(&mut self) -> &mut Self {
+    fn with_db(&mut self) -> &mut Self {
         self.add_service(move |srv, cfg| {
-            srv.app_data(block_on(async {
-                db_pool::<Postgres>(Some(&cfg.config.db)).await.unwrap()
-            }));
+            let db_pool =
+                block_on(async { db_pool::<Postgres>(Some(&cfg.config.db)).await.unwrap() });
+            srv.app_data(DbWeb::new(&db_pool));
+            srv.app_data(db_pool);
+        })
+    }
+
+    fn with_jwt(&mut self) -> &mut Self {
+        self.add_service(|srv, cfg| {
+            srv.app_data(JwtEncoder::new(&cfg.config.web.jwt));
         })
     }
 

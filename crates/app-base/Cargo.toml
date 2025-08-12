@@ -17,7 +17,7 @@ path = "examples/app-base-example1.rs"
 
 [features]
 default = ["std"]
-std = ["app-macros/std", "dep:memory-stats"]
+std = ["app-macros/std", "dep:memory-stats", "base64/std", "md5/std"]
 
 [build-dependencies]
 cc = { workspace = true }
@@ -38,7 +38,10 @@ log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 memory-stats = { workspace = true, optional = true }
-base64ct = { workspace = true }
+base64 = { workspace = true }
 trim-in-place = { workspace = true }
+md5 = { workspace = true }
+heck = { workspace = true }
+any_ascii = { workspace = true }
 
 [dev-dependencies]

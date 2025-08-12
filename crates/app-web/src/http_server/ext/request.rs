@@ -1,7 +1,16 @@
 use {
-    crate::WebConfig,
-    actix_web::{HttpRequest, dev::RequestHead, http::header},
+    crate::{
+        WebConfig,
+        ext::{CurrentUser, DbWeb, JwtToken}
+    },
+    actix_web::{
+        FromRequest, HttpRequest,
+        dev::{Payload, RequestHead},
+        http::header
+    },
+    app_base::prelude::*,
     regex::Regex,
+    sqlx::{Pool, Postgres},
     std::{
         borrow::Cow,
         sync::{Arc, LazyLock}
@@ -9,12 +18,42 @@ use {
 };
 
 pub trait RequestExt {
+    fn base_config(&self) -> &BaseConfig;
+
     fn web_config(&self) -> &WebConfig;
+
+    fn db_pool(&self) -> &Pool<Postgres>;
+
+    fn db_web(&self) -> &DbWeb;
+
+    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error>;
+
+    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
 }
 
 impl RequestExt for HttpRequest {
+    fn base_config(&self) -> &BaseConfig {
+        self.app_data::<Arc<BaseConfig>>().unwrap().as_ref()
+    }
+
     fn web_config(&self) -> &WebConfig {
         self.app_data::<Arc<WebConfig>>().unwrap().as_ref()
+    }
+
+    fn db_pool(&self) -> &Pool<Postgres> {
+        self.app_data::<Arc<Pool<Postgres>>>().unwrap().as_ref()
+    }
+
+    fn db_web(&self) -> &DbWeb {
+        self.app_data::<DbWeb>().unwrap()
+    }
+
+    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error> {
+        CurrentUser::from_request(self, &mut Payload::None).await
+    }
+
+    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error> {
+        JwtToken::from_request(self, &mut Payload::None).await
     }
 }
 

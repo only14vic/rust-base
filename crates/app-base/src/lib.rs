@@ -23,3 +23,4 @@ pub mod convert;
 pub mod dirs;
 pub mod di;
 pub mod serde;
+pub mod filters;

@@ -70,7 +70,7 @@ bindgen = { version = "0.71" }
 cbindgen = { version = "0.28" }
 log = { version = "0.4" }
 dotenv = { version = "0.15" }
-base64ct = { version = "=1.7.3" }
+base64 = { version = "0.22.1", default-features = false }
 syn = { version = "2.0.100", features = ["full"] }
 quote = "1.0.40"
 proc-macro2 = "1.0.94"
@@ -103,6 +103,7 @@ actix-web-grants = { version = "3" }
 actix-multipart = { version = "0.7" }
 actix-multipart-derive = { version = "0.7" }
 actix-multipart-rfc7578 = { version = "0.10" }
+jsonwebtoken = { version = "9" }
 futures = { version = "0.3" }
 futures-io = { version = "0.3" }
 futures-channel = { version = "0.3" }
@@ -125,16 +126,18 @@ regex = { version = "1.11", features = ["std"] }
 rand = { version = "0.9" }
 itoa = { version = "1.0.15" }
 tera = { version = "1.20.0" }
-base64 = { version = "0.22" }
 flate2 = { version = "1.1.2", features = ["zlib"], default-features = false }
 bytes = { version = "1.4" }
 crc = { version = "3.0" }
 sha2 = { version = "0.10" }
-md5 = { version = "0.7" }
+md5 = { version = "0.7", default-features = false }
 digest = { version = "0.10" }
 urlencoding = { version = "2.1" }
 url = { version = "2.5.4", features = ["serde"] }
 trim-in-place = { version = "0.1.7" }
+heck = { version = "0.5" }
+any_ascii = { version = "0.3" }
+glob = { version = "0.3" }
 reqwest = { version = "0.12", features = [
   "json",
   "stream",

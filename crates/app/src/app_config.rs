@@ -18,7 +18,7 @@ use {
 #[derive(Debug, Default, Extend)]
 pub struct AppConfig {
     pub options: AppOptions,
-    pub base: BaseConfig,
+    pub base: Arc<BaseConfig>,
     pub dirs: Dirs,
     #[cfg(feature = "std")]
     pub tokio: TokioConfig,
@@ -83,7 +83,9 @@ impl AppConfig {
         }
 
         self.dirs.init();
-        self.base.log.with_log_dir(&self.dirs.log);
+        Self::try_mut(&mut self.base)?
+            .log
+            .with_log_dir(&self.dirs.log);
 
         #[cfg(feature = "std")]
         Self::try_mut(&mut self.actix)?.with_dirs(&self.dirs);
@@ -242,7 +244,7 @@ impl AppConfig {
 impl LoadEnv for AppConfig {
     fn load_env(&mut self) -> Void {
         let list = [
-            &mut self.base as &mut dyn LoadEnv,
+            Self::try_mut(&mut self.base)? as &mut dyn LoadEnv,
             &mut self.dirs,
             #[cfg(feature = "std")]
             &mut self.tokio,
@@ -265,7 +267,7 @@ impl LoadEnv for AppConfig {
 impl LoadArgs for AppConfig {
     fn load_args(&mut self, args: &Args) -> Void {
         let list = [
-            &mut self.base as &mut dyn LoadArgs,
+            Self::try_mut(&mut self.base)? as &mut dyn LoadArgs,
             &mut self.dirs,
             #[cfg(feature = "std")]
             &mut self.tokio,

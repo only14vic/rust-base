@@ -1,4 +1,7 @@
-use {crate::api::ApiConfig, app_base::prelude::*};
+use {
+    crate::{api::ApiConfig, ext::JwtConfig},
+    app_base::prelude::*
+};
 
 #[derive(Debug, ExtendFromIter)]
 pub struct WebConfig {
@@ -9,7 +12,8 @@ pub struct WebConfig {
     pub accept_hosts: Vec<String>,
     pub static_path: String,
     pub static_dir: String,
-    pub api: ApiConfig
+    pub api: ApiConfig,
+    pub jwt: JwtConfig
 }
 
 impl WebConfig {
@@ -32,7 +36,8 @@ impl Default for WebConfig {
             accept_hosts: vec!["localhost".into()],
             static_path: "/public".into(),
             static_dir: "public".into(),
-            api: Default::default()
+            api: Default::default(),
+            jwt: Default::default()
         }
     }
 }
@@ -53,6 +58,7 @@ impl LoadEnv for WebConfig {
             .map(convert::tuple_option_str)
         );
         self.api.load_env()?;
+        self.jwt.load_env()?;
         ok()
     }
 }
@@ -72,6 +78,7 @@ impl LoadArgs for WebConfig {
             .iter()
             .map(convert::tuple_option_option_str)
         );
+        self.api.load_args(args)?;
         self.api.load_args(args)?;
         ok()
     }

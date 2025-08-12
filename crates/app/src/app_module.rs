@@ -57,13 +57,16 @@ fn server_run(app: &mut App) -> Void {
     use {
         actix_web::{HttpRequest, HttpResponse, web},
         app_async::actix_with_tokio_start,
-        app_web::OkHttp,
         std::sync::Arc
     };
 
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
+        use {app_async::db::db_pool, sqlx::Postgres};
+
+        Di::from_static().set(db_pool::<Postgres>(Some(&config.db)).await.unwrap());
+
         let mut server = HttpServer::new(&config);
 
         server.add_service(|srv, cfg| {
@@ -89,6 +92,8 @@ fn server_run(app: &mut App) -> Void {
 
             srv.default_service(web::to(|req: HttpRequest| {
                 async move {
+                    use app_web::ext::OkHttp;
+
                     let body = format!(
                         "URI: {}\n\nAppConfig: {:?}",
                         req.uri(),

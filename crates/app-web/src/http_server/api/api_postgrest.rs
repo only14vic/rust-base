@@ -1,8 +1,5 @@
 use {
-    crate::{
-        OkHttp,
-        ext::{AuthToken, RequestExt}
-    },
+    crate::ext::{AuthToken, OkHttp, RequestExt},
     actix_http::{Method, StatusCode},
     actix_web::{
         HttpRequest, HttpResponse, HttpResponseBuilder,
