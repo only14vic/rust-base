@@ -219,7 +219,24 @@ impl AppConfig {
                     Box::leak(Box::new(self.web.accept_hosts.join(",")))
                 ),
                 ("web.static_dir", &self.web.static_dir),
-                ("web.static_path", &self.web.static_path)
+                ("web.static_path", &self.web.static_path),
+                ("web.api.url", &self.web.api.url),
+                ("web.api.path", &self.web.api.path),
+                ("web.api.proxy_url", &self.web.api.proxy_url),
+                ("web.jwt.secret", &self.web.jwt.secret),
+                ("web.jwt.issuer", &self.web.jwt.issuer),
+                ("web.jwt.audience", &self.web.jwt.audience),
+                (
+                    "web.jwt.access_token_lifetime", &self.web.jwt.access_token_lifetime
+                ),
+                (
+                    "web.jwt.refresh_token_lifetime", &self.web.jwt.refresh_token_lifetime
+                ),
+                ("web.firewall.fails_anon", &self.web.firewall.fails_anon),
+                ("web.firewall.fails_user", &self.web.firewall.fails_user),
+                ("web.firewall.fails_period", &self.web.firewall.fails_period),
+                ("web.firewall.total_fails", &self.web.firewall.total_fails),
+                ("web.firewall.total_period", &self.web.firewall.total_period)
             ],
             #[cfg(feature = "db")]
             &[

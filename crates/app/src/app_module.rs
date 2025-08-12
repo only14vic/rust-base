@@ -61,10 +61,6 @@ fn server_run(app: &mut App) -> Void {
     let config = app.get::<AppConfig>().unwrap();
 
     actix_with_tokio_start(Some(&config.tokio), async {
-        use {app_async::db::db_pool, sqlx::Postgres};
-
-        Di::from_static().set(db_pool::<Postgres>(Some(&config.db)).await.unwrap());
-
         let mut server = HttpServer::new(&config);
 
         server.add_service(|srv, cfg| {
