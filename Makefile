@@ -1,5 +1,8 @@
 -include .env
 
+# Fix env value with quotes
+DATABASE_URL:=$(subst ',,$(subst ",,$(DATABASE_URL)))
+
 SHELL = sh
 .DEFAULT_GOAL = flags
 
