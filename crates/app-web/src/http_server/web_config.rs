@@ -3,10 +3,11 @@ use {
         api::ApiConfig,
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
-    app_base::prelude::*
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
 };
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct WebConfig {
     pub host: String,
     pub hostname: String,

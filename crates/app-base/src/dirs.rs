@@ -7,12 +7,13 @@ use {
         vec::Vec
     },
     core::{cell::RefCell, mem::ManuallyDrop, ptr::null_mut, str::FromStr},
-    libc::{dirname, getcwd, readlink, realpath}
+    libc::{dirname, getcwd, readlink, realpath},
+    serde::{Deserialize, Serialize}
 };
 
 const PATH_MAX: usize = libc::PATH_MAX as usize;
 
-#[derive(Debug, Clone, ExtendFromIter)]
+#[derive(Debug, Clone, ExtendFromIter, Serialize, Deserialize)]
 pub struct Dirs {
     exe: String,
     pub prefix: String,

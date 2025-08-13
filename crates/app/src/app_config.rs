@@ -12,10 +12,11 @@ use {
         sync::Arc
     },
     app_base::prelude::*,
-    core::any::type_name
+    core::any::type_name,
+    serde::{Deserialize, Serialize}
 };
 
-#[derive(Debug, Default, Extend)]
+#[derive(Debug, Default, Extend, Serialize, Deserialize)]
 pub struct AppConfig {
     pub options: AppOptions,
     pub base: Arc<BaseConfig>,

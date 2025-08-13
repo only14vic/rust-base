@@ -1,6 +1,10 @@
-use {app_base::prelude::*, std::fmt::Debug};
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize},
+    std::fmt::Debug
+};
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct JwtConfig {
     pub secret: String,
     pub issuer: String,

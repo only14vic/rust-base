@@ -49,6 +49,8 @@ libc = { workspace = true }
 log = { workspace = true }
 ahash = { workspace = true }
 indexmap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 tokio = { workspace = true, optional = true }
 actix = { workspace = true, optional = true }
 actix-web = { workspace = true, optional = true }

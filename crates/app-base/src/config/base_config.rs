@@ -1,13 +1,15 @@
 use {
     super::LogConfig,
     crate::prelude::*,
-    alloc::string::{String, ToString}
+    alloc::string::{String, ToString},
+    serde::{Deserialize, Serialize}
 };
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct BaseConfig {
     pub language: String,
     pub timezone: String,
+    #[serde(skip)]
     pub log: LogConfig
 }
 

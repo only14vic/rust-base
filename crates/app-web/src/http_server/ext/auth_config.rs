@@ -4,10 +4,11 @@ use {
         fmt::Display,
         ops::{Deref, DerefMut}
     },
+    serde::{Deserialize, Serialize},
     std::collections::HashMap
 };
 
-#[derive(Debug, Default, Clone, ExtendFromIter)]
+#[derive(Debug, Default, Clone, ExtendFromIter, Serialize, Deserialize)]
 pub struct AuthModuleConfig {
     pub url: String,
     pub login: Option<String>,
@@ -76,8 +77,9 @@ impl<'a> Extend<(&'a str, Option<&'a str>)> for AuthModules {
     }
 }
 
-#[derive(Debug, Default, ExtendFromIter)]
+#[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
 pub struct AuthConfig {
+    #[serde(skip)]
     pub modules: AuthModules
 }
 

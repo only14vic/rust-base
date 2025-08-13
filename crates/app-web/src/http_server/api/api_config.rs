@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct ApiConfig {
     pub url: String,
     pub path: String,

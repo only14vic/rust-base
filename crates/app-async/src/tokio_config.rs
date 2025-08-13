@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Debug, Extend)]
+#[derive(Debug, Extend, Serialize, Deserialize)]
 pub struct TokioConfig {
     pub threads: usize,
     pub blocking_threads: usize,

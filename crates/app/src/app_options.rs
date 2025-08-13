@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct AppOptions {
     pub clear_static_di: bool
 }

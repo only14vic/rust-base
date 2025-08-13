@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Debug, ExtendFromIter)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct ActixConfig {
     pub socket: String,
     pub listen: String,

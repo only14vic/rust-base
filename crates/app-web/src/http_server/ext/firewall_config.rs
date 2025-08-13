@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Default, Debug, ExtendFromIter)]
+#[derive(Default, Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct FirewallConfig {
     pub fails_anon: u16,
     pub fails_user: u16,

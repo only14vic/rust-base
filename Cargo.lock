@@ -558,6 +558,8 @@ dependencies = [
  "indexmap",
  "libc",
  "log",
+ "serde",
+ "serde_json",
  "sqlx",
  "tokio",
 ]
@@ -575,6 +577,8 @@ dependencies = [
  "futures",
  "itoa",
  "log",
+ "serde",
+ "serde_json",
  "sqlx",
  "tokio",
 ]

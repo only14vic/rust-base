@@ -1,6 +1,9 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    serde::{Deserialize, Serialize}
+};
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, ExtendFromIter)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, ExtendFromIter, Serialize, Deserialize)]
 pub struct DbConfig {
     pub url: String,
     pub schema: Option<String>,
