@@ -36,7 +36,6 @@ impl FromRequest for HtmlRenderContext {
             let context = Self::default();
             let config = req.base_config();
             let mut app = serde_json::to_value(config).unwrap();
-
             app.as_object_mut().unwrap().extend([
                 ("language".into(), req.language().into()),
                 ("locale".into(), req.locale().into()),
@@ -46,7 +45,10 @@ impl FromRequest for HtmlRenderContext {
 
             app.as_object_mut().unwrap().insert(
                 "env".into(),
-                Value::from_iter([("APP_DEBUG", Env::is_debug())])
+                Value::from_iter([
+                    ("APP_DEBUG", Env::is_debug().to_json().unwrap()),
+                    ("APP_ENV", Env::env().into())
+                ])
             );
 
             app.as_object_mut().unwrap().insert(
@@ -54,7 +56,7 @@ impl FromRequest for HtmlRenderContext {
                 Value::from_iter(
                     [
                         web::Query::<Vec<(Cow<str>, Cow<str>)>>::from_query(req.query_string())
-                            .map(|data| data.into_inner())
+                            .map(web::Query::into_inner)
                             .unwrap_or_default(),
                         req.match_info()
                             .iter()
@@ -69,12 +71,7 @@ impl FromRequest for HtmlRenderContext {
                 "req".into(),
                 Value::from_iter([
                     ("url", req.path()),
-                    (
-                        "path",
-                        req.match_pattern()
-                            .unwrap_or(req.path().to_string())
-                            .as_str()
-                    ),
+                    ("path", req.match_pattern().as_deref().unwrap_or(req.path())),
                     (
                         "referer",
                         req.headers()

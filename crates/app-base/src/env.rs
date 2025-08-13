@@ -35,13 +35,14 @@ thread_local! {
     static ENV: Env = Env::default();
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Env {
     pub is_test: bool,
     pub is_prod: bool,
     pub is_dev: bool,
     pub is_debug: bool,
-    pub is_release: bool
+    pub is_release: bool,
+    pub env: &'static str
 }
 
 impl Default for Env {
@@ -51,12 +52,18 @@ impl Default for Env {
             is_prod: getenv("APP_ENV").map(|v| &v == "prod").unwrap_or_default(),
             is_dev: getenv("APP_ENV").map(|v| &v != "prod").unwrap_or_default(),
             is_debug: getenv("APP_DEBUG").map(|v| &v == "1").unwrap_or_default(),
-            is_release: cfg!(debug_assertions) == false
+            is_release: cfg!(debug_assertions) == false,
+            env: String::leak(getenv("APP_ENV").unwrap_or_default())
         }
     }
 }
 
 impl Env {
+    #[inline]
+    pub fn env() -> &'static str {
+        ENV.with(|e| e.env)
+    }
+
     #[inline]
     pub fn is_test() -> bool {
         ENV.with(|e| e.is_test)
