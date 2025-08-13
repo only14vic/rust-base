@@ -71,6 +71,7 @@ impl FromRequest for HtmlRenderContext {
                 "req".into(),
                 Value::from_iter([
                     ("url", req.path()),
+                    ("method", req.method().as_str()),
                     ("path", req.match_pattern().as_deref().unwrap_or(req.path())),
                     (
                         "referer",
