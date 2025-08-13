@@ -54,7 +54,10 @@ fn server_run(app: &mut App) -> Void {
             web
         },
         app_async::actix_with_tokio_start,
-        app_web::{api::api_postgrest, ext::ErrHttp}
+        app_web::{
+            api::api_postgrest,
+            ext::{ErrHttp, OkHttp, RequestExt}
+        }
     };
 
     let config = app.get::<AppConfig>().unwrap();
@@ -63,6 +66,8 @@ fn server_run(app: &mut App) -> Void {
         let mut server = HttpServer::new(&config);
 
         server.add_service(|srv, cfg| {
+            use serde_json::Value;
+
             srv.service({
                 web::scope(&cfg.config.web.api.path)
                     .wrap_fn(|mut req, srv| {
@@ -83,18 +88,16 @@ fn server_run(app: &mut App) -> Void {
                     .default_service(web::to(api_postgrest))
             });
 
-            srv.default_service(web::to(|req: HttpRequest| {
-                async move {
-                    use app_web::ext::{OkHttp, RequestExt};
-
-                    let body = format!(
-                        "URI: {}\n\n{:#?}",
-                        req.uri(),
-                        req.html_render_context().await.map_err(ErrHttp)?
-                    );
-                    HttpResponse::Ok().body(body).into_ok() as OkHttp
+            srv.default_service(web::to(
+                |req: HttpRequest, data: Option<web::Json<Value>>| {
+                    async move {
+                        let context = req.html_render_context().await.map_err(ErrHttp)?;
+                        context.add("data", &data.map(web::Json::into_inner).unwrap_or_default());
+                        let body = format!("URI: {}\n\n{context:#?}", req.uri(),);
+                        HttpResponse::Ok().body(body).into_ok() as OkHttp
+                    }
                 }
-            }));
+            ));
         });
 
         server.run().await
