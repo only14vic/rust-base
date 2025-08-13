@@ -17,7 +17,7 @@ pub struct AuthModuleConfig {
 
 #[derive(Debug, Default)]
 pub struct AuthModules {
-    modules: HashMap<String, AuthModuleConfig>
+    modules: IndexMap<String, AuthModuleConfig>
 }
 
 impl Display for AuthModules {
@@ -40,7 +40,7 @@ impl Display for AuthModules {
 }
 
 impl Deref for AuthModules {
-    type Target = HashMap<String, AuthModuleConfig>;
+    type Target = IndexMap<String, AuthModuleConfig>;
 
     fn deref(&self) -> &Self::Target {
         &self.modules
@@ -55,7 +55,8 @@ impl DerefMut for AuthModules {
 
 impl<'a> Extend<(&'a str, Option<&'a str>)> for AuthModules {
     fn extend<T: IntoIterator<Item = (&'a str, Option<&'a str>)>>(&mut self, iter: T) {
-        let mut map = HashMap::<&str, HashMap<&str, Option<&str>>>::new();
+        let mut map = IndexMap::<&str, HashMap<&str, Option<&str>>>::default();
+
         for (str, value) in iter.into_iter() {
             if let Some((module, param)) = str.split_once(".") {
                 if map.contains_key(module) == false {
@@ -64,10 +65,14 @@ impl<'a> Extend<(&'a str, Option<&'a str>)> for AuthModules {
                 map.get_mut(module).unwrap().insert(param, value);
             }
         }
+
         for (name, params) in map {
             self.modules
                 .insert(name.to_string(), AuthModuleConfig::from_iter(params));
         }
+
+        self.modules
+            .sort_by(|_, m1, _, m2| m2.url.len().cmp(&m1.url.len()));
     }
 }
 
