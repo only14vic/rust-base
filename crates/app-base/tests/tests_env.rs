@@ -16,5 +16,6 @@ fn test_env() {
             assert_eq!(env.is_release, Env::is_release());
         });
     }
+
     dbg!(t.elapsed());
 }

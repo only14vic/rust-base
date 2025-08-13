@@ -1,7 +1,14 @@
 #[cfg(not(feature = "std"))]
 extern crate libc;
 
-use {crate::prelude::Void, alloc::string::String};
+use {
+    crate::prelude::Void,
+    alloc::{boxed::Box, string::String},
+    core::{
+        ptr::null_mut,
+        sync::atomic::{AtomicPtr, Ordering}
+    }
+};
 #[cfg(not(feature = "std"))]
 use {alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr, core::str::FromStr};
 
@@ -31,18 +38,16 @@ pub trait LoadEnv {
     fn load_env(&mut self) -> Void;
 }
 
-thread_local! {
-    static ENV: Env = Env::default();
-}
+static ENV: AtomicPtr<Env> = AtomicPtr::new(null_mut());
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Env {
     pub is_test: bool,
     pub is_prod: bool,
     pub is_dev: bool,
     pub is_debug: bool,
     pub is_release: bool,
-    pub env: &'static str
+    pub env: String
 }
 
 impl Default for Env {
@@ -53,39 +58,56 @@ impl Default for Env {
             is_dev: getenv("APP_ENV").map(|v| &v != "prod").unwrap_or_default(),
             is_debug: getenv("APP_DEBUG").map(|v| &v == "1").unwrap_or_default(),
             is_release: cfg!(debug_assertions) == false,
-            env: String::leak(getenv("APP_ENV").unwrap_or_default())
+            env: getenv("APP_ENV").unwrap_or_default()
         }
     }
 }
 
 impl Env {
     #[inline]
-    pub fn env() -> &'static str {
-        ENV.with(|e| e.env)
+    fn from_static() -> &'static Self {
+        let mut env = ENV.load(Ordering::Acquire);
+
+        if env.is_null() {
+            env = Box::leak(Box::new(Self::default()));
+            if let Err(prev) =
+                ENV.compare_exchange(null_mut(), env, Ordering::SeqCst, Ordering::Relaxed)
+            {
+                drop(unsafe { Box::from_raw(env) });
+                env = prev;
+            }
+        }
+
+        unsafe { &*env }
+    }
+
+    #[inline]
+    pub fn env<'a>() -> &'a str {
+        Self::from_static().env.as_str()
     }
 
     #[inline]
     pub fn is_test() -> bool {
-        ENV.with(|e| e.is_test)
+        Self::from_static().is_test
     }
 
     #[inline]
     pub fn is_prod() -> bool {
-        ENV.with(|e| e.is_prod)
+        Self::from_static().is_prod
     }
 
     #[inline]
     pub fn is_dev() -> bool {
-        ENV.with(|e| e.is_dev)
+        Self::from_static().is_dev
     }
 
     #[inline]
     pub fn is_debug() -> bool {
-        ENV.with(|e| e.is_debug)
+        Self::from_static().is_debug
     }
 
     #[inline]
     pub fn is_release() -> bool {
-        ENV.with(|e| e.is_release)
+        Self::from_static().is_release
     }
 }
