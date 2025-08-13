@@ -31,37 +31,54 @@ pub trait LoadEnv {
     fn load_env(&mut self) -> Void;
 }
 
-pub struct Env;
+thread_local! {
+    static ENV: Env = Env::default();
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Env {
+    pub is_test: bool,
+    pub is_prod: bool,
+    pub is_dev: bool,
+    pub is_debug: bool,
+    pub is_release: bool
+}
+
+impl Default for Env {
+    fn default() -> Self {
+        Self {
+            is_test: cfg!(test) || getenv("APP_ENV").map(|v| &v == "test").unwrap_or_default(),
+            is_prod: getenv("APP_ENV").map(|v| &v == "prod").unwrap_or_default(),
+            is_dev: getenv("APP_ENV").map(|v| &v != "prod").unwrap_or_default(),
+            is_debug: getenv("APP_DEBUG").map(|v| &v == "1").unwrap_or_default(),
+            is_release: cfg!(debug_assertions) == false
+        }
+    }
+}
 
 impl Env {
     #[inline]
     pub fn is_test() -> bool {
-        #[cfg(feature = "std")]
-        return cfg!(test) || std::env::var("APP_ENV").unwrap_or_default() == "test";
-        #[cfg(not(feature = "std"))]
-        return cfg!(test);
+        ENV.with(|e| e.is_test)
     }
 
     #[inline]
     pub fn is_prod() -> bool {
-        #[cfg(feature = "std")]
-        return Self::is_release() || std::env::var("APP_ENV").unwrap_or_default() == "prod";
-        #[cfg(not(feature = "std"))]
-        return Self::is_release();
+        ENV.with(|e| e.is_prod)
     }
 
     #[inline]
     pub fn is_dev() -> bool {
-        Self::is_prod() == false
+        ENV.with(|e| e.is_dev)
     }
 
     #[inline]
     pub fn is_debug() -> bool {
-        cfg!(debug_assertions) == true
+        ENV.with(|e| e.is_debug)
     }
 
     #[inline]
     pub fn is_release() -> bool {
-        cfg!(debug_assertions) == false
+        ENV.with(|e| e.is_release)
     }
 }

@@ -10,6 +10,8 @@ pub struct BaseConfig {
     pub language: String,
     pub timezone: String,
     #[serde(skip)]
+    pub locales: IndexMap<String, Option<String>>,
+    #[serde(skip)]
     pub log: LogConfig
 }
 
@@ -18,6 +20,7 @@ impl Default for BaseConfig {
         Self {
             language: "en".into(),
             timezone: "UTC".into(),
+            locales: Default::default(),
             log: Default::default()
         }
     }

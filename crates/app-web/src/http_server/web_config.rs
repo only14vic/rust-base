@@ -1,5 +1,6 @@
 use {
     crate::{
+        HtmlRenderConfig,
         api::ApiConfig,
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
@@ -19,7 +20,8 @@ pub struct WebConfig {
     pub api: ApiConfig,
     pub jwt: JwtConfig,
     pub auth: AuthConfig,
-    pub firewall: FirewallConfig
+    pub firewall: FirewallConfig,
+    pub html_render: HtmlRenderConfig
 }
 
 impl WebConfig {
@@ -28,6 +30,7 @@ impl WebConfig {
             self.static_dir.insert(0, '/');
             self.static_dir.insert_str(0, &dirs.data);
         }
+        self.html_render.with_dirs(dirs);
         self
     }
 }
@@ -45,7 +48,8 @@ impl Default for WebConfig {
             api: Default::default(),
             jwt: Default::default(),
             auth: Default::default(),
-            firewall: Default::default()
+            firewall: Default::default(),
+            html_render: Default::default()
         }
     }
 }
@@ -69,6 +73,7 @@ impl LoadEnv for WebConfig {
         self.jwt.load_env()?;
         self.auth.load_env()?;
         self.firewall.load_env()?;
+        self.html_render.load_env()?;
         ok()
     }
 }
@@ -92,6 +97,7 @@ impl LoadArgs for WebConfig {
         self.jwt.load_args(args)?;
         self.auth.load_args(args)?;
         self.firewall.load_args(args)?;
+        self.html_render.load_args(args)?;
         ok()
     }
 }

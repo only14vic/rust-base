@@ -1,6 +1,6 @@
 use {
     crate::{
-        WebConfig,
+        HtmlRenderContext, WebConfig,
         ext::{CurrentUser, DbWeb, JwtToken}
     },
     actix_web::{
@@ -29,6 +29,12 @@ pub trait RequestExt {
     async fn current_user(&self) -> Result<CurrentUser, actix_web::Error>;
 
     async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
+
+    fn language(&self) -> Cow<'_, str>;
+
+    fn locale(&self) -> Cow<'_, str>;
+
+    async fn html_render_context(&self) -> Ok<HtmlRenderContext>;
 }
 
 impl RequestExt for HttpRequest {
@@ -54,6 +60,41 @@ impl RequestExt for HttpRequest {
 
     async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error> {
         JwtToken::from_request(self, &mut Payload::None).await
+    }
+
+    fn language(&self) -> Cow<'_, str> {
+        let config = self.base_config();
+        let default_lang = config.language.as_str();
+
+        if let Some(cookie_lang) = self.cookie("lang")
+            && config.locales.contains_key(cookie_lang.value())
+        {
+            return cookie_lang.value().to_owned().into();
+        }
+
+        if let Some(header) = self.headers().get(header::ACCEPT_LANGUAGE)
+            && header.as_ref().len() >= 2
+            && let Ok(header_lang) = str::from_utf8(&header.as_ref()[0..2])
+            && config.locales.contains_key(header_lang)
+        {
+            return header_lang.into();
+        }
+
+        default_lang.into()
+    }
+
+    fn locale(&self) -> Cow<'_, str> {
+        let config = self.base_config();
+        let language = self.language();
+
+        match config.locales.get(language.as_ref()) {
+            Some(Some(locale)) => locale.into(),
+            _ => format!("{}_{}", &language, &language.to_uppercase()).into()
+        }
+    }
+
+    async fn html_render_context(&self) -> Ok<HtmlRenderContext> {
+        Ok(HtmlRenderContext::from_request(self, &mut Payload::None).await?)
     }
 }
 

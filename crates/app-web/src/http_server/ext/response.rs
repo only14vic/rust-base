@@ -10,7 +10,7 @@ use {
 };
 
 #[derive(Debug)]
-pub struct ErrHttp(Err);
+pub struct ErrHttp(pub Err);
 
 pub type OkHttp = Result<HttpResponse, ErrHttp>;
 

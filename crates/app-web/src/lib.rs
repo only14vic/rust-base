@@ -1,3 +1,4 @@
 mod http_server;
+mod html_render;
 
-pub use http_server::*;
+pub use {html_render::*, http_server::*};

@@ -1,0 +1,119 @@
+use {
+    crate::http_server::ext::{RequestExt, RequestHeadExt},
+    actix_web::{
+        FromRequest, HttpMessage, HttpRequest, dev::Payload, error::ErrorInternalServerError, web
+    },
+    app_base::prelude::*,
+    serde::Serialize,
+    serde_json::{Value, json},
+    std::{borrow::Cow, cell::RefCell, future::Future, ops::Deref, pin::Pin, rc::Rc},
+    tera::Context as TeraContext
+};
+
+#[derive(Debug, Default, Clone)]
+pub struct HtmlRenderContext(Rc<RefCell<TeraContext>>);
+
+impl HtmlRenderContext {
+    pub fn add(&self, key: &str, value: &impl Serialize) {
+        self.0.borrow_mut().insert(key, &json!(value));
+    }
+}
+
+impl Deref for HtmlRenderContext {
+    type Target = RefCell<TeraContext>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromRequest for HtmlRenderContext {
+    type Error = actix_web::Error;
+    type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        if req.extensions().contains::<Self>() == false {
+            let context = Self::default();
+            let config = req.base_config();
+            let mut app = serde_json::to_value(config).unwrap();
+
+            app.as_object_mut().unwrap().extend([
+                ("language".into(), req.language().into()),
+                ("locale".into(), req.locale().into()),
+                ("is_mobile".into(), req.head().is_mobile().into()),
+                ("user".into(), ().into())
+            ]);
+
+            app.as_object_mut().unwrap().insert(
+                "env".into(),
+                Value::from_iter([("APP_DEBUG", Env::is_debug())])
+            );
+
+            app.as_object_mut().unwrap().insert(
+                "query".into(),
+                Value::from_iter(
+                    [
+                        web::Query::<Vec<(Cow<str>, Cow<str>)>>::from_query(req.query_string())
+                            .map(|data| data.into_inner())
+                            .unwrap_or_default(),
+                        req.match_info()
+                            .iter()
+                            .map(|(name, value)| (name.into(), value.into()))
+                            .collect()
+                    ]
+                    .concat()
+                )
+            );
+
+            app.as_object_mut().unwrap().insert(
+                "req".into(),
+                Value::from_iter([
+                    ("url", req.path()),
+                    (
+                        "path",
+                        req.match_pattern()
+                            .unwrap_or(req.path().to_string())
+                            .as_str()
+                    ),
+                    (
+                        "referer",
+                        req.headers()
+                            .get("referer")
+                            .map(|v| v.to_str().unwrap_or_default())
+                            .unwrap_or_default()
+                    )
+                ])
+            );
+
+            context.add("app", &app);
+            //context.add("recaptcha", &req.recaptcha());
+
+            req.extensions_mut().insert(context);
+        }
+
+        let req = req.clone();
+
+        Box::pin(async move {
+            Env::is_debug().then(|| log::trace!("URL: {}", req.path()));
+
+            if let Ok(user) = req.current_user().await
+                && let Some(context) = req.extensions_mut().get_mut::<Self>()
+            {
+                let mut app = context.borrow_mut().remove("app").unwrap();
+
+                app.as_object_mut()
+                    .unwrap()
+                    .insert("user".into(), json!(user));
+
+                context.borrow_mut().insert("app", &app);
+            }
+
+            req.extensions()
+                .get::<Self>()
+                .cloned()
+                .ok_or(ErrorInternalServerError(
+                    "HtmlRenderContext does not exists in request."
+                ))
+        })
+    }
+}

@@ -83,7 +83,7 @@ impl Args {
     }
 
     pub fn parse_args(&mut self, args: Vec<String>) -> Ok<&mut Self> {
-        log::trace!("Command line arguments: {args:?}");
+        Env::is_debug().then(|| log::trace!("Command line arguments: {args:?}"));
 
         let mut i = 0;
         let mut n = 0;

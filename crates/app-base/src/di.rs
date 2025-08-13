@@ -103,9 +103,9 @@ impl Di {
         core::mem::take(&mut self.container);
 
         if addr_eq(self, DI.load(Ordering::Relaxed)) {
-            log::trace!("Global Di cleared");
+            Env::is_debug().then(|| log::trace!("Global Di cleared"));
         } else {
-            log::trace!("Di cleared");
+            Env::is_debug().then(|| log::trace!("Di cleared"));
         }
     }
 }

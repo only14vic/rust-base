@@ -140,7 +140,8 @@ impl Logger {
         }
 
         log::set_max_level(self.config.level);
-        log::trace!("Configured: {:?}", self.config);
+
+        Env::is_debug().then(|| log::trace!("Configured: {:?}", self.config));
 
         ok()
     }
@@ -151,13 +152,15 @@ impl Logger {
         if let Some(file) = self.file.take() {
             unsafe { libc::fclose(Box::into_raw(file)) };
 
-            log::trace!(
-                "LOG FILE CLOSED: {}",
-                self.config
-                    .file
-                    .as_ref()
-                    .unwrap_or(&String::with_capacity(0))
-            );
+            Env::is_debug().then(|| {
+                log::trace!(
+                    "LOG FILE CLOSED: {}",
+                    self.config
+                        .file
+                        .as_ref()
+                        .unwrap_or(&String::with_capacity(0))
+                )
+            });
         }
     }
 

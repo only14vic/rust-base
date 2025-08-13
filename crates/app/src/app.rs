@@ -64,7 +64,7 @@ impl Drop for App {
             global_di.clear();
         }
 
-        log::trace!("App finished");
+        Env::is_debug().then(|| log::trace!("App finished"));
 
         if let Some(log) = log
             && let Some(log) = Arc::into_inner(log)
@@ -122,7 +122,7 @@ impl App {
         let log = global_di.get_mut::<&mut Logger>()?.unwrap();
         log.configure(&config.base.log)?;
 
-        log::trace!("Loaded: {config:#?}");
+        Env::is_debug().then(|| log::trace!("Loaded: {config:#?}"));
 
         self.trigger_event(AppEvent::APP_LOAD_CONFIG)?;
         self.trigger_event(AppEvent::APP_BOOT)?;
@@ -141,7 +141,7 @@ impl App {
     }
 
     fn trigger_event(&mut self, event: AppEvent) -> Void {
-        log::trace!("Triggering event: {event:#?}");
+        Env::is_debug().then(|| log::trace!("Triggering event: {event:#?}"));
 
         for module in self.modules.clone() {
             module(self, event)?;
@@ -163,14 +163,14 @@ impl App {
             .iter()
             .find_map(|(name, module)| name.eq(&command).then_some(module))
         {
-            log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN);
+            Env::is_debug().then(|| log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN));
             module(self, AppEvent::APP_RUN)
         } else if command == AppConfig::DEFAULT_COMMAND
             && self.commands.is_empty()
             && self.modules.len() == 1
             && let Some(module) = self.modules.first()
         {
-            log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN);
+            Env::is_debug().then(|| log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN));
             module(self, AppEvent::APP_RUN)
         } else {
             Err(format!("Invalid command '{command}'"))?

@@ -52,7 +52,7 @@ impl AppConfig {
         let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
         match Ini::from_file(&config_file) {
             Ok(ini) => {
-                log::trace!("Loading: {config_file}");
+                Env::is_debug().then(|| log::trace!("Loading: {config_file}"));
                 self.extend(&ini);
             },
             Err(e) => {
@@ -66,7 +66,7 @@ impl AppConfig {
         let user_config_file = format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
         match Ini::from_file(&user_config_file) {
             Ok(ini) => {
-                log::trace!("Loading: {user_config_file}");
+                Env::is_debug().then(|| log::trace!("Loading: {user_config_file}"));
                 self.extend(&ini);
             },
             Err(e) => {
@@ -238,7 +238,35 @@ impl AppConfig {
                 ("web.firewall.fails_period", &self.web.firewall.fails_period),
                 ("web.firewall.total_fails", &self.web.firewall.total_fails),
                 ("web.firewall.total_period", &self.web.firewall.total_period),
-                ("web.auth.modules", &self.web.auth.modules)
+                ("web.auth.modules", &self.web.auth.modules),
+                (
+                    "web.html_render.assets_dir", &self.web.html_render.assets_dir
+                ),
+                (
+                    "web.html_render.public_dir", &self.web.html_render.public_dir
+                ),
+                ("web.html_render.pages_dir", &self.web.html_render.pages_dir),
+                (
+                    "web.html_render.index_file", &self.web.html_render.index_file
+                ),
+                (
+                    "web.html_render.files_glob", &self.web.html_render.files_glob
+                ),
+                (
+                    "web.html_render.default_module", &self.web.html_render.default_module
+                ),
+                (
+                    "web.html_render.modules",
+                    Box::leak(Box::new(
+                        self.web
+                            .html_render
+                            .modules
+                            .iter()
+                            .map(|(n, m)| format!("{n}={}", m.as_ref().unwrap_or(&"".into())))
+                            .collect::<Vec<_>>()
+                            .join("\n")
+                    ))
+                )
             ],
             #[cfg(feature = "db")]
             &[

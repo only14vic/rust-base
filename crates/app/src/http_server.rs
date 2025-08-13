@@ -31,7 +31,8 @@ impl HttpServer {
             .with_db()
             .with_multipart()
             .with_cache()
-            .with_static_files();
+            .with_static_files()
+            .with_html_render();
         this
     }
 
@@ -130,5 +131,9 @@ impl HttpServer {
                 &cfg.config.web.static_path, &cfg.config.web.static_dir
             ));
         })
+    }
+
+    fn with_html_render(&mut self) -> &mut Self {
+        self
     }
 }
