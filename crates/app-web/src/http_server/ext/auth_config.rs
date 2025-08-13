@@ -1,4 +1,11 @@
-use app_base::prelude::*;
+use {
+    app_base::prelude::*,
+    core::{
+        fmt::Display,
+        ops::{Deref, DerefMut}
+    },
+    std::collections::HashMap
+};
 
 #[derive(Debug, Default, Clone, ExtendFromIter)]
 pub struct AuthModuleConfig {
@@ -8,21 +15,59 @@ pub struct AuthModuleConfig {
     pub roles: Vec<String>
 }
 
-#[derive(Debug, Default, ExtendFromIter)]
+#[derive(Debug, Default)]
 pub struct AuthModules {
-    pub profile: AuthModuleConfig,
-    pub admin: AuthModuleConfig,
-    pub admin_users: AuthModuleConfig
+    modules: HashMap<String, AuthModuleConfig>
 }
 
-impl AuthModules {
-    pub fn iter(&self) -> impl Iterator<Item = (&'static str, AuthModuleConfig)> + use<> {
-        [
-            ("profile", self.profile.clone()),
-            ("admin", self.admin.clone()),
-            ("admin_users", self.admin_users.clone())
-        ]
-        .into_iter()
+impl Display for AuthModules {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut buf = String::new();
+        for (name, module) in self.iter() {
+            buf.push_str(&format!(
+                "{name}.url={url}
+{name}.login={login}
+{name}.skip={skip}
+{name}.roles={roles}\n",
+                url = &module.url,
+                login = &module.login.as_ref().unwrap_or(&"".into()),
+                skip = &module.skip.join(","),
+                roles = &module.roles.join(",")
+            ));
+        }
+        write!(f, "{}", buf.trim_end())
+    }
+}
+
+impl Deref for AuthModules {
+    type Target = HashMap<String, AuthModuleConfig>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.modules
+    }
+}
+
+impl DerefMut for AuthModules {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.modules
+    }
+}
+
+impl<'a> Extend<(&'a str, Option<&'a str>)> for AuthModules {
+    fn extend<T: IntoIterator<Item = (&'a str, Option<&'a str>)>>(&mut self, iter: T) {
+        let mut map = HashMap::<&str, HashMap<&str, Option<&str>>>::new();
+        for (str, value) in iter.into_iter() {
+            if let Some((module, param)) = str.split_once(".") {
+                if map.contains_key(module) == false {
+                    map.insert(module, HashMap::default());
+                }
+                map.get_mut(module).unwrap().insert(param, value);
+            }
+        }
+        for (name, params) in map {
+            self.modules
+                .insert(name.to_string(), AuthModuleConfig::from_iter(params));
+        }
     }
 }
 

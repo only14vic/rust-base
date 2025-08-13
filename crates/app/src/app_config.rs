@@ -236,7 +236,8 @@ impl AppConfig {
                 ("web.firewall.fails_user", &self.web.firewall.fails_user),
                 ("web.firewall.fails_period", &self.web.firewall.fails_period),
                 ("web.firewall.total_fails", &self.web.firewall.total_fails),
-                ("web.firewall.total_period", &self.web.firewall.total_period)
+                ("web.firewall.total_period", &self.web.firewall.total_period),
+                ("web.auth.modules", &self.web.auth.modules)
             ],
             #[cfg(feature = "db")]
             &[

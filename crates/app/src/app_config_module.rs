@@ -46,7 +46,15 @@ Options:
 fn show_config(app: &App) -> Void {
     let config = app.config();
     for (k, v) in config.iter() {
-        println!("{k}={v}");
+        if k.is_empty() {
+            println!("{v}");
+        } else if v.contains("\n") {
+            v.split_terminator('\n').for_each(|v| {
+                println!("{k}.{v}");
+            });
+        } else {
+            println!("{k}={v}");
+        }
     }
     ok()
 }
