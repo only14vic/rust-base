@@ -31,16 +31,16 @@ impl Default for LogConfig {
     }
 }
 
-impl LogConfig {
-    pub fn with_log_dir(&mut self, dir: &str) -> &mut Self {
-        if dir.is_empty() == false
+impl LoadDirs for LogConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+        if dirs.log.is_empty() == false
             && let Some(file) = self.file.as_mut()
             && file.starts_with("/") == false
         {
             file.insert(0, '/');
-            file.insert_str(0, dir.trim_end_matches('/'));
+            file.insert_str(0, dirs.log.trim_end_matches('/'));
         }
-        self
+        ok()
     }
 }
 

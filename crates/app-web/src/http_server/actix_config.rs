@@ -12,16 +12,6 @@ pub struct ActixConfig {
     pub blocking_threads_per_worker: u16
 }
 
-impl ActixConfig {
-    pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
-        if dirs.run.is_empty() == false && self.socket.starts_with("/") == false {
-            self.socket.insert(0, '/');
-            self.socket.insert_str(0, &dirs.run);
-        }
-        self
-    }
-}
-
 impl Default for ActixConfig {
     fn default() -> Self {
         Self {
@@ -31,6 +21,16 @@ impl Default for ActixConfig {
             threads: 4,
             blocking_threads_per_worker: 4
         }
+    }
+}
+
+impl LoadDirs for ActixConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+        if dirs.run.is_empty() == false && self.socket.starts_with("/") == false {
+            self.socket.insert(0, '/');
+            self.socket.insert_str(0, &dirs.run);
+        }
+        ok()
     }
 }
 

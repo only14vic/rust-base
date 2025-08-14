@@ -20,7 +20,7 @@ use {
 pub struct AppConfig {
     pub options: AppOptions,
     pub base: Arc<BaseConfig>,
-    pub dirs: Dirs,
+    pub dirs: Arc<Dirs>,
     #[cfg(feature = "std")]
     pub tokio: TokioConfig,
     #[cfg(feature = "std")]
@@ -83,15 +83,8 @@ impl AppConfig {
             self.load_args(args)?;
         }
 
-        self.dirs.init();
-        Self::try_mut(&mut self.base)?
-            .log
-            .with_log_dir(&self.dirs.log);
-
-        #[cfg(feature = "std")]
-        Self::try_mut(&mut self.actix)?.with_dirs(&self.dirs);
-        #[cfg(feature = "std")]
-        Self::try_mut(&mut self.web)?.with_dirs(&self.dirs);
+        Self::try_mut(&mut self.dirs)?.init();
+        self.load_dirs(&self.dirs.clone())?;
 
         Ok(self)
     }
@@ -288,11 +281,29 @@ impl AppConfig {
     }
 }
 
+impl LoadDirs for AppConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+        let list = [
+            &mut Self::try_mut(&mut self.base)?.log as &mut dyn LoadDirs,
+            #[cfg(feature = "std")]
+            Self::try_mut(&mut self.actix)?,
+            #[cfg(feature = "std")]
+            Self::try_mut(&mut self.web)?
+        ];
+
+        for config in list {
+            config.load_dirs(dirs)?;
+        }
+
+        ok()
+    }
+}
+
 impl LoadEnv for AppConfig {
     fn load_env(&mut self) -> Void {
         let list = [
             Self::try_mut(&mut self.base)? as &mut dyn LoadEnv,
-            &mut self.dirs,
+            Self::try_mut(&mut self.dirs)?,
             #[cfg(feature = "std")]
             &mut self.tokio,
             #[cfg(feature = "std")]
@@ -315,7 +326,7 @@ impl LoadArgs for AppConfig {
     fn load_args(&mut self, args: &Args) -> Void {
         let list = [
             Self::try_mut(&mut self.base)? as &mut dyn LoadArgs,
-            &mut self.dirs,
+            Self::try_mut(&mut self.dirs)?,
             #[cfg(feature = "std")]
             &mut self.tokio,
             #[cfg(feature = "std")]

@@ -29,8 +29,8 @@ impl Default for HtmlRenderConfig {
     }
 }
 
-impl HtmlRenderConfig {
-    pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
+impl LoadDirs for HtmlRenderConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
         if dirs.data.is_empty() == false && self.assets_dir.starts_with("/") == false {
             self.assets_dir.insert(0, '/');
             self.assets_dir.insert_str(0, &dirs.data);
@@ -39,7 +39,7 @@ impl HtmlRenderConfig {
             self.public_dir.insert(0, '/');
             self.public_dir.insert_str(0, &dirs.data);
         }
-        self
+        ok()
     }
 }
 

@@ -24,17 +24,6 @@ pub struct WebConfig {
     pub html_render: HtmlRenderConfig
 }
 
-impl WebConfig {
-    pub fn with_dirs(&mut self, dirs: &Dirs) -> &mut Self {
-        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
-            self.static_dir.insert(0, '/');
-            self.static_dir.insert_str(0, &dirs.data);
-        }
-        self.html_render.with_dirs(dirs);
-        self
-    }
-}
-
 impl Default for WebConfig {
     fn default() -> Self {
         Self {
@@ -51,6 +40,17 @@ impl Default for WebConfig {
             firewall: Default::default(),
             html_render: Default::default()
         }
+    }
+}
+
+impl LoadDirs for WebConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
+            self.static_dir.insert(0, '/');
+            self.static_dir.insert_str(0, &dirs.data);
+        }
+        self.html_render.load_dirs(dirs)?;
+        ok()
     }
 }
 
