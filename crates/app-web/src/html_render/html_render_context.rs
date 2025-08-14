@@ -35,10 +35,11 @@ impl FromRequest for HtmlRenderContext {
         if req.extensions().contains::<Self>() == false {
             let context = Self::default();
             let config = req.base_config();
-            let mut app = serde_json::to_value(config).unwrap();
+            let mut app = Value::Object(Default::default());
             app.as_object_mut().unwrap().extend([
                 ("language".into(), req.language().into()),
                 ("locale".into(), req.locale().into()),
+                ("timezone".into(), config.timezone.as_str().into()),
                 ("is_mobile".into(), req.head().is_mobile().into()),
                 ("user".into(), ().into())
             ]);
