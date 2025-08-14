@@ -40,7 +40,7 @@ pub trait LoadEnv {
 
 static ENV: AtomicPtr<Env> = AtomicPtr::new(null_mut());
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Env {
     pub is_test: bool,
     pub is_prod: bool,
@@ -65,7 +65,7 @@ impl Default for Env {
 
 impl Env {
     #[inline]
-    fn from_static() -> &'static Self {
+    pub fn from_static() -> &'static Self {
         let mut env = ENV.load(Ordering::Acquire);
 
         if env.is_null() {
