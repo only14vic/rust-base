@@ -22,7 +22,15 @@ harness = false
 
 [features]
 default = ["std"]
-std = ["app-macros/std", "dep:memory-stats", "base64/std", "md5/std"]
+std = [
+  "app-macros/std",
+  "dep:memory-stats",
+  "dep:criterion",
+  "base64/std",
+  "md5/std",
+  "serde/std",
+  "serde_json/std",
+]
 
 [build-dependencies]
 cc = { workspace = true }
@@ -48,6 +56,7 @@ trim-in-place = { workspace = true }
 md5 = { workspace = true }
 heck = { workspace = true }
 any_ascii = { workspace = true }
+# required "std" lib
+criterion = { workspace = true, optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.6.0", features = ["async_tokio"] }

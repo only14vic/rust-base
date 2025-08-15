@@ -4,19 +4,19 @@ use {
 };
 
 fn arc_clone(c: &mut Criterion) {
-    let x = Arc::new(String::from("test"));
+    let arc = Arc::new(String::from("test"));
     c.bench_function("Arc::clone()", |b| {
         b.iter(|| {
-            let _ = x.clone();
+            let _ = arc.clone();
         })
     });
 }
 
 fn rc_clone(c: &mut Criterion) {
-    let x = Rc::new(String::from("test"));
+    let rc = Rc::new(String::from("test"));
     c.bench_function("Rc::clone()", |b| {
         b.iter(|| {
-            let _ = x.clone();
+            let _ = rc.clone();
         })
     });
 }

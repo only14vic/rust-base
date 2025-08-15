@@ -182,7 +182,7 @@ _git-post-commit:
 	git diff-index --quiet --cached HEAD -- || git commit --amend --no-verify
 	git status -s
 
-_git-pre-push: check
+_git-pre-push: tests
 	echo "Git status check:"
 	git status -s
 	test "$$(git status -s|wc -l)" = "0"
