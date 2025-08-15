@@ -594,6 +594,7 @@ dependencies = [
  "bindgen",
  "cbindgen",
  "cc",
+ "criterion",
  "dotenv",
  "heck 0.5.0",
  "indexmap",

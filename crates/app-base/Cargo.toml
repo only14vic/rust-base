@@ -15,6 +15,11 @@ crate-type = ["lib"]
 name = "app-base-example1"
 path = "examples/app-base-example1.rs"
 
+[[bench]]
+name = "bench_stdlib"
+path = "benches/bench_stdlib.rs"
+harness = false
+
 [features]
 default = ["std"]
 std = ["app-macros/std", "dep:memory-stats", "base64/std", "md5/std"]
@@ -45,3 +50,4 @@ heck = { workspace = true }
 any_ascii = { workspace = true }
 
 [dev-dependencies]
+criterion = { version = "0.6.0", features = ["async_tokio"] }
