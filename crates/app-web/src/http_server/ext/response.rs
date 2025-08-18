@@ -14,16 +14,9 @@ pub struct ErrHttp(pub Err);
 
 pub type OkHttp = Result<HttpResponse, ErrHttp>;
 
-impl<E: Into<Box<dyn Error>>> From<E> for ErrHttp {
-    #[inline(always)]
-    fn from(value: E) -> Self {
-        Self(Err::new(value.into()))
-    }
-}
-
-impl Into<Err> for ErrHttp {
-    fn into(self) -> Err {
-        self.0
+impl Error for Box<ErrHttp> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        Some(self.0.deref())
     }
 }
 
@@ -38,6 +31,13 @@ impl Deref for ErrHttp {
 impl Display for ErrHttp {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl<E: Into<Box<dyn Error>>> From<E> for ErrHttp {
+    #[inline(always)]
+    fn from(value: E) -> Self {
+        ErrHttp(Err::new(value.into()))
     }
 }
 

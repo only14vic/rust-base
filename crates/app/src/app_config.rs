@@ -141,7 +141,7 @@ impl AppConfig {
         )
     }
 
-    /// Creates iterator of string options
+    /// Creates a string option iterator.
     ///
     /// May cause a memory leak!
     pub fn iter(&self) -> impl Iterator<Item = (&str, String)> {

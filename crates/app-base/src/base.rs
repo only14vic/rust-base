@@ -18,7 +18,7 @@ pub type IndexMap<K, V, S = BuildHasherDefault<AHasher>> = indexmap::IndexMap<K,
 pub type IndexSet<V, S = BuildHasherDefault<AHasher>> = indexmap::IndexSet<V, S>;
 
 #[derive(PartialEq, Eq)]
-pub struct ErrBox<E: ?Sized>(Box<E>);
+pub struct ErrBox<E: ?Sized>(pub Box<E>);
 
 pub type Err = ErrBox<dyn Error>;
 pub type ErrAsync = ErrBox<dyn Error + Send + Sync>;
@@ -97,28 +97,6 @@ impl Display for Err {
 impl Display for ErrAsync {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0.as_ref())
-    }
-}
-
-impl Error for &'static Err {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(self)
-    }
-}
-impl Error for &'static ErrAsync {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(self)
-    }
-}
-
-impl AsRef<Box<dyn Error>> for Err {
-    fn as_ref(&self) -> &Box<dyn Error> {
-        &self.0
-    }
-}
-impl AsRef<Box<dyn Error + Send + Sync>> for ErrAsync {
-    fn as_ref(&self) -> &Box<dyn Error + Send + Sync> {
-        &self.0
     }
 }
 
