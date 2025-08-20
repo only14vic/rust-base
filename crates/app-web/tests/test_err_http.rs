@@ -24,5 +24,7 @@ fn test_err_http() {
         Ok(HttpResponse::Ok().finish())
     })();
 
-    assert!(matches!(res.unwrap_err(), ErrHttp(ErrBox(Box { .. }))));
+    dbg!(&res);
+
+    assert!(matches!(res.unwrap_err(), ErrHttp(Box { .. })));
 }

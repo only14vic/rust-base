@@ -1,6 +1,5 @@
 use {
     actix_web::{HttpResponse, ResponseError, body::BoxBody, http::StatusCode},
-    app_base::prelude::*,
     core::ops::Deref,
     std::{
         error::Error,
@@ -10,7 +9,7 @@ use {
 };
 
 #[derive(Debug)]
-pub struct ErrHttp(pub Err);
+pub struct ErrHttp(pub Box<dyn Error>);
 
 pub type OkHttp = Result<HttpResponse, ErrHttp>;
 
@@ -21,10 +20,10 @@ impl Error for Box<ErrHttp> {
 }
 
 impl Deref for ErrHttp {
-    type Target = Err;
+    type Target = dyn Error;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        self.0.deref()
     }
 }
 
@@ -37,7 +36,7 @@ impl Display for ErrHttp {
 impl<E: Into<Box<dyn Error>>> From<E> for ErrHttp {
     #[inline(always)]
     fn from(value: E) -> Self {
-        ErrHttp(Err::new(value.into()))
+        ErrHttp(value.into())
     }
 }
 
