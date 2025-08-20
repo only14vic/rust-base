@@ -21,7 +21,12 @@ impl ErrHttp {
             Err(err) => {
                 match err.downcast::<Box<Err>>() {
                     Ok(err) => ErrHttp::new(err.0),
-                    Err(err) => ErrHttp(err)
+                    Err(err) => {
+                        match err.downcast::<Box<ErrAsync>>() {
+                            Ok(err) => ErrHttp::new(err.0),
+                            Err(err) => ErrHttp(err)
+                        }
+                    },
                 }
             },
         }

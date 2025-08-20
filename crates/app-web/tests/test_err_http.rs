@@ -10,8 +10,8 @@ fn test_err_http() {
     let err = (|| -> OkHttp {
         (|| -> Void {
             (|| -> OkHttp {
-                (|| -> Void {
-                    Err("Foo")?;
+                (|| -> VoidAsync {
+                    Err(std::io::Error::other("Foo"))?;
                     ok()
                 })()
                 .map_err(Box::new)?;
@@ -28,5 +28,7 @@ fn test_err_http() {
     dbg!(&err);
 
     assert!(err.downcast_ref::<Box<Err>>().is_none());
+    assert!(err.downcast_ref::<Box<ErrAsync>>().is_none());
     assert!(err.downcast_ref::<Box<ErrHttp>>().is_none());
+    assert!(err.downcast_ref::<std::io::Error>().is_some());
 }
