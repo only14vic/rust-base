@@ -7,7 +7,7 @@ use {
 #[test]
 #[allow(unused_must_use)]
 fn test_err_http() {
-    let res = (|| -> OkHttp {
+    let err = (|| -> OkHttp {
         (|| -> Void {
             (|| -> OkHttp {
                 (|| -> Void {
@@ -22,9 +22,11 @@ fn test_err_http() {
         })()
         .map_err(Box::new)?;
         Ok(HttpResponse::Ok().finish())
-    })();
+    })()
+    .unwrap_err();
 
-    dbg!(&res);
+    dbg!(&err);
 
-    assert!(matches!(res.unwrap_err(), ErrHttp(Box { .. })));
+    assert!(err.downcast_ref::<Box<Err>>().is_none());
+    assert!(err.downcast_ref::<Box<ErrHttp>>().is_none());
 }

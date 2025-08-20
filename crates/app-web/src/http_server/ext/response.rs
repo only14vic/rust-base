@@ -1,5 +1,6 @@
 use {
     actix_web::{HttpResponse, ResponseError, body::BoxBody, http::StatusCode},
+    app_base::prelude::*,
     core::ops::Deref,
     std::{
         error::Error,
@@ -12,6 +13,20 @@ use {
 pub struct ErrHttp(pub Box<dyn Error>);
 
 pub type OkHttp = Result<HttpResponse, ErrHttp>;
+
+impl ErrHttp {
+    pub fn new(error: Box<dyn Error>) -> Self {
+        match error.downcast::<Box<Err>>() {
+            Ok(err) => {
+                match err.0.downcast::<Box<ErrHttp>>() {
+                    Ok(err) => **err,
+                    Err(err) => ErrHttp(err)
+                }
+            },
+            Err(err) => ErrHttp(err)
+        }
+    }
+}
 
 impl Error for Box<ErrHttp> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
@@ -36,7 +51,7 @@ impl Display for ErrHttp {
 impl<E: Into<Box<dyn Error>>> From<E> for ErrHttp {
     #[inline(always)]
     fn from(value: E) -> Self {
-        ErrHttp(value.into())
+        Self::new(value.into())
     }
 }
 

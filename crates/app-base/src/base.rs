@@ -32,13 +32,29 @@ impl<E: ?Sized> ErrBox<E> {
 impl Err {
     #[inline(always)]
     pub fn new(error: Box<dyn Error>) -> Self {
-        Self(error)
+        match error.downcast::<Box<Err>>() {
+            Ok(err) => **err,
+            Err(err) => {
+                match err.downcast::<Box<ErrAsync>>() {
+                    Ok(err) => Self::from(**err),
+                    Err(err) => Self(err)
+                }
+            },
+        }
     }
 }
 impl ErrAsync {
     #[inline(always)]
     pub fn new(error: Box<dyn Error + Send + Sync>) -> Self {
-        Self(error)
+        match error.downcast::<Box<ErrAsync>>() {
+            Ok(err) => **err,
+            Err(err) => {
+                match err.downcast::<Box<Err>>() {
+                    Ok(err) => Self::from(**err),
+                    Err(err) => Self(err)
+                }
+            },
+        }
     }
 }
 
