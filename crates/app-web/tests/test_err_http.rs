@@ -1,34 +1,39 @@
 use {
-    actix_web::HttpResponse,
     app_base::prelude::*,
     app_web::ext::{ErrHttp, OkHttp}
 };
 
 #[test]
-#[allow(unused_must_use)]
 fn test_err_http() {
     let err = (|| -> OkHttp {
         (|| -> Void {
             (|| -> OkHttp {
                 (|| -> VoidAsync {
                     Err(std::io::Error::other("Foo"))?;
-                    ok()
+                    unreachable!();
                 })()
                 .map_err(Box::new)?;
-                Ok(HttpResponse::Ok().finish())
+                unreachable!();
             })()
             .map_err(Box::new)?;
-            ok()
+            unreachable!();
         })()
         .map_err(Box::new)?;
-        Ok(HttpResponse::Ok().finish())
+        unreachable!();
     })()
     .unwrap_err();
 
     dbg!(&err);
-
     assert!(err.downcast_ref::<Box<Err>>().is_none());
     assert!(err.downcast_ref::<Box<ErrAsync>>().is_none());
     assert!(err.downcast_ref::<Box<ErrHttp>>().is_none());
+    assert!(err.downcast_ref::<std::io::Error>().is_some());
+
+    let err = Err::from(Box::new(err));
+    dbg!(&err);
+    assert!(err.downcast_ref::<Box<ErrHttp>>().is_some());
+
+    let err = ErrHttp::from(Box::new(err));
+    dbg!(&err);
     assert!(err.downcast_ref::<std::io::Error>().is_some());
 }
