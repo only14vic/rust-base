@@ -16,14 +16,14 @@ pub type OkHttp = Result<HttpResponse, ErrHttp>;
 
 impl ErrHttp {
     pub fn new(error: Box<dyn Error>) -> Self {
-        match error.downcast::<Box<Err>>() {
-            Ok(err) => {
-                match err.0.downcast::<Box<ErrHttp>>() {
-                    Ok(err) => **err,
+        match error.downcast::<Box<ErrHttp>>() {
+            Ok(err) => **err,
+            Err(err) => {
+                match err.downcast::<Box<Err>>() {
+                    Ok(err) => ErrHttp::new(err.0),
                     Err(err) => ErrHttp(err)
                 }
             },
-            Err(err) => ErrHttp(err)
         }
     }
 }
