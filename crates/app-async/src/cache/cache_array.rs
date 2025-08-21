@@ -66,7 +66,7 @@ impl Cacher<ArrayCache> {
                     if let Ok(num) = cacher.remove_expired().await
                         && num > 0
                     {
-                        log::trace!("Removed expired cache items: {num}");
+                        Env::is_debug().then(|| log::trace!("Removed expired cache items: {num}"));
                     }
                 }
             });
