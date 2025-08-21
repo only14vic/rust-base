@@ -34,12 +34,19 @@ impl FromRequest for HtmlRenderContext {
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         if req.extensions().contains::<Self>() == false {
             let context = Self::default();
-            let config = req.base_config();
+            let base_config = req.base_config();
+            let web_config = req.web_config();
             let mut app = Value::Object(Default::default());
+
             app.as_object_mut().unwrap().extend([
                 ("language".into(), req.language().into()),
                 ("locale".into(), req.locale().into()),
-                ("timezone".into(), config.timezone.as_str().into()),
+                ("timezone".into(), base_config.timezone.as_str().into()),
+                ("host".into(), web_config.host.as_str().into()),
+                ("hostname".into(), web_config.hostname.as_str().into()),
+                ("url".into(), web_config.url.as_str().into()),
+                ("static_path".into(), web_config.static_dir.as_str().into()),
+                ("url".into(), web_config.url.as_str().into()),
                 ("is_mobile".into(), req.head().is_mobile().into()),
                 ("user".into(), ().into())
             ]);
