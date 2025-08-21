@@ -84,7 +84,7 @@ impl Env {
     }
 
     #[inline]
-    pub fn env<'a>() -> &'a str {
+    pub fn env() -> &'static str {
         Self::from_static().env.as_str()
     }
 
