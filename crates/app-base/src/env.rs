@@ -6,7 +6,7 @@ use {
     alloc::{boxed::Box, string::String},
     core::{
         ptr::null_mut,
-        sync::atomic::{AtomicPtr, Ordering}
+        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
     }
 };
 #[cfg(not(feature = "std"))]
@@ -39,6 +39,7 @@ pub trait LoadEnv {
 }
 
 static ENV: AtomicPtr<Env> = AtomicPtr::new(null_mut());
+static LOCK: AtomicBool = AtomicBool::new(false);
 
 #[derive(Debug, Clone)]
 pub struct Env {
@@ -69,12 +70,16 @@ impl Env {
         let mut env = ENV.load(Ordering::Acquire);
 
         if env.is_null() {
-            env = Box::leak(Box::new(Self::default()));
-            if let Err(prev) =
-                ENV.compare_exchange(null_mut(), env, Ordering::SeqCst, Ordering::Relaxed)
-            {
-                drop(unsafe { Box::from_raw(env) });
-                env = prev;
+            if LOCK.swap(true, Ordering::SeqCst) == false {
+                env = Box::leak(Box::new(Self::default()));
+                ENV.store(env, Ordering::Release);
+            } else {
+                loop {
+                    env = ENV.load(Ordering::Acquire);
+                    if env.is_null() == false {
+                        break;
+                    }
+                }
             }
         }
 
