@@ -45,6 +45,7 @@ impl FromRequest for HtmlRenderContext {
                 ("host".into(), web_config.host.as_str().into()),
                 ("hostname".into(), web_config.hostname.as_str().into()),
                 ("base_url".into(), web_config.base_url.as_str().into()),
+                ("api_url".into(), web_config.api.url.as_str().into()),
                 ("static_path".into(), web_config.static_path.as_str().into()),
                 ("url".into(), web_config.base_url.as_str().into()),
                 ("is_mobile".into(), req.head().is_mobile().into()),
