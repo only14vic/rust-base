@@ -44,9 +44,9 @@ impl FromRequest for HtmlRenderContext {
                 ("timezone".into(), base_config.timezone.as_str().into()),
                 ("host".into(), web_config.host.as_str().into()),
                 ("hostname".into(), web_config.hostname.as_str().into()),
-                ("url".into(), web_config.url.as_str().into()),
+                ("base_url".into(), web_config.base_url.as_str().into()),
                 ("static_path".into(), web_config.static_path.as_str().into()),
-                ("url".into(), web_config.url.as_str().into()),
+                ("url".into(), web_config.base_url.as_str().into()),
                 ("is_mobile".into(), req.head().is_mobile().into()),
                 ("user".into(), ().into())
             ]);

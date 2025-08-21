@@ -12,7 +12,7 @@ use {
 pub struct WebConfig {
     pub host: String,
     pub hostname: String,
-    pub url: String,
+    pub base_url: String,
     pub trusted_hosts: Vec<String>,
     pub accept_hosts: Vec<String>,
     pub static_path: String,
@@ -29,7 +29,7 @@ impl Default for WebConfig {
         Self {
             host: "localhost:80".into(),
             hostname: "localhost".into(),
-            url: "http://localhost:80".into(),
+            base_url: "http://localhost:80".into(),
             trusted_hosts: vec!["localhost".into()],
             accept_hosts: vec!["localhost".into()],
             static_path: "/public".into(),
@@ -60,7 +60,7 @@ impl LoadEnv for WebConfig {
             [
                 ("host", getenv("WEB_HOST")),
                 ("hostname", getenv("WEB_HOSTNAME")),
-                ("url", getenv("WEB_URL")),
+                ("base_url", getenv("WEB_BASE_URL")),
                 ("trusted_hosts", getenv("WEB_TRUSTED_HOSTS")),
                 ("accept_hosts", getenv("WEB_ACCEPT_HOSTS")),
                 ("static_dir", getenv("WEB_STATIC_DIR")),
@@ -84,7 +84,7 @@ impl LoadArgs for WebConfig {
             [
                 ("host", args.get("web-host")),
                 ("hostname", args.get("web-hostname")),
-                ("url", args.get("web-url")),
+                ("base_url", args.get("web-base-url")),
                 ("trusted_hosts", args.get("web-trusted-hosts")),
                 ("accept_hosts", args.get("web-accept-hosts")),
                 ("static_dir", args.get("web-static-dir")),

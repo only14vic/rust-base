@@ -119,7 +119,7 @@ impl AppConfig {
             ("db-url", &[], None),
             ("web-host", &[], None),
             ("web-hostname", &[], None),
-            ("web-url", &[], None),
+            ("web-base-url", &[], None),
             ("web-static-dir", &[], None),
             ("web-static-path", &[], None)
         ])?;
@@ -203,7 +203,7 @@ impl AppConfig {
                 ),
                 ("web.host", &self.web.host),
                 ("web.hostname", &self.web.hostname),
-                ("web.url", &self.web.url),
+                ("web.base_url", &self.web.base_url),
                 (
                     "web.trusted_hosts",
                     Box::leak(Box::new(self.web.trusted_hosts.join(",")))
