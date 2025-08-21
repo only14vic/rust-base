@@ -4,11 +4,12 @@ use {
     core::{
         any::{Any, TypeId, type_name},
         ptr::{addr_eq, null_mut},
-        sync::atomic::{AtomicPtr, Ordering}
+        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
     }
 };
 
 static DI: AtomicPtr<Di> = AtomicPtr::new(null_mut());
+static LOCK: AtomicBool = AtomicBool::new(false);
 
 #[derive(Default)]
 pub struct Di {
@@ -28,12 +29,16 @@ impl Di {
         let mut di = DI.load(Ordering::Acquire);
 
         if di.is_null() {
-            di = Box::leak(Box::new(Self::default()));
-            if let Err(prev) =
-                DI.compare_exchange(null_mut(), di, Ordering::SeqCst, Ordering::Relaxed)
-            {
-                let _ = unsafe { Box::from_raw(di) };
-                di = prev;
+            if LOCK.swap(true, Ordering::SeqCst) == false {
+                di = Box::leak(Box::new(Self::default()));
+                DI.store(di, Ordering::Release);
+            } else {
+                loop {
+                    di = DI.load(Ordering::Acquire);
+                    if di.is_null() == false {
+                        break;
+                    }
+                }
             }
         }
 

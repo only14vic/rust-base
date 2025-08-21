@@ -44,6 +44,7 @@ impl Into<LevelFilter> for LogLevel {
 }
 
 static LOGGER: AtomicPtr<Logger> = AtomicPtr::new(null_mut());
+static LOCK: AtomicBool = AtomicBool::new(false);
 
 /// Initializes logging
 ///
@@ -104,21 +105,29 @@ impl Logger {
     pub fn init() -> Ok<&'static mut Self> {
         let mut logger_ptr = LOGGER.load(Ordering::Relaxed);
 
-        if logger_ptr.is_null() == false {
-            return Ok(unsafe { &mut *logger_ptr });
+        if logger_ptr.is_null() {
+            if LOCK.swap(true, Ordering::SeqCst) == false {
+                let mut logger = Box::new(Self::default());
+                logger_ptr = logger.as_mut() as *mut _;
+
+                let logger_ref: &'static mut Self = unsafe { &mut *logger_ptr };
+                log::set_logger(logger_ref).map_err(|e| e.to_string())?;
+
+                logger.load_env()?;
+                logger.configure(&logger_ref.config)?;
+
+                forget(logger);
+
+                LOGGER.store(logger_ptr, Ordering::Release);
+            } else {
+                loop {
+                    logger_ptr = LOGGER.load(Ordering::Acquire);
+                    if logger_ptr.is_null() == false {
+                        break;
+                    }
+                }
+            }
         }
-
-        let mut logger = Box::new(Self::default());
-        logger_ptr = logger.as_mut() as *mut _;
-        LOGGER.store(logger_ptr, Ordering::SeqCst);
-
-        let logger_ref: &'static mut Self = unsafe { &mut *logger_ptr };
-
-        log::set_logger(logger_ref).map_err(|e| e.to_string())?;
-
-        logger.load_env()?;
-        logger.configure(&logger_ref.config)?;
-        forget(logger);
 
         Ok(unsafe { &mut *logger_ptr })
     }
