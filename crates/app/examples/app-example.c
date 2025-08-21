@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-size_t module_handler(App *app, AppEvent event);
+size_t main_module(App *app, AppEvent event);
 
 int main(int argc, const char *argv[]) {
-    size_t (*modules[])(App *, AppEvent) = {module_handler};
+    size_t (*modules[])(App *, AppEvent) = {main_module};
 
     App *app = app_new(modules, 1);
     app_boot(app, argc, argv);
@@ -19,7 +19,7 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-size_t module_handler(App *, AppEvent event) {
+size_t main_module(App *, AppEvent event) {
     char msg[100] = "";
     sprintf(msg, "Catched event: %d", event);
     log_msg(INFO, __FUNCTION__, msg);
