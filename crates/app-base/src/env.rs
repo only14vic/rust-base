@@ -1,6 +1,3 @@
-#[cfg(not(feature = "std"))]
-extern crate libc;
-
 use {
     crate::prelude::Void,
     alloc::{boxed::Box, string::String},
