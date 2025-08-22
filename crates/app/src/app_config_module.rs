@@ -1,11 +1,57 @@
-use {crate::*, alloc::format, app_base::prelude::*};
+use {
+    crate::*,
+    alloc::{format, string::String},
+    app_base::prelude::*,
+    core::ffi::c_uint
+};
 
 pub const MODULE_APP_CONFIG: AppModule = module_app_config;
+
+#[unsafe(no_mangle)]
+extern "C" fn module_app_config_c(app: *mut App, event: AppEvent) -> c_uint {
+    module_app_config(unsafe { &mut *app }, event)
+        .inspect_err(|e| panic!("{e}"))
+        .map(|_| 0)
+        .unwrap()
+}
 
 fn module_app_config(app: &mut App, event: AppEvent) -> Void {
     match event {
         AppEvent::APP_INIT => {
             app.register_command("config", MODULE_APP_CONFIG);
+            let args = app.get_mut::<Args>()?.unwrap();
+            args.with_opts([
+                ("log-level", &[][..], None),
+                ("log-color", &[], None),
+                ("log-file", &[], None),
+                ("log-filter", &[], None),
+                ("language", &[], None),
+                ("timezone", &[], None),
+                ("home-dir", &[], None),
+                ("config-dir", &[], None),
+                ("user-config-dir", &[], None),
+                ("log-dir", &[], None),
+                ("var-dir", &[], None),
+                ("run-dir", &[], None),
+                ("data-dir", &[], None),
+                ("cache-dir", &[], None),
+                ("state-dir", &[], None),
+                ("tmp-dir", &[], None),
+                ("tokio-threads", &[], None),
+                ("actix-socket", &[], None),
+                ("actix-listen", &[], None),
+                ("actix-port", &[], None),
+                ("actix-threads", &[], None),
+                ("db-url", &[], None),
+                ("web-host", &[], None),
+                ("web-hostname", &[], None),
+                ("web-base-url", &[], None),
+                ("web-static-dir", &[], None),
+                ("web-static-path", &[], None)
+            ])?;
+            if Some("config") == args.get("command").unwrap().as_ref().map(String::as_str) {
+                args.with_opts([("value", &["2"][..], None)])?;
+            }
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();

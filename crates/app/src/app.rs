@@ -6,7 +6,7 @@ use {
     alloc::{boxed::Box, format, sync::Arc, vec::Vec},
     app_base::prelude::*,
     core::{
-        ffi::{c_char, c_int, c_uint},
+        ffi::{CStr, c_char, c_int, c_uint},
         ops::{Deref, DerefMut}
     }
 };
@@ -25,7 +25,7 @@ pub struct App {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AppEvent {
     APP_INIT,
-    APP_LOAD_CONFIG,
+    APP_LOADED,
     APP_BOOT,
     APP_RUN,
     APP_END
@@ -102,12 +102,36 @@ impl App {
         let global_di = Di::from_static();
         global_di.set(Logger::init()?);
 
+        let mut args = Args::new([
+            ("exe", &["0"][..], None),
+            ("command", &["1"], Some(AppConfig::DEFAULT_COMMAND)),
+            ("help", &["-h"], None)
+        ])?;
+
+        //
+        // Preloading of command line arguments
+        //
+        args.with_undefined(ArgUndefined::Skip);
+        #[cfg(feature = "std")]
+        args.parse_args(std::env::args().collect())?;
+        #[cfg(not(feature = "std"))]
+        unsafe {
+            args.parse_argc(argc, argv)?
+        };
+        self.set(args);
         self.set(AppConfig::new());
-        self.set(AppConfig::args()?);
 
         self.trigger_event(AppEvent::APP_INIT)?;
 
+        //
+        // Full loading of command line arguments after initializing modules.
+        // Modules can add arguments depending on the command.
+        //
         let args = self.get_mut::<Args>()?.unwrap();
+        args.with_undefined(ArgUndefined::Error);
+        if Env::is_test() {
+            args.with_undefined(ArgUndefined::Skip);
+        }
         #[cfg(feature = "std")]
         args.parse_args(std::env::args().collect())?;
         #[cfg(not(feature = "std"))]
@@ -124,7 +148,7 @@ impl App {
 
         Env::is_debug().then(|| log::trace!("Loaded: {config:#?}"));
 
-        self.trigger_event(AppEvent::APP_LOAD_CONFIG)?;
+        self.trigger_event(AppEvent::APP_LOADED)?;
         self.trigger_event(AppEvent::APP_BOOT)?;
 
         Ok(self)
@@ -167,7 +191,6 @@ impl App {
             module(self, AppEvent::APP_RUN)
         } else if command == AppConfig::DEFAULT_COMMAND
             && self.commands.is_empty()
-            && self.modules.len() == 1
             && let Some(module) = self.modules.first()
         {
             Env::is_debug().then(|| log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN));
@@ -197,13 +220,13 @@ impl App {
     extern "C" fn app_new(modules: *mut AppModule, count: c_uint) -> *mut App {
         let modules = unsafe { Vec::from_raw_parts(modules, count as usize, count as usize) };
         let app = Self::new(modules);
-        Box::into_raw(app.into()).cast()
+        Box::into_raw(app.into())
     }
 
     #[unsafe(no_mangle)]
     #[allow(unused_variables)]
     extern "C" fn app_boot(app: *mut App, argc: c_int, argv: *const *const c_char) {
-        let app = unsafe { &mut *app.cast::<Self>() };
+        let app = unsafe { &mut *app };
 
         #[cfg(feature = "std")]
         let _ = app.boot().inspect_err(|e| panic!("{e}"));
@@ -214,7 +237,7 @@ impl App {
 
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut App) {
-        let app = unsafe { &mut *app.cast::<Self>() };
+        let app = unsafe { &mut *app };
         let _ = app.run().inspect_err(|e| {
             #[cfg(not(feature = "std"))]
             Di::from_static().set(unsafe { Box::from_raw(app) });
@@ -231,6 +254,20 @@ impl App {
 
     #[unsafe(no_mangle)]
     extern "C" fn app_free(app: *mut App) {
-        let _ = unsafe { Box::from_raw(app.cast::<Self>()) };
+        let _ = unsafe { Box::from_raw(app) };
+    }
+
+    #[unsafe(no_mangle)]
+    #[allow(improper_ctypes_definitions)]
+    unsafe extern "C" fn app_register_command(
+        app: *mut App,
+        command: *const c_char,
+        module: AppModule
+    ) {
+        unsafe {
+            let app = &mut *app;
+            let command = CStr::from_ptr(command).to_str().unwrap();
+            app.register_command(command, module);
+        }
     }
 }

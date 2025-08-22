@@ -89,48 +89,6 @@ impl AppConfig {
         Ok(self)
     }
 
-    pub fn args() -> Ok<Args> {
-        let mut args = Args::new([
-            ("exe", &["0"][..], None),
-            ("command", &["1"], Some(Self::DEFAULT_COMMAND)),
-            ("value", &["2"], None),
-            ("help", &["-h"], None),
-            ("log-level", &[], None),
-            ("log-color", &[], None),
-            ("log-file", &[], None),
-            ("log-filter", &[], None),
-            ("language", &[], None),
-            ("timezone", &[], None),
-            ("home-dir", &[], None),
-            ("config-dir", &[], None),
-            ("user-config-dir", &[], None),
-            ("log-dir", &[], None),
-            ("var-dir", &[], None),
-            ("run-dir", &[], None),
-            ("data-dir", &[], None),
-            ("cache-dir", &[], None),
-            ("state-dir", &[], None),
-            ("tmp-dir", &[], None),
-            ("tokio-threads", &[], None),
-            ("actix-socket", &[], None),
-            ("actix-listen", &[], None),
-            ("actix-port", &[], None),
-            ("actix-threads", &[], None),
-            ("db-url", &[], None),
-            ("web-host", &[], None),
-            ("web-hostname", &[], None),
-            ("web-base-url", &[], None),
-            ("web-static-dir", &[], None),
-            ("web-static-path", &[], None)
-        ])?;
-
-        if Env::is_test() {
-            args.allow_undefined(true);
-        }
-
-        Ok(args)
-    }
-
     pub fn try_mut<T>(value: &mut Arc<T>) -> Ok<&mut T> {
         Arc::get_mut(value).ok_or(
             format!(

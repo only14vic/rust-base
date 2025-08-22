@@ -8,7 +8,7 @@ use {
     core::{
         ffi::{CStr, c_char, c_int},
         ops::Deref,
-        str
+        str::{self, FromStr}
     }
 };
 
@@ -19,11 +19,32 @@ pub trait LoadArgs {
 type ArgsOpts = IndexMap<&'static str, &'static [&'static str]>;
 type ArgsMap = IndexMap<String, Option<String>>;
 
+#[derive(Debug, Default, PartialEq, Eq)]
+pub enum ArgUndefined {
+    Skip,
+    Allow,
+    #[default]
+    Error
+}
+
+impl FromStr for ArgUndefined {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().trim() {
+            "skip" => Ok(Self::Skip),
+            "allow" => Ok(Self::Allow),
+            "error" => Ok(Self::Error),
+            s => Err(format!("Invalid value '{s}' of type ArgUndefinedBehavior."))
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct Args {
     pub opts: ArgsOpts,
     pub args: ArgsMap,
-    pub allow_undefined: bool
+    pub undefined: ArgUndefined
 }
 
 impl Deref for Args {
@@ -43,8 +64,8 @@ impl Args {
         Ok(args)
     }
 
-    pub fn allow_undefined(&mut self, allow: bool) -> &mut Self {
-        self.allow_undefined = allow;
+    pub fn with_undefined(&mut self, behavior: ArgUndefined) -> &mut Self {
+        self.undefined = behavior;
         self
     }
 
@@ -83,7 +104,7 @@ impl Args {
     }
 
     pub fn parse_args(&mut self, args: Vec<String>) -> Ok<&mut Self> {
-        Env::is_debug().then(|| log::trace!("Command line arguments: {args:?}"));
+        Env::is_debug().then(|| log::trace!("Parsing command line arguments: {args:?}"));
 
         let mut i = 0;
         let mut n = 0;
@@ -136,6 +157,10 @@ impl Args {
             }
         }
 
+        if self.undefined == ArgUndefined::Skip {
+            self.args.shift_remove("");
+        }
+
         self.into_ok()
     }
 
@@ -149,10 +174,12 @@ impl Args {
             })
             .map(|(&n, _)| n.into_ok())
             .unwrap_or_else(|| {
-                if self.opts.is_empty() || arg == "0" || self.allow_undefined {
+                if self.opts.is_empty() || arg == "0" || self.undefined == ArgUndefined::Allow {
                     arg.into_ok()
+                } else if self.undefined == ArgUndefined::Skip {
+                    Ok(String::default())
                 } else {
-                    Err(format!("Undefined command line argument: {arg}"))
+                    Err(format!("Invalid command line argument: {arg}"))
                 }
             })
     }
