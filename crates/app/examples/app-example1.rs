@@ -23,6 +23,6 @@ fn main() -> Void {
 #[unsafe(no_mangle)]
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
     let mut app = App::new([]);
-    app.boot(argc, argv).inspect_err(|e| panic!("{e}")).unwrap();
+    app.boot(argc, argv).unwrap_or_else(|e| panic!("{e}"));
     libc::EXIT_SUCCESS
 }

@@ -10,9 +10,8 @@ pub const MODULE_APP_CONFIG: AppModule = module_app_config;
 #[unsafe(no_mangle)]
 extern "C" fn module_app_config_c(app: *mut App, event: AppEvent) -> c_uint {
     module_app_config(unsafe { &mut *app }, event)
-        .inspect_err(|e| panic!("{e}"))
         .map(|_| 0)
-        .unwrap()
+        .unwrap_or_else(|e| panic!("{e}"))
 }
 
 fn module_app_config(app: &mut App, event: AppEvent) -> Void {

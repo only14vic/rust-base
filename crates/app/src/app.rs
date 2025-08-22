@@ -250,16 +250,16 @@ impl App {
         let app = unsafe { &mut *app };
 
         #[cfg(feature = "std")]
-        let _ = app.boot().inspect_err(|e| panic!("{e}"));
+        let _ = app.boot().unwrap_or_else(|e| panic!("{e}"));
 
         #[cfg(not(feature = "std"))]
-        let _ = app.boot(argc, argv).inspect_err(|e| panic!("{e}"));
+        let _ = app.boot(argc, argv).unwrap_or_else(|e| panic!("{e}"));
     }
 
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut App) {
         let app = unsafe { &mut *app };
-        let _ = app.run().inspect_err(|e| {
+        let _ = app.run().unwrap_or_else(|e| {
             #[cfg(not(feature = "std"))]
             Di::from_static().set(unsafe { Box::from_raw(app) });
 
