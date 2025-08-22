@@ -262,7 +262,7 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut App) {
         let app = unsafe { &mut *app };
-        let _ = app.run().unwrap_or_else(|e| {
+        app.run().unwrap_or_else(|e| {
             #[cfg(not(feature = "std"))]
             Di::from_static().set(unsafe { Box::from_raw(app) });
 
