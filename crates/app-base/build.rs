@@ -19,7 +19,7 @@ fn main() {
 
     println!("cargo:rerun-if-changed={src_dir}/build.rs");
     println!("cargo:rerun-if-changed={src_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={src_dir}/vendor/inih/ini.h");
+    println!("cargo:rerun-if-changed={src_dir}/vendor/inih");
     println!("cargo:rerun-if-changed={src_dir}/cbindgen.toml");
 
     //

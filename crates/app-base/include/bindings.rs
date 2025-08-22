@@ -37,3 +37,11 @@ unsafe extern "C" {
         user: *mut ::core::ffi::c_void
     ) -> ::core::ffi::c_int;
 }
+unsafe extern "C" {
+    pub fn ini_parse_string_length(
+        string: *const ::core::ffi::c_char,
+        length: usize,
+        handler: ini_handler,
+        user: *mut ::core::ffi::c_void
+    ) -> ::core::ffi::c_int;
+}
