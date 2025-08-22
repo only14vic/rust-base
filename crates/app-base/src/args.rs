@@ -177,7 +177,7 @@ impl Args {
                 if self.opts.is_empty() || arg == "0" || self.undefined == ArgUndefined::Allow {
                     arg.into_ok()
                 } else if self.undefined == ArgUndefined::Skip {
-                    Ok(String::default())
+                    "".into_ok()
                 } else {
                     Err(format!("Invalid command line argument: {arg}"))
                 }

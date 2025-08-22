@@ -1,4 +1,7 @@
 pub fn mem_stats() {
+    #[cfg(all(target_env = "musl", not(feature = "std")))]
+    log::warn!("mem_stats() not implemented for static binary");
+
     #[cfg(not(target_env = "musl"))]
     unsafe {
         libc::malloc_stats()

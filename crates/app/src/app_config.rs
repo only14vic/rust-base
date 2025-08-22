@@ -128,6 +128,7 @@ impl AppConfig {
                     "base.log.file",
                     Box::leak(Box::new(self.base.log.file.as_deref().unwrap_or_default()))
                 ),
+                ("dirs.exe", Box::leak(Box::new(self.dirs.exe()))),
                 ("dirs.bin", &self.dirs.bin),
                 ("dirs.sbin", &self.dirs.sbin),
                 ("dirs.lib", &self.dirs.lib),

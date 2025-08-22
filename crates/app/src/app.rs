@@ -118,6 +118,17 @@ impl App {
         unsafe {
             args.parse_argc(argc, argv)?
         };
+        Env::is_debug().then(|| {
+            log::trace!(
+                "Preloaded command line arguments: {:?}",
+                &args
+                    .args
+                    .iter()
+                    .filter(|(_, v)| v.is_some())
+                    .collect::<Vec<_>>()
+            )
+        });
+
         self.set(args);
         self.set(AppConfig::new());
 
@@ -138,6 +149,16 @@ impl App {
         unsafe {
             args.parse_argc(argc, argv)?
         };
+        Env::is_debug().then(|| {
+            log::trace!(
+                "Loaded command line arguments: {:?}",
+                &args
+                    .args
+                    .iter()
+                    .filter(|(_, v)| v.is_some())
+                    .collect::<Vec<_>>()
+            )
+        });
 
         let args = self.get::<Args>().unwrap();
         let config = self.get_mut::<AppConfig>()?.unwrap();
