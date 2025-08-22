@@ -60,16 +60,16 @@ impl Args {
         opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
     ) -> Ok<Self> {
         let mut args = Self::default();
-        args.with_opts(opts)?;
+        args.extend_options(opts)?;
         Ok(args)
     }
 
-    pub fn with_undefined(&mut self, behavior: ArgUndefined) -> &mut Self {
+    pub fn set_undefined(&mut self, behavior: ArgUndefined) -> &mut Self {
         self.undefined = behavior;
         self
     }
 
-    pub fn with_opts(
+    pub fn extend_options(
         &mut self,
         opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
     ) -> Ok<&mut Self> {

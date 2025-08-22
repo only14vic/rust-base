@@ -19,7 +19,7 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
         AppEvent::APP_INIT => {
             app.register_command("config", MODULE_APP_CONFIG);
             let args = app.get_mut::<Args>()?.unwrap();
-            args.with_opts([
+            args.extend_options([
                 ("log-level", &[][..], None),
                 ("log-color", &[], None),
                 ("log-file", &[], None),
@@ -49,7 +49,7 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-static-path", &[], None)
             ])?;
             if Some("config") == args.get("command").unwrap().as_ref().map(String::as_str) {
-                args.with_opts([("name", &["2"][..], None)])?;
+                args.extend_options([("name", &["2"][..], None)])?;
             }
         },
         AppEvent::APP_RUN => {

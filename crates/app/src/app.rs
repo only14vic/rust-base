@@ -112,7 +112,7 @@ impl App {
         // Preloading of command line arguments.
         // Skips undefined arguments for preloading.
         //
-        args.with_undefined(ArgUndefined::Skip);
+        args.set_undefined(ArgUndefined::Skip);
         #[cfg(feature = "std")]
         args.parse_args(std::env::args().collect())?;
         #[cfg(not(feature = "std"))]
@@ -120,7 +120,7 @@ impl App {
             args.parse_argc(argc, argv)?
         };
         // Throws error if undefined arguments are detected for next load.
-        args.with_undefined(ArgUndefined::Error);
+        args.set_undefined(ArgUndefined::Error);
         Env::is_debug().then(|| {
             log::trace!(
                 "Preloaded command line arguments: {:?}",
@@ -144,7 +144,7 @@ impl App {
         let args = self.get_mut::<Args>()?.unwrap();
         // Skips undefined arguments on tests.
         if Env::is_test() {
-            args.with_undefined(ArgUndefined::Skip);
+            args.set_undefined(ArgUndefined::Skip);
         }
         #[cfg(feature = "std")]
         args.parse_args(std::env::args().collect())?;
