@@ -77,10 +77,10 @@ fn show_help(app: &App) -> Void {
         r#"
 Usage: {exe_file} config [name] [options]
 
-This command display config options.
+This command displays config options.
 
 Arguments:
-    name - if defined then it displays the value of the option by its name
+    name - if defined, then it displays the value of the option by its name
 
 Options:
     -h, --help  - show usage help
