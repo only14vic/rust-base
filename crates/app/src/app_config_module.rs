@@ -50,12 +50,12 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-static-path", &[], None)
             ])?;
             if Some("config") == args.get("command").unwrap().as_ref().map(String::as_str) {
-                args.with_opts([("value", &["2"][..], None)])?;
+                args.with_opts([("name", &["2"][..], None)])?;
             }
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
-            let name = args.get("value").ok_or("Undefined argument 'value'")?;
+            let name = args.get("name").unwrap();
 
             if args.get("help").unwrap().is_some() {
                 show_help(app)?;
