@@ -142,7 +142,7 @@ impl App {
         // Modules can add arguments depending on the command.
         //
         let args = self.get_mut::<Args>()?.unwrap();
-        // Skip undefined arguments on tests.
+        // Skips undefined arguments on tests.
         if Env::is_test() {
             args.with_undefined(ArgUndefined::Skip);
         }
