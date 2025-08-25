@@ -1,9 +1,4 @@
-use {
-    crate::*,
-    alloc::{format, string::String},
-    app_base::prelude::*,
-    core::ffi::c_uint
-};
+use {crate::*, alloc::format, app_base::prelude::*, core::ffi::c_uint};
 
 pub const MODULE_APP_CONFIG: AppModule = module_app_config;
 
@@ -19,7 +14,7 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
         AppEvent::APP_INIT => {
             app.register_command("config", MODULE_APP_CONFIG);
             let args = app.get_mut::<Args>()?.unwrap();
-            args.extend_options([
+            args.add_options([
                 ("log-level", &[][..], None),
                 ("log-color", &[], None),
                 ("log-file", &[], None),
@@ -48,17 +43,16 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-static-dir", &[], None),
                 ("web-static-path", &[], None)
             ])?;
-            if Some("config") == args.get("command").unwrap().as_ref().map(String::as_str) {
-                args.extend_options([("name", &["2"][..], None)])?;
+            if Some("config") == args.get_option("command") {
+                args.add_options([("name", &["2"][..], None)])?;
             }
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
-            let name = args.get("name").unwrap();
 
-            if args.get("help").unwrap().is_some() {
+            if args.get_option("help").is_some() {
                 show_help(app)?;
-            } else if let Some(name) = name {
+            } else if let Some(name) = args.get_option("name") {
                 show_config_option(app, name)?;
             } else {
                 show_config(app)?;

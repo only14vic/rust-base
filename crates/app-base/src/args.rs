@@ -60,7 +60,7 @@ impl Args {
         opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
     ) -> Ok<Self> {
         let mut args = Self::default();
-        args.extend_options(opts)?;
+        args.add_options(opts)?;
         Ok(args)
     }
 
@@ -69,7 +69,7 @@ impl Args {
         self
     }
 
-    pub fn extend_options(
+    pub fn add_options(
         &mut self,
         opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
     ) -> Ok<&mut Self> {
@@ -162,6 +162,15 @@ impl Args {
         }
 
         self.into_ok()
+    }
+
+    pub fn get_option(&self, name: &str) -> Option<&str> {
+        match self.args.get(name) {
+            Some(v) => v.as_ref().map(String::as_str),
+            None => {
+                panic!("Undefined option name of command line argument: {name}")
+            }
+        }
     }
 
     fn arg_name(&self, arg: &str) -> Result<String, String> {
