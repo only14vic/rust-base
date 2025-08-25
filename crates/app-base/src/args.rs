@@ -168,7 +168,7 @@ impl Args {
         self.args
             .get(name)
             .ok_or(format!(
-                "Undefined option name of command line argument: {name}"
+                "Undefined option name of command line arguments: {name}"
             ))?
             .as_ref()
             .map(String::as_str)
