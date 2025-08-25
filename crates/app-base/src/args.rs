@@ -165,14 +165,14 @@ impl Args {
     }
 
     pub fn get_option(&self, name: &str) -> Ok<Option<&str>> {
-        match self.args.get(name) {
-            Some(v) => v.as_ref().map(String::as_str).into_ok(),
-            None => {
-                Err(format!(
-                    "Undefined option name of command line argument: {name}"
-                ))?
-            },
-        }
+        self.args
+            .get(name)
+            .ok_or(format!(
+                "Undefined option name of command line argument: {name}"
+            ))?
+            .as_ref()
+            .map(String::as_str)
+            .into_ok()
     }
 
     fn arg_name(&self, arg: &str) -> Result<String, String> {
