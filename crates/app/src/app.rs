@@ -100,13 +100,14 @@ impl App {
         dotenv(false);
 
         let global_di = Di::from_static();
-        global_di.set(Logger::init()?);
+        global_di.set(Logger::init().unwrap());
 
         let mut args = Args::new([
             ("exe", &["0"][..], None),
             ("command", &["1"], Some(AppConfig::DEFAULT_COMMAND)),
             ("help", &["-h"], None)
-        ])?;
+        ])
+        .unwrap();
 
         //
         // Preloading of command line arguments.
@@ -141,7 +142,7 @@ impl App {
         // Full loading of command line arguments after initializing modules.
         // Modules can add arguments depending on the command.
         //
-        let args = self.get_mut::<Args>()?.unwrap();
+        let args = self.get_mut::<Args>().unwrap().unwrap();
         // Skips undefined arguments on tests.
         if Env::is_test() {
             args.set_undefined(ArgUndefined::Skip);
@@ -164,10 +165,10 @@ impl App {
         });
 
         let args = self.get::<Args>().unwrap();
-        let config = self.get_mut::<AppConfig>()?.unwrap();
+        let config = self.get_mut::<AppConfig>().unwrap().unwrap();
         config.load(Some(args.as_ref()))?;
 
-        let log = global_di.get_mut::<&mut Logger>()?.unwrap();
+        let log = global_di.get_mut::<&mut Logger>().unwrap().unwrap();
         log.configure(&config.base.log)?;
 
         Env::is_debug().then(|| log::trace!("Loaded: {config:#?}"));

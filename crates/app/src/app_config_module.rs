@@ -42,9 +42,10 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-base-url", &[], None),
                 ("web-static-dir", &[], None),
                 ("web-static-path", &[], None)
-            ])?;
+            ])
+            .unwrap();
             if Some("config") == args.get_option("command").unwrap() {
-                args.add_options([("name", &["2"][..], None)])?;
+                args.add_options([("name", &["2"][..], None)]).unwrap();
             }
         },
         AppEvent::APP_RUN => {

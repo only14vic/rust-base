@@ -5,7 +5,6 @@ use {
         string::{String, ToString}
     },
     core::{
-        any::type_name_of_val,
         error::Error,
         fmt::{self, Debug, Display},
         hash::BuildHasherDefault,
@@ -86,33 +85,23 @@ impl Error for Box<ErrAsync> {
 
 impl Debug for Err {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ErrBox<{}>: \"{}\"",
-            type_name_of_val(self.0.as_ref()),
-            &self.0
-        )
+        write!(f, "{}", &self.0)
     }
 }
 impl Debug for ErrAsync {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ErrBox<{}>: \"{}\"",
-            type_name_of_val(self.0.as_ref()),
-            &self.0
-        )
+        write!(f, "{}", &self.0)
     }
 }
 
 impl Display for Err {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0.as_ref())
+        write!(f, "{}", &self.0)
     }
 }
 impl Display for ErrAsync {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0.as_ref())
+        write!(f, "{}", &self.0)
     }
 }
 
