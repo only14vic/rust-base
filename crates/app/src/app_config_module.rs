@@ -43,16 +43,16 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-static-dir", &[], None),
                 ("web-static-path", &[], None)
             ])?;
-            if Some("config") == args.get_option("command") {
+            if Some("config") == args.get_option("command").unwrap() {
                 args.add_options([("name", &["2"][..], None)])?;
             }
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
 
-            if args.get_option("help").is_some() {
+            if args.get_option("help").unwrap().is_some() {
                 show_help(app)?;
-            } else if let Some(name) = args.get_option("name") {
+            } else if let Some(name) = args.get_option("name").unwrap() {
                 show_config_option(app, name)?;
             } else {
                 show_config(app)?;
