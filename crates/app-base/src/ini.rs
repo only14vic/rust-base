@@ -11,7 +11,7 @@ use {
         error::Error,
         ffi::{CStr, c_char, c_int, c_void},
         fmt::Display,
-        ops::Deref,
+        ops::{Deref, DerefMut},
         str::FromStr
     }
 };
@@ -35,7 +35,7 @@ impl Display for IniError {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct Ini {
     items: IniMap
 }
@@ -45,6 +45,12 @@ impl Deref for Ini {
 
     fn deref(&self) -> &Self::Target {
         &self.items
+    }
+}
+
+impl DerefMut for Ini {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
     }
 }
 

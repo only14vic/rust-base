@@ -50,10 +50,28 @@ impl AppConfig {
         dirs.init();
 
         let config_file = format!("{}/{}", &dirs.config, Self::CONFIG_FILE_NAME);
-        match Ini::from_file(&config_file) {
+        let mut ini = match Ini::from_file(&config_file) {
             Ok(ini) => {
                 Env::is_debug().then(|| log::trace!("Loading: {config_file}"));
-                self.extend(&ini);
+                ini
+            },
+            Err(e) => {
+                match e.downcast_ref::<IniError>() {
+                    Some(IniError::FileNotFound(..)) => Ini::default(),
+                    _ => Err(e)?
+                }
+            },
+        };
+
+        let user_config_file = format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
+        match Ini::from_file(&user_config_file) {
+            Ok(user_ini) => {
+                Env::is_debug().then(|| log::trace!("Loading: {user_config_file}"));
+                ini.extend(
+                    user_ini
+                        .into_iter()
+                        .map(|(n, v)| (n.into(), v.map(|v| v.into())))
+                );
             },
             Err(e) => {
                 match e.downcast_ref::<IniError>() {
@@ -63,19 +81,7 @@ impl AppConfig {
             },
         };
 
-        let user_config_file = format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
-        match Ini::from_file(&user_config_file) {
-            Ok(ini) => {
-                Env::is_debug().then(|| log::trace!("Loading: {user_config_file}"));
-                self.extend(&ini);
-            },
-            Err(e) => {
-                match e.downcast_ref::<IniError>() {
-                    Some(IniError::FileNotFound(..)) => (),
-                    _ => Err(e)?
-                }
-            },
-        };
+        self.extend(&ini);
 
         self.load_env()?;
 

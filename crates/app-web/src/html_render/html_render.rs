@@ -33,8 +33,8 @@ pub struct HtmlRender {
 }
 
 impl HtmlRender {
-    pub fn new(config: &Arc<HtmlRenderConfig>) -> Self {
-        let config = config.clone();
+    pub fn new(config: &HtmlRenderConfig) -> Self {
+        let config = Arc::new(config.clone());
         let dir = format!(
             "{}/{}/{}",
             config.assets_dir.trim_end_matches('/'),
@@ -94,6 +94,13 @@ impl HtmlRender {
         let base_path = Path::new(config.assets_dir.trim_end_matches('/'));
         let module_path = base_path.join(module_path.trim_matches('/'));
 
+        if module_path.exists() == false {
+            Err(format!(
+                "Module path '{}' does not exist for module '{module_name}'.",
+                module_path.to_str().unwrap_or_default()
+            ))?;
+        }
+
         if module_path.exists() && module_path.is_file() {
             return Ok([(
                 module_path.to_string_lossy().into(),
@@ -103,6 +110,7 @@ impl HtmlRender {
         }
 
         let path = module_path.join(config.files_glob.trim_matches('/'));
+
         let files = glob(&path.to_string_lossy())?
             .filter_map(|p| p.ok())
             .map(|p| {
