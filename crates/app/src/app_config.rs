@@ -9,7 +9,8 @@ use {
         fmt::{Debug, Display},
         format,
         string::{String, ToString},
-        sync::Arc
+        sync::Arc,
+        vec::Vec
     },
     app_base::prelude::*,
     core::any::type_name,
@@ -116,6 +117,17 @@ impl AppConfig {
                     &self.options.clear_static_di as &(dyn Display + Send + Sync)
                 ),
                 ("base.language", &self.base.language),
+                (
+                    "base.locales",
+                    Box::leak(Box::new(
+                        self.base
+                            .locales
+                            .iter()
+                            .map(|(n, m)| format!("{n}={}", m.as_ref().unwrap_or(&"".into())))
+                            .collect::<Vec<_>>()
+                            .join("\n")
+                    ))
+                ),
                 ("base.timezone", &self.base.timezone),
                 ("base.log.level", &self.base.log.level),
                 ("base.log.color", &self.base.log.color),

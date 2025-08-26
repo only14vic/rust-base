@@ -41,6 +41,16 @@ impl FromRequest for HtmlRenderContext {
             app.as_object_mut().unwrap().extend([
                 ("language".into(), req.language().into()),
                 ("locale".into(), req.locale().into()),
+                (
+                    "locales".into(),
+                    serde_json::Map::from_iter(
+                        base_config
+                            .locales
+                            .iter()
+                            .map(|(n, v)| (n.to_string(), v.to_json().unwrap_or_default()))
+                    )
+                    .into()
+                ),
                 ("timezone".into(), base_config.timezone.as_str().into()),
                 ("host".into(), web_config.host.as_str().into()),
                 ("hostname".into(), web_config.hostname.as_str().into()),
