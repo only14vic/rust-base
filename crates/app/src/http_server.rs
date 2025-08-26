@@ -10,7 +10,10 @@ use {
         db::db_pool
     },
     app_base::prelude::*,
-    app_web::ext::{DbWeb, JwtEncoder},
+    app_web::{
+        HtmlRender,
+        ext::{DbWeb, JwtEncoder}
+    },
     core::pin::Pin,
     futures::executor::block_on,
     sqlx::Postgres
@@ -134,6 +137,8 @@ impl HttpServer {
     }
 
     fn with_html_render(&mut self) -> &mut Self {
-        self
+        self.add_service(|srv, cfg| {
+            srv.app_data(HtmlRender::new(&cfg.config.web.html_render));
+        })
     }
 }

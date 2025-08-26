@@ -48,16 +48,13 @@ fn server_run(app: &mut App) -> Void {
     use {
         actix_http::header,
         actix_web::{
-            HttpRequest, HttpResponse,
+            HttpRequest,
             dev::Service,
             http::header::{ContentType, TryIntoHeaderValue},
             web
         },
         app_async::actix_with_tokio_start,
-        app_web::{
-            api::api_postgrest,
-            ext::{OkHttp, RequestExt}
-        }
+        app_web::{api::api_postgrest, ext::RequestExt}
     };
 
     let config = app.get::<AppConfig>().unwrap();
@@ -91,10 +88,9 @@ fn server_run(app: &mut App) -> Void {
             srv.default_service(web::to(
                 |req: HttpRequest, data: Option<web::Json<Value>>| {
                     async move {
-                        let context = req.html_render_context().await.map_err(Box::new)?;
+                        let context = req.html_render_context().await?;
                         context.add("data", &data.map(web::Json::into_inner).unwrap_or_default());
-                        let body = format!("URI: {}\n\n{context:#?}", req.uri(),);
-                        HttpResponse::Ok().body(body).into_ok() as OkHttp
+                        req.html_render().await
                     }
                 }
             ));

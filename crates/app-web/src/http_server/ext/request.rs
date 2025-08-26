@@ -1,7 +1,7 @@
 use {
     crate::{
-        HtmlRenderContext, WebConfig,
-        ext::{CurrentUser, DbWeb, JwtToken}
+        HtmlRender, HtmlRenderContext, WebConfig,
+        ext::{CurrentUser, DbWeb, JwtToken, OkHttp}
     },
     actix_web::{
         FromRequest, HttpRequest,
@@ -26,15 +26,17 @@ pub trait RequestExt {
 
     fn db_web(&self) -> &DbWeb;
 
-    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error>;
-
-    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
-
     fn language(&self) -> Cow<'_, str>;
 
     fn locale(&self) -> Cow<'_, str>;
 
-    async fn html_render_context(&self) -> Ok<HtmlRenderContext>;
+    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error>;
+
+    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
+
+    async fn html_render(&self) -> OkHttp;
+
+    async fn html_render_context(&self) -> Result<HtmlRenderContext, actix_web::Error>;
 }
 
 impl RequestExt for HttpRequest {
@@ -52,14 +54,6 @@ impl RequestExt for HttpRequest {
 
     fn db_web(&self) -> &DbWeb {
         self.app_data::<DbWeb>().unwrap()
-    }
-
-    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error> {
-        CurrentUser::from_request(self, &mut Payload::None).await
-    }
-
-    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error> {
-        JwtToken::from_request(self, &mut Payload::None).await
     }
 
     fn language(&self) -> Cow<'_, str> {
@@ -93,8 +87,23 @@ impl RequestExt for HttpRequest {
         }
     }
 
-    async fn html_render_context(&self) -> Ok<HtmlRenderContext> {
-        Ok(HtmlRenderContext::from_request(self, &mut Payload::None).await?)
+    async fn current_user(&self) -> Result<CurrentUser, actix_web::Error> {
+        CurrentUser::from_request(self, &mut Payload::None).await
+    }
+
+    async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error> {
+        JwtToken::from_request(self, &mut Payload::None).await
+    }
+
+    async fn html_render(&self) -> OkHttp {
+        HtmlRender::from_request(self, &mut Payload::None)
+            .await?
+            .render_request(self)
+            .await
+    }
+
+    async fn html_render_context(&self) -> Result<HtmlRenderContext, actix_web::Error> {
+        HtmlRenderContext::from_request(self, &mut Payload::None).await
     }
 }
 

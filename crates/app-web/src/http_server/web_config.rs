@@ -5,7 +5,9 @@ use {
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
     app_base::prelude::*,
-    serde::{Deserialize, Serialize}
+    core::any::type_name,
+    serde::{Deserialize, Serialize},
+    std::sync::Arc
 };
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
@@ -21,7 +23,19 @@ pub struct WebConfig {
     pub jwt: JwtConfig,
     pub auth: AuthConfig,
     pub firewall: FirewallConfig,
-    pub html_render: HtmlRenderConfig
+    pub html_render: Arc<HtmlRenderConfig>
+}
+
+impl WebConfig {
+    pub fn try_mut<T>(value: &mut Arc<T>) -> Ok<&mut T> {
+        Arc::get_mut(value).ok_or(
+            format!(
+                "Could not get mutable reference of Arc<{}>",
+                type_name::<T>()
+            )
+            .into()
+        )
+    }
 }
 
 impl Default for WebConfig {
@@ -49,7 +63,7 @@ impl LoadDirs for WebConfig {
             self.static_dir.insert(0, '/');
             self.static_dir.insert_str(0, &dirs.data);
         }
-        self.html_render.load_dirs(dirs)?;
+        Self::try_mut(&mut self.html_render)?.load_dirs(dirs)?;
         ok()
     }
 }
@@ -73,7 +87,7 @@ impl LoadEnv for WebConfig {
         self.jwt.load_env()?;
         self.auth.load_env()?;
         self.firewall.load_env()?;
-        self.html_render.load_env()?;
+        Self::try_mut(&mut self.html_render)?.load_env()?;
         ok()
     }
 }
@@ -97,7 +111,7 @@ impl LoadArgs for WebConfig {
         self.jwt.load_args(args)?;
         self.auth.load_args(args)?;
         self.firewall.load_args(args)?;
-        self.html_render.load_args(args)?;
+        Self::try_mut(&mut self.html_render)?.load_args(args)?;
         ok()
     }
 }

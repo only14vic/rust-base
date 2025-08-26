@@ -14,6 +14,7 @@ fn tests_dirs() -> Void {
 
     let mut dirs = Dirs::default();
     dirs.config = "{prefix}/etc/{suffix}".into();
+    dirs.data = "{prefix}/share/{suffix}".into();
     dirs.init();
 
     assert_eq!(dirs.exe(), cur_exe_path);
@@ -37,6 +38,7 @@ fn tests_dirs() -> Void {
 
     dirs = Dirs::default();
     dirs.config = "{prefix}/etc/{suffix}".into();
+    dirs.data = "{prefix}/share/{suffix}".into();
     dirs.home = "/home/foo".into();
     dirs.prefix = "/usr/local".into();
     dirs.suffix = "myapp".into();
