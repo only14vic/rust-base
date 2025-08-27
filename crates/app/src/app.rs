@@ -51,16 +51,12 @@ impl Drop for App {
 
         let global_di = Di::from_static();
         let log = global_di.get::<&mut Logger>();
-        let config = self.get::<AppConfig>();
 
         core::mem::take(&mut self.di);
         core::mem::take(&mut self.commands);
         core::mem::forget(core::mem::take(&mut self.modules));
 
-        if let Some(config) = config
-            && config.options.clear_static_di
-            && !global_di.is_empty()
-        {
+        if global_di.is_empty() == false {
             global_di.clear();
         }
 

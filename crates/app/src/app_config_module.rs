@@ -1,4 +1,9 @@
-use {crate::*, app_base::prelude::*, core::ffi::c_uint};
+use {
+    crate::*,
+    alloc::{format, vec::Vec},
+    app_base::prelude::*,
+    core::ffi::c_uint
+};
 
 pub const MODULE_APP_CONFIG: AppModule = module_app_config;
 

@@ -3,7 +3,6 @@ use {app_async::TokioConfig, app_web::ActixConfig, app_web::WebConfig};
 #[cfg(feature = "db")]
 use app_async::db::DbConfig;
 use {
-    crate::AppOptions,
     alloc::{
         boxed::Box,
         fmt::{Debug, Display},
@@ -19,7 +18,6 @@ use {
 
 #[derive(Debug, Default, Extend, Serialize, Deserialize)]
 pub struct AppConfig {
-    pub options: AppOptions,
     pub base: Arc<BaseConfig>,
     pub dirs: Arc<Dirs>,
     #[cfg(feature = "std")]
@@ -113,10 +111,8 @@ impl AppConfig {
         [
             &[
                 (
-                    "options.clear_static_di",
-                    &self.options.clear_static_di as &(dyn Display + Send + Sync)
+                    "base.language", &self.base.language as &(dyn Display + Send + Sync)
                 ),
-                ("base.language", &self.base.language),
                 (
                     "base.locales",
                     Box::leak(Box::new(
