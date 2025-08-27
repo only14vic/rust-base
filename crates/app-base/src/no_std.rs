@@ -27,8 +27,8 @@ fn panic(info: &PanicInfo<'_>) -> ! {
     unsafe { abort() };
 }
 
-pub fn set_panic_handler(handler: fn(&PanicInfo<'_>)) {
-    PANIC_HANDLER.store(Box::leak(Box::new(handler)), Ordering::SeqCst);
+pub fn set_panic_handler(handler: Box<fn(&PanicInfo<'_>)>) {
+    PANIC_HANDLER.store(Box::leak(handler), Ordering::SeqCst);
 }
 
 #[unsafe(no_mangle)]

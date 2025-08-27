@@ -1,3 +1,5 @@
+#[cfg(feature = "std")]
+use std::panic::PanicHookInfo;
 #[cfg(not(feature = "std"))]
 use core::panic::PanicInfo;
 
@@ -59,6 +61,8 @@ impl Drop for App {
         }
 
         Env::is_debug().then(|| log::trace!("App finished"));
+
+        Logger::from_static().unwrap().log_close();
     }
 }
 
@@ -83,8 +87,12 @@ impl App {
         #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<&mut Self> {
-        #[cfg(not(feature = "std"))]
-        set_panic_handler(Self::panic_handler);
+        if Env::is_prod() {
+            #[cfg(feature = "std")]
+            std::panic::set_hook(Box::new(Self::panic_handler));
+            #[cfg(not(feature = "std"))]
+            set_panic_handler(Box::new(Self::panic_handler));
+        }
 
         dotenv(false);
 
@@ -215,6 +223,12 @@ impl App {
         }
     }
 
+    #[cfg(feature = "std")]
+    fn panic_handler(info: &PanicHookInfo) {
+        eprintln!("PANIC: {info}");
+        log::error!("{info}");
+    }
+
     #[cfg(not(feature = "std"))]
     fn panic_handler(info: &PanicInfo) {
         eprintln!("PANIC: {info}");
@@ -262,7 +276,6 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_free(app: *mut App) {
         let _ = unsafe { Box::from_raw(app) };
-        Logger::from_static().unwrap().log_close();
     }
 
     #[unsafe(no_mangle)]
