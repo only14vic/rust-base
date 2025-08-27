@@ -52,7 +52,7 @@ static LOCK: AtomicBool = AtomicBool::new(false);
 /// Otherwise returns zero.
 #[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
-    match Logger::init() {
+    match Logger::from_static() {
         Ok(logger) => logger,
         Err(e) => {
             eprintln!("ERROR: log_init() - {e}");
@@ -102,7 +102,7 @@ impl DerefMut for Logger {
 }
 
 impl Logger {
-    pub fn init() -> Ok<&'static mut Self> {
+    pub fn from_static() -> Ok<&'static mut Self> {
         let mut logger_ptr = LOGGER.load(Ordering::Relaxed);
 
         if logger_ptr.is_null() {
@@ -171,6 +171,10 @@ impl Logger {
                 )
             });
         }
+    }
+
+    pub fn get_closer(&'static mut self) -> LogCloser {
+        LogCloser { logger: self }
     }
 
     fn time() -> String {
@@ -289,4 +293,14 @@ impl Log for Logger {
     }
 
     fn flush(&self) {}
+}
+
+pub struct LogCloser {
+    logger: &'static mut Logger
+}
+
+impl Drop for LogCloser {
+    fn drop(&mut self) {
+        self.logger.log_close();
+    }
 }

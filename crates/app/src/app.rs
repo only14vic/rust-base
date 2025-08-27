@@ -3,7 +3,7 @@ use core::panic::PanicInfo;
 
 use {
     crate::AppConfig,
-    alloc::{boxed::Box, format, sync::Arc, vec::Vec},
+    alloc::{boxed::Box, format, vec::Vec},
     app_base::prelude::*,
     core::{
         ffi::{CStr, c_char, c_int, c_uint},
@@ -17,7 +17,8 @@ pub type AppModule = fn(&mut App, AppEvent) -> Void;
 pub struct App {
     di: Di,
     modules: Vec<AppModule>,
-    commands: IndexMap<&'static str, AppModule>
+    commands: IndexMap<&'static str, AppModule>,
+    pub clear_global: bool
 }
 
 #[repr(C)]
@@ -49,24 +50,15 @@ impl Drop for App {
     fn drop(&mut self) {
         let _ = self.trigger_event(AppEvent::APP_END);
 
-        let global_di = Di::from_static();
-        let log = global_di.get::<&mut Logger>();
-
         core::mem::take(&mut self.di);
         core::mem::take(&mut self.commands);
         core::mem::forget(core::mem::take(&mut self.modules));
 
-        if global_di.is_empty() == false {
-            global_di.clear();
+        if self.clear_global {
+            Di::from_static().clear();
         }
 
         Env::is_debug().then(|| log::trace!("App finished"));
-
-        if let Some(log) = log
-            && let Some(log) = Arc::into_inner(log)
-        {
-            log.log_close();
-        }
     }
 }
 
@@ -75,7 +67,8 @@ impl App {
         Self {
             di: Di::default(),
             modules: Vec::from_iter(modules),
-            commands: Default::default()
+            commands: Default::default(),
+            clear_global: true
         }
     }
 
@@ -95,8 +88,10 @@ impl App {
 
         dotenv(false);
 
+        let log = Logger::from_static().unwrap();
+
+        #[allow(unused_variables)]
         let global_di = Di::from_static();
-        global_di.set(Logger::init().unwrap());
 
         let mut args = Args::new([
             ("exe", &["0"][..], None),
@@ -164,7 +159,6 @@ impl App {
         let config = self.get_mut::<AppConfig>().unwrap().unwrap();
         config.load(Some(args.as_ref()))?;
 
-        let log = global_di.get_mut::<&mut Logger>().unwrap().unwrap();
         log.configure(&config.base.log)?;
 
         Env::is_debug().then(|| log::trace!("Loaded: {config:#?}"));
@@ -225,16 +219,8 @@ impl App {
     fn panic_handler(info: &PanicInfo) {
         eprintln!("PANIC: {info}");
         log::error!("{info}");
-
-        let global_di = Di::from_static();
-        let log = global_di.get::<&mut Logger>();
-        global_di.clear();
-
-        if let Some(log) = log
-            && let Some(log) = Arc::into_inner(log)
-        {
-            log.log_close();
-        }
+        Di::from_static().clear();
+        Logger::from_static().unwrap().log_close();
     }
 
     #[unsafe(no_mangle)]
@@ -276,6 +262,7 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_free(app: *mut App) {
         let _ = unsafe { Box::from_raw(app) };
+        Logger::from_static().unwrap().log_close();
     }
 
     #[unsafe(no_mangle)]
