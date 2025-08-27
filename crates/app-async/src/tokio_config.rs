@@ -3,7 +3,7 @@ use {
     serde::{Deserialize, Serialize}
 };
 
-#[derive(Debug, Extend, Serialize, Deserialize)]
+#[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct TokioConfig {
     pub threads: usize,
     pub blocking_threads: usize,

@@ -1,4 +1,4 @@
-use {crate::*, alloc::format, app_base::prelude::*, core::ffi::c_uint};
+use {crate::*, app_base::prelude::*, core::ffi::c_uint};
 
 pub const MODULE_APP_CONFIG: AppModule = module_app_config;
 
@@ -50,13 +50,12 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
+            let name = args.get_option("name").unwrap();
 
             if args.get_option("help").unwrap().is_some() {
                 show_help(app)?;
-            } else if let Some(name) = args.get_option("name").unwrap() {
-                show_config_option(app, name)?;
             } else {
-                show_config(app)?;
+                show_config(app, name)?;
             }
         },
         _ => ()
@@ -74,7 +73,7 @@ Usage: {exe_file} config [name] [options]
 This command displays config options.
 
 Arguments:
-    name - if defined, then it displays the value of the option by its name
+    name - if defined, then it displays option(s) filtered by name
 
 Options:
     -h, --help  - show usage help
@@ -83,28 +82,36 @@ Options:
     ok()
 }
 
-fn show_config(app: &App) -> Void {
+fn show_config(app: &App, name: Option<&str>) -> Void {
     let config = app.config();
-    for (k, v) in config.iter() {
+    let iter = config.iter();
+    let mut list: Vec<_> = match name {
+        Some(name) => iter.filter(|(k, _)| k.contains(name)).collect(),
+        None => iter.collect()
+    };
+    let count = list.len();
+
+    if let Some(name) = name
+        && list.is_empty()
+    {
+        Err(format!("Invalid config option name: {name}"))?;
+    }
+
+    list.sort_by_key(|(k, _)| *k);
+
+    for (k, v) in list {
         if k.is_empty() {
             println!("{v}");
         } else if v.contains("\n") {
             v.split_terminator('\n').for_each(|v| {
                 println!("{k}.{v}");
             });
+        } else if count == 1 && name == Some(k) {
+            println!("{v}");
         } else {
             println!("{k}={v}");
         }
     }
-    ok()
-}
 
-fn show_config_option(app: &App, name: &str) -> Void {
-    let config = app.config();
-    if let Some((.., value)) = config.iter().find(|(k, _)| *k == name) {
-        println!("{value}");
-    } else {
-        Err(format!("Invalid config option name: {name}"))?;
-    }
     ok()
 }

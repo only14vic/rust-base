@@ -39,7 +39,7 @@ impl HtmlRender {
             "{}/{}/{}",
             config.assets_dir.trim_end_matches('/'),
             config.default_module.trim_matches('/'),
-            &config.files_glob.trim_matches('/')
+            config.files_glob.trim_matches('/')
         );
 
         let mut tera = Tera::parse(&dir).unwrap();

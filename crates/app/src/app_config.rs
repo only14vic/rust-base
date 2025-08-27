@@ -23,7 +23,7 @@ pub struct AppConfig {
     pub base: Arc<BaseConfig>,
     pub dirs: Arc<Dirs>,
     #[cfg(feature = "std")]
-    pub tokio: TokioConfig,
+    pub tokio: Arc<TokioConfig>,
     #[cfg(feature = "std")]
     pub actix: Arc<ActixConfig>,
     #[cfg(feature = "std")]
@@ -282,7 +282,7 @@ impl LoadEnv for AppConfig {
             Self::try_mut(&mut self.base)? as &mut dyn LoadEnv,
             Self::try_mut(&mut self.dirs)?,
             #[cfg(feature = "std")]
-            &mut self.tokio,
+            Self::try_mut(&mut self.tokio)?,
             #[cfg(feature = "std")]
             Self::try_mut(&mut self.actix)?,
             #[cfg(feature = "std")]
@@ -305,7 +305,7 @@ impl LoadArgs for AppConfig {
             Self::try_mut(&mut self.base)? as &mut dyn LoadArgs,
             Self::try_mut(&mut self.dirs)?,
             #[cfg(feature = "std")]
-            &mut self.tokio,
+            Self::try_mut(&mut self.tokio)?,
             #[cfg(feature = "std")]
             Self::try_mut(&mut self.actix)?,
             #[cfg(feature = "std")]
