@@ -52,11 +52,19 @@ impl Default for Env {
     fn default() -> Self {
         Self {
             is_test: cfg!(test) || getenv("APP_ENV").map(|v| &v == "test").unwrap_or_default(),
-            is_prod: getenv("APP_ENV").map(|v| &v == "prod").unwrap_or_default(),
-            is_dev: getenv("APP_ENV").map(|v| &v != "prod").unwrap_or_default(),
-            is_debug: getenv("APP_DEBUG").map(|v| &v == "1").unwrap_or_default(),
+            is_prod: getenv("APP_ENV")
+                .map(|v| &v.to_lowercase() == "prod" || v.is_empty())
+                .unwrap_or(true),
+            is_dev: getenv("APP_ENV")
+                .map(|v| &v.to_lowercase() != "prod" && v.is_empty() == false)
+                .unwrap_or(false),
+            is_debug: getenv("APP_DEBUG")
+                .map(|v| ["1", "true", "on"].contains(&v.to_lowercase().as_str()))
+                .unwrap_or_default(),
             is_release: cfg!(debug_assertions) == false,
-            env: getenv("APP_ENV").unwrap_or_default()
+            env: getenv("APP_ENV")
+                .map(|v| v.to_lowercase())
+                .unwrap_or_default()
         }
     }
 }
