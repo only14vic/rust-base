@@ -9,7 +9,9 @@ use {
     app_base::prelude::*,
     core::{
         ffi::{CStr, c_char, c_int, c_uint},
-        ops::{Deref, DerefMut}
+        mem::forget,
+        ops::{Deref, DerefMut},
+        ptr::addr_eq
     }
 };
 
@@ -56,8 +58,18 @@ impl Drop for App {
         core::mem::take(&mut self.commands);
         core::mem::forget(core::mem::take(&mut self.modules));
 
+        let global_di = Di::from_static();
+
+        if global_di
+            .get_ref::<Box<Self>>()
+            .map(|app| addr_eq(app.deref(), self))
+            == Some(true)
+        {
+            forget(global_di.remove::<Box<Self>>().unwrap());
+        }
+
         if self.clear_global {
-            Di::from_static().clear();
+            global_di.clear();
         }
 
         Env::is_debug().then(|| log::trace!("App finished"));
@@ -247,6 +259,9 @@ impl App {
     #[unsafe(no_mangle)]
     #[allow(unused_variables)]
     extern "C" fn app_boot(app: *mut App, argc: c_int, argv: *const *const c_char) {
+        #[cfg(not(feature = "std"))]
+        Di::from_static().set(unsafe { Box::from_raw(app) });
+
         let app = unsafe { &mut *app };
 
         #[cfg(feature = "std")]
@@ -259,18 +274,7 @@ impl App {
     #[unsafe(no_mangle)]
     extern "C" fn app_run(app: *mut App) {
         let app = unsafe { &mut *app };
-        app.run().unwrap_or_else(|e| {
-            #[cfg(not(feature = "std"))]
-            Di::from_static().set(unsafe { Box::from_raw(app) });
-
-            #[cfg(feature = "std")]
-            {
-                log::error!("{e}");
-                let _ = unsafe { Box::from_raw(app) };
-            }
-
-            panic!("{e}");
-        });
+        app.run().unwrap_or_else(|e| panic!("{e}"));
     }
 
     #[unsafe(no_mangle)]
