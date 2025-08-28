@@ -33,6 +33,9 @@ impl Default for LogConfig {
 
 impl LoadDirs for LogConfig {
     fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+        if self.file.eq(&Some(String::default())) {
+            self.file = None;
+        }
         if dirs.log.is_empty() == false
             && let Some(file) = self.file.as_mut()
             && file.starts_with("/") == false
