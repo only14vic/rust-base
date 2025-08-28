@@ -46,6 +46,10 @@ impl HttpServer {
 
         log::info!("Starting HttpServer: {:?}", &config.actix);
 
+        if config.actix.socket.is_empty() == false {
+            Dirs::mkdir(Dirs::dirname(&config.actix.socket))?;
+        }
+
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GrantsMiddleware::with_extractor(

@@ -6,6 +6,15 @@ fn module_app(app: &mut App, event: AppEvent) -> Void {
     match event {
         AppEvent::APP_INIT => {
             app.register_command(AppConfig::DEFAULT_COMMAND, MODULE_APP);
+
+            let config = app.config();
+            Dirs::mkdir(&config.dirs.var)?;
+            Dirs::mkdir(&config.dirs.run)?;
+            Dirs::mkdir(&config.dirs.log)?;
+            Dirs::mkdir(&config.dirs.tmp)?;
+            Dirs::mkdir(&config.dirs.cache)?;
+            Dirs::mkdir(&config.dirs.state)?;
+            Dirs::mkdir(&config.dirs.user_config)?;
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();

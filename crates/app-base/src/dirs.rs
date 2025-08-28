@@ -7,7 +7,7 @@ use {
         vec::Vec
     },
     core::{cell::RefCell, mem::ManuallyDrop, ptr::null_mut, str::FromStr},
-    libc::{dirname, getcwd, readlink, realpath},
+    libc::{getcwd, readlink},
     serde::{Deserialize, Serialize}
 };
 
@@ -159,17 +159,12 @@ impl Dirs {
         }
     }
 
-    pub fn dirname(path: &str) -> Ok<String> {
-        let path_c = ManuallyDrop::new(CString::from_str(path)?);
-        let dir_ptr = unsafe { dirname(realpath(path_c.as_ptr().cast_mut(), null_mut())) };
-
-        if dir_ptr.is_null() {
-            return Err("Could not get dirname.")?;
+    pub fn dirname(path: &str) -> &str {
+        if path.contains("/") {
+            &path[0..path.rfind('/').unwrap()]
+        } else {
+            "."
         }
-
-        let dir = unsafe { CString::from_raw(dir_ptr).into_string()? };
-
-        Ok(dir)
     }
 
     pub fn cwd() -> Ok<String> {
@@ -218,6 +213,36 @@ impl Dirs {
         self.exe
             .get(self.exe.rfind("/").map(|p| p + 1).unwrap_or(0)..self.exe.len())
             .unwrap()
+    }
+
+    #[cfg(feature = "std")]
+    pub fn mkdir(path: &str) -> Void {
+        let path = path.trim();
+        if path.is_empty() || path == "." {
+            return ok();
+        }
+        match std::fs::create_dir_all(path) {
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => ok(),
+            Err(e) => Err(e)?,
+            Ok(..) => ok()
+        }
+    }
+
+    #[cfg(not(feature = "std"))]
+    pub fn mkdir(path: &str) -> Void {
+        let path = path.trim();
+        if path.is_empty() || path == "." {
+            return ok();
+        }
+        unsafe {
+            let c_dir = CString::new(path)?;
+            if libc::access(c_dir.as_ptr(), libc::F_OK) != 0 {
+                if libc::mkdir(c_dir.as_ptr(), 0o755) != 0 {
+                    Err(format!("Could not create directory: {}", c_dir.to_str()?))?;
+                }
+            }
+        }
+        ok()
     }
 }
 
