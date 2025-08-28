@@ -23,7 +23,7 @@ impl Default for HtmlRenderConfig {
             pages_dir: "pages".into(),
             index_file: "index/index.html".into(),
             files_glob: "/**/*.html".into(),
-            default_module: "/site/html".into(),
+            default_module: "site/html".into(),
             modules: Default::default()
         }
     }
