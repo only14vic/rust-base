@@ -108,11 +108,15 @@ impl AppConfig {
     ///
     /// May cause a memory leak!
     pub fn iter(&self) -> impl Iterator<Item = (&str, String)> {
+        let env = Env::from_static();
         [
             &[
-                (
-                    "base.language", &self.base.language as &(dyn Display + Send + Sync)
-                ),
+                ("env.env", &env.env as &(dyn Display + Send + Sync)),
+                ("env.is_prod", &env.is_prod),
+                ("env.is_dev", &env.is_dev),
+                ("env.is_debug", &env.is_debug),
+                ("env.is_release", &env.is_release),
+                ("base.language", &self.base.language),
                 (
                     "base.locales",
                     Box::leak(Box::new(
