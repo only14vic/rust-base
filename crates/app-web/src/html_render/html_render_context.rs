@@ -128,7 +128,7 @@ impl FromRequest for HtmlRenderContext {
                 .get::<Self>()
                 .cloned()
                 .ok_or(ErrorInternalServerError(
-                    "HtmlRenderContext does not exists in request."
+                    "HtmlRenderContext does not exist in request."
                 ))
         })
     }

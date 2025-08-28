@@ -61,6 +61,7 @@ impl HtmlRender {
         }
 
         super::modules::register_modules(&mut tera);
+
         tera.autoescape_on(vec![]);
         tera.build_inheritance_chains().unwrap();
 
@@ -249,7 +250,7 @@ impl FromRequest for HtmlRender {
 
             req.app_data::<HtmlRender>()
                 .ok_or(ErrorInternalServerError(
-                    "HtmlRender does not exists in request."
+                    "HtmlRender does not exist in request."
                 ))
                 .cloned()
         })
