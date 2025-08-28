@@ -6,7 +6,8 @@ fn module_app(app: &mut App, event: AppEvent) -> Void {
     match event {
         AppEvent::APP_INIT => {
             app.register_command(AppConfig::DEFAULT_COMMAND, MODULE_APP);
-
+        },
+        AppEvent::APP_LOADED => {
             let config = app.config();
             Dirs::mkdir(&config.dirs.var)?;
             Dirs::mkdir(&config.dirs.run)?;
