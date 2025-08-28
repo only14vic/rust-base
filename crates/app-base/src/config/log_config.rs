@@ -56,6 +56,9 @@ impl LoadEnv for LogConfig {
             .iter()
             .map(convert::tuple_option_str)
         );
+        if self.file.eq(&Some(String::default())) {
+            self.file = None;
+        }
         ok()
     }
 }
@@ -73,6 +76,9 @@ impl LoadArgs for LogConfig {
             .iter()
             .map(convert::tuple_option_option_str)
         );
+        if self.file.eq(&Some(String::default())) {
+            self.file = None;
+        }
         ok()
     }
 }

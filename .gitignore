@@ -8,3 +8,4 @@ vgcore.*
 flamegraph*.svg
 target
 vendor/*
+var/*
