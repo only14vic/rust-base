@@ -7,21 +7,20 @@ fn module_app(app: &mut App, event: AppEvent) -> Void {
         AppEvent::APP_INIT => {
             app.register_command(AppConfig::DEFAULT_COMMAND, MODULE_APP);
         },
-        AppEvent::APP_LOADED => {
-            let config = app.config();
-            Dirs::mkdir(&config.dirs.var)?;
-            Dirs::mkdir(&config.dirs.run)?;
-            Dirs::mkdir(&config.dirs.log)?;
-            Dirs::mkdir(&config.dirs.tmp)?;
-            Dirs::mkdir(&config.dirs.cache)?;
-            Dirs::mkdir(&config.dirs.state)?;
-            Dirs::mkdir(&config.dirs.user_config)?;
-        },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
             if args.get("help").unwrap().is_some() {
                 show_help(app)?;
             } else {
+                let config = app.config();
+                Dirs::mkdir(&config.dirs.var)?;
+                Dirs::mkdir(&config.dirs.run)?;
+                Dirs::mkdir(&config.dirs.log)?;
+                Dirs::mkdir(&config.dirs.tmp)?;
+                Dirs::mkdir(&config.dirs.cache)?;
+                Dirs::mkdir(&config.dirs.state)?;
+                Dirs::mkdir(&config.dirs.user_config)?;
+
                 #[cfg(feature = "std")]
                 server_run(app)?;
                 #[cfg(not(feature = "std"))]
