@@ -7,15 +7,13 @@ use {
         http::header::ContentType,
         middleware::Next
     },
-    core::pin::Pin
+    futures::future::LocalBoxFuture
 };
 
 pub fn content_type(
     default: ContentType
-) -> impl Fn(
-    ServiceRequest,
-    Next<BoxBody>
-) -> Pin<Box<dyn Future<Output = Result<ServiceResponse, Error>>>> {
+) -> impl Fn(ServiceRequest, Next<BoxBody>) -> LocalBoxFuture<'static, Result<ServiceResponse, Error>>
+{
     move |req, next| Box::pin(content_type_middleware(req, next, default.clone()))
 }
 
