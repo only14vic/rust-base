@@ -36,7 +36,7 @@ impl Default for WebConfig {
             accept_hosts: vec!["localhost".into()],
             static_path: "/public".into(),
             static_dir: "public".into(),
-            static_cache: NonZero::new(300).into(),
+            static_cache: NonZero::new(300),
             api: Default::default(),
             jwt: Default::default(),
             auth: Default::default(),
