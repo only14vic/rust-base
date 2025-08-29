@@ -247,12 +247,11 @@ impl FromRequest for HtmlRender {
 
         Box::pin(async move {
             Env::is_debug().then(|| log::trace!("URL: {}", req.path()));
-
-            req.app_data::<HtmlRender>()
-                .ok_or(ErrorInternalServerError(
-                    "HtmlRender does not exist in request."
-                ))
-                .cloned()
+            req.app_data::<Self>()
+                .ok_or("HtmlRender does not exist in request.")
+                .unwrap()
+                .clone()
+                .into_ok()
         })
     }
 }

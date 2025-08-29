@@ -1,8 +1,6 @@
 use {
     crate::http_server::ext::{RequestExt, RequestHeadExt},
-    actix_web::{
-        FromRequest, HttpMessage, HttpRequest, dev::Payload, error::ErrorInternalServerError, web
-    },
+    actix_web::{FromRequest, HttpMessage, HttpRequest, dev::Payload, web},
     app_base::prelude::*,
     serde::Serialize,
     serde_json::{Value, json},
@@ -126,10 +124,10 @@ impl FromRequest for HtmlRenderContext {
 
             req.extensions()
                 .get::<Self>()
-                .cloned()
-                .ok_or(ErrorInternalServerError(
-                    "HtmlRenderContext does not exist in request."
-                ))
+                .ok_or("HtmlRenderContext does not exist in request.")
+                .unwrap()
+                .clone()
+                .into_ok()
         })
     }
 }
