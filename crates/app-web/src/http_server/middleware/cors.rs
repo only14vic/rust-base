@@ -5,7 +5,8 @@ use {
 };
 
 #[allow(dead_code)]
-pub fn cors(web_config: Arc<WebConfig>) -> Cors {
+pub fn cors(web_config: &Arc<WebConfig>) -> Cors {
+    let web_config = web_config.clone();
     Cors::default()
         .allowed_origin_fn(move |header, head| {
             if head

@@ -61,7 +61,7 @@ impl HttpServer {
                 .wrap(from_fn(app_web::middleware::no_cache))
                 .wrap(app_web::middleware::AuthHeader)
                 //.wrap(super::middleware::errors())
-                .wrap(app_web::middleware::cors(config_ref.web.clone()))
+                .wrap(app_web::middleware::cors(&config_ref.web))
                 .wrap(actix_web::middleware::NormalizePath::trim())
                 .wrap(actix_web::middleware::DefaultHeaders::new())
                 .wrap(actix_web::middleware::Logger::default())
