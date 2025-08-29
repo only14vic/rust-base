@@ -55,15 +55,10 @@ Options:
 #[cfg(feature = "std")]
 fn server_run(app: &mut App) -> Void {
     use {
-        actix_http::header,
-        actix_web::{
-            HttpRequest,
-            dev::Service,
-            http::header::{ContentType, TryIntoHeaderValue},
-            web
-        },
+        actix_web::{HttpRequest, http::header::ContentType, middleware::from_fn, web},
         app_async::actix_with_tokio_start,
-        app_web::{api::api_postgrest, ext::RequestExt}
+        app_web::{api::api_postgrest, ext::RequestExt, middleware::content_type},
+        serde_json::Value
     };
 
     let config = app.get::<AppConfig>().unwrap();
@@ -72,25 +67,9 @@ fn server_run(app: &mut App) -> Void {
         let mut server = HttpServer::new(&config);
 
         server.add_service(|srv, cfg| {
-            use serde_json::Value;
-
             srv.service({
                 web::scope(&cfg.config.web.api.path)
-                    .wrap_fn(|mut req, srv| {
-                        if req.headers().get(header::ACCEPT).is_none() {
-                            req.headers_mut().insert(
-                                header::ACCEPT,
-                                ContentType::json().try_into_value().unwrap()
-                            );
-                        }
-                        if req.headers().get(header::CONTENT_TYPE).is_none() {
-                            req.headers_mut().insert(
-                                header::CONTENT_TYPE,
-                                ContentType::json().try_into_value().unwrap()
-                            );
-                        }
-                        srv.call(req)
-                    })
+                    .wrap(from_fn(content_type(ContentType::json())))
                     .default_service(web::to(api_postgrest))
             });
 
