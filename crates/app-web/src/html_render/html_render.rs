@@ -12,6 +12,7 @@ use {
         ops::{Deref, DerefMut},
         pin::Pin
     },
+    futures::future,
     glob::glob,
     regex::Regex,
     std::{
@@ -243,15 +244,11 @@ impl FromRequest for HtmlRender {
     type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let req = req.clone();
-
-        Box::pin(async move {
-            Env::is_debug().then(|| log::trace!("URL: {}", req.path()));
+        Box::pin(future::ok(
             req.app_data::<Self>()
                 .ok_or("HtmlRender does not exist in request.")
                 .unwrap()
                 .clone()
-                .into_ok()
-        })
+        ))
     }
 }
