@@ -4,7 +4,7 @@ use {
         ext::{CurrentUser, DbWeb, JwtToken, OkHttp}
     },
     actix_web::{
-        FromRequest, HttpRequest,
+        FromRequest, HttpRequest, HttpResponse,
         dev::{Payload, RequestHead},
         http::header
     },
@@ -34,7 +34,7 @@ pub trait RequestExt {
 
     async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
 
-    async fn html_render(&self) -> OkHttp;
+    async fn html_render(&self) -> OkHttp<HttpResponse>;
 
     async fn html_render_context(&self) -> Result<HtmlRenderContext, actix_web::Error>;
 }
@@ -95,7 +95,7 @@ impl RequestExt for HttpRequest {
         JwtToken::from_request(self, &mut Payload::None).await
     }
 
-    async fn html_render(&self) -> OkHttp {
+    async fn html_render(&self) -> OkHttp<HttpResponse> {
         HtmlRender::from_request(self, &mut Payload::None)
             .await?
             .render_request(self)

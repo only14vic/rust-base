@@ -3,7 +3,7 @@ use {
     serde::{Deserialize, Serialize}
 };
 
-#[derive(Default, Debug, ExtendFromIter, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, ExtendFromIter, Serialize, Deserialize)]
 pub struct FirewallConfig {
     pub fails_anon: u16,
     pub fails_user: u16,

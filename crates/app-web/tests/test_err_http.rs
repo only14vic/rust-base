@@ -1,14 +1,14 @@
 use {
     app_base::prelude::*,
-    app_web::ext::{ErrHttp, OkHttp},
+    app_web::ext::{ErrHttp, VoidHttp},
     core::error::Error
 };
 
 #[test]
 fn test_err_http() {
-    let err = (|| -> OkHttp {
+    let err = (|| -> VoidHttp {
         (|| -> Void {
-            (|| -> OkHttp {
+            (|| -> VoidHttp {
                 (|| -> VoidAsync {
                     Err(std::io::Error::other("Foo"))?;
                     unreachable!();

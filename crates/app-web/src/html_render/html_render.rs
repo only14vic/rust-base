@@ -141,7 +141,7 @@ impl HtmlRender {
         self.tera.render(template_name, &context.borrow())
     }
 
-    pub async fn render_request(&self, req: &HttpRequest) -> OkHttp {
+    pub async fn render_request(&self, req: &HttpRequest) -> OkHttp<HttpResponse> {
         static CLEAN_REQUEST_PATTERN: LazyLock<Regex> =
             LazyLock::new(|| Regex::new("/?\\{[^\\}]*\\}").unwrap());
 

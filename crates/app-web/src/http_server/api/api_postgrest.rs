@@ -63,7 +63,7 @@ static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .unwrap()
 });
 
-pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp {
+pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp<HttpResponse> {
     let config = req.web_config();
     let api_proxy_path = config.api.path.trim_end_matches("/");
 
