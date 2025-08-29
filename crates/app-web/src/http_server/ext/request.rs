@@ -18,13 +18,13 @@ use {
 };
 
 pub trait RequestExt {
-    fn base_config(&self) -> &BaseConfig;
+    fn base_config(&self) -> &Arc<BaseConfig>;
 
-    fn web_config(&self) -> &WebConfig;
+    fn web_config(&self) -> &Arc<WebConfig>;
 
-    fn db_pool(&self) -> &Pool<Postgres>;
+    fn db_pool(&self) -> &Arc<Pool<Postgres>>;
 
-    fn db_web(&self) -> &DbWeb;
+    fn db_web(&self) -> &Arc<DbWeb>;
 
     fn language(&self) -> Cow<'_, str>;
 
@@ -40,20 +40,20 @@ pub trait RequestExt {
 }
 
 impl RequestExt for HttpRequest {
-    fn base_config(&self) -> &BaseConfig {
-        self.app_data::<Arc<BaseConfig>>().unwrap().as_ref()
+    fn base_config(&self) -> &Arc<BaseConfig> {
+        self.app_data::<Arc<BaseConfig>>().unwrap()
     }
 
-    fn web_config(&self) -> &WebConfig {
-        self.app_data::<Arc<WebConfig>>().unwrap().as_ref()
+    fn web_config(&self) -> &Arc<WebConfig> {
+        self.app_data::<Arc<WebConfig>>().unwrap()
     }
 
-    fn db_pool(&self) -> &Pool<Postgres> {
-        self.app_data::<Arc<Pool<Postgres>>>().unwrap().as_ref()
+    fn db_pool(&self) -> &Arc<Pool<Postgres>> {
+        self.app_data::<Arc<Pool<Postgres>>>().unwrap()
     }
 
-    fn db_web(&self) -> &DbWeb {
-        self.app_data::<DbWeb>().unwrap()
+    fn db_web(&self) -> &Arc<DbWeb> {
+        self.app_data::<Arc<DbWeb>>().unwrap()
     }
 
     fn language(&self) -> Cow<'_, str> {

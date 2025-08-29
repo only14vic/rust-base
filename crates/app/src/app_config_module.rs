@@ -46,7 +46,8 @@ fn module_app_config(app: &mut App, event: AppEvent) -> Void {
                 ("web-hostname", &[], None),
                 ("web-base-url", &[], None),
                 ("web-static-dir", &[], None),
-                ("web-static-path", &[], None)
+                ("web-static-path", &[], None),
+                ("web-static-cache", &[], None)
             ])
             .unwrap();
             if Some("config") == args.get_option("command").unwrap() {

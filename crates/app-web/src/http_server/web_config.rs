@@ -5,6 +5,7 @@ use {
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
     app_base::prelude::*,
+    core::num::NonZero,
     serde::{Deserialize, Serialize}
 };
 
@@ -17,6 +18,7 @@ pub struct WebConfig {
     pub accept_hosts: Vec<String>,
     pub static_path: String,
     pub static_dir: String,
+    pub static_cache: Option<NonZero<u32>>,
     pub api: ApiConfig,
     pub jwt: JwtConfig,
     pub auth: AuthConfig,
@@ -34,6 +36,7 @@ impl Default for WebConfig {
             accept_hosts: vec!["localhost".into()],
             static_path: "/public".into(),
             static_dir: "public".into(),
+            static_cache: NonZero::new(300).into(),
             api: Default::default(),
             jwt: Default::default(),
             auth: Default::default(),
@@ -64,7 +67,8 @@ impl LoadEnv for WebConfig {
                 ("trusted_hosts", getenv("WEB_TRUSTED_HOSTS")),
                 ("accept_hosts", getenv("WEB_ACCEPT_HOSTS")),
                 ("static_dir", getenv("WEB_STATIC_DIR")),
-                ("static_path", getenv("WEB_STATIC_PATH"))
+                ("static_path", getenv("WEB_STATIC_PATH")),
+                ("static_cache", getenv("WEB_STATIC_CACHE"))
             ]
             .iter()
             .map(convert::tuple_option_str)
@@ -88,7 +92,8 @@ impl LoadArgs for WebConfig {
                 ("trusted_hosts", args.get("web-trusted-hosts")),
                 ("accept_hosts", args.get("web-accept-hosts")),
                 ("static_dir", args.get("web-static-dir")),
-                ("static_path", args.get("web-static-path"))
+                ("static_path", args.get("web-static-path")),
+                ("static_cache", args.get("web-static-cache"))
             ]
             .iter()
             .map(convert::tuple_option_option_str)

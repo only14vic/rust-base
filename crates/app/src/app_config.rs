@@ -191,6 +191,12 @@ impl AppConfig {
                 ),
                 ("web.static_dir", &self.web.static_dir),
                 ("web.static_path", &self.web.static_path),
+                (
+                    "web.static_cache",
+                    Box::leak(Box::new(
+                        self.web.static_cache.map(|v| v.get()).unwrap_or_default()
+                    ))
+                ),
                 ("web.api.url", &self.web.api.url),
                 ("web.api.path", &self.web.api.path),
                 ("web.api.proxy_url", &self.web.api.proxy_url),

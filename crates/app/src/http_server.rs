@@ -58,7 +58,7 @@ impl HttpServer {
                 .wrap(app_web::middleware::AuthRequired)
                 //.wrap(from_fn(app_web::middleware::captcha))
                 //.wrap(from_fn(app_web::middleware::firewall))
-                .wrap(from_fn(app_web::middleware::no_cache))
+                .wrap(from_fn(app_web::middleware::cache_control))
                 .wrap(app_web::middleware::AuthHeader)
                 //.wrap(super::middleware::errors())
                 .wrap(app_web::middleware::cors(&config_ref.web))
@@ -109,7 +109,7 @@ impl HttpServer {
         self.add_service(move |srv, cfg| {
             let db_pool =
                 block_on(async { db_pool::<Postgres>(Some(&cfg.config.db)).await.unwrap() });
-            srv.app_data(DbWeb::new(&db_pool));
+            srv.app_data(Arc::new(DbWeb::new(&db_pool)));
             srv.app_data(db_pool);
         })
     }
