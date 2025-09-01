@@ -110,9 +110,6 @@ impl App {
 
         let log = Logger::from_static().unwrap();
 
-        #[allow(unused_variables)]
-        let global_di = Di::from_static();
-
         let mut args = Args::new([
             ("exe", &["0"][..], None),
             ("command", &["1"], Some(AppConfig::DEFAULT_COMMAND)),
