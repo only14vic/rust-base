@@ -31,11 +31,11 @@ run-config: flags
 
 .PHONY: build-app
 build-app: flags
-ifeq ($(static),)
-	cargo rustc -p app --lib --crate-type=cdylib $(CARGO_ARGS)
+ifneq ($(static),)
+	cargo rustc -p app --lib --crate-type=staticlib $(CARGO_ARGS)
 	cargo build -p app --bins $(CARGO_ARGS)
 else
-	cargo rustc -p app --lib --crate-type=staticlib $(CARGO_ARGS)
+	cargo rustc -p app --lib --crate-type=cdylib $(CARGO_ARGS)
 	cargo build -p app --bins $(CARGO_ARGS)
 endif
 
