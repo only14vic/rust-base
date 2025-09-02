@@ -184,7 +184,9 @@ impl Logger {
             libc::gettimeofday(&mut time as *mut _, null_mut());
             let local = &*libc::localtime(&time.tv_sec);
             const BUFF_LEN: usize = 60;
-            let buff = &mut [0u8; BUFF_LEN] as *mut _ as *mut i8;
+            let buff = &mut [0i8; BUFF_LEN] as *mut _ as *mut i8;
+            #[cfg(target_arch = "aarch64")]
+            let buff = buff as *mut u8;
 
             libc::strftime(buff, BUFF_LEN, c"%F %T".as_ptr(), local);
             libc::sprintf(

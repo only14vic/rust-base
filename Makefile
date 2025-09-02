@@ -27,18 +27,25 @@ ifeq ($(debug),)
 endif
 
 DESTDIR = $(PWD)
-CLANG_VERSION = $(shell clang --version | grep -o "version [0-9]\+")
-RUSTFLAGS = -Ctarget-cpu=native \
-			-Clink-arg=-fuse-ld=lld
+RUSTFLAGS =
 
+ifneq ($(static),)
+	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
+endif
+
+ifneq ($(arm),)
+	CARGO_BUILD_TARGET = aarch64-unknown-linux-gnu
+	RUSTFLAGS = -Clinker=aarch64-linux-gnu-gcc \
+				-Clink-arg=-fuse-ld=lld
+else
+	RUSTFLAGS += -Ctarget-cpu=native \
+				 -Clink-arg=-fuse-ld=lld
+	CLANG_VERSION = $(shell clang --version | grep -o "version [0-9]\+")
 ifeq ($(CLANG_VERSION),version 20)
 	RUSTFLAGS += -Clinker=clang \
 				-Clinker-plugin-lto \
 				-Clink-arg=-lc
 endif
-
-ifneq ($(static),)
-	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
 endif
 
 TARGET_DIR = $(shell cargo metadata --format-version 1|jq ".[\"target_directory\"]"|tr -d '"')/$(CARGO_BUILD_TARGET)
