@@ -1,14 +1,19 @@
 ALL += build-app, \
+		build-app static=1, \
 		build-app no_std=1, \
 		build-app no_std=1 static=1, \
 
 TESTS += build-app, \
+		run-config, \
+		build-app static=1, \
+		run-config static=1, \
 		build-app no_std=1, \
-		examples-app-c, \
 		run-app no_std=1, \
-		run-app no_std=1 static=1, \
 		run-config no_std=1, \
+		build-app no_std=1 static=1, \
+		run-app no_std=1 static=1, \
 		run-config no_std=1 static=1, \
+		examples-app-c, \
 		examples-app, \
 		tests-app, \
 

@@ -59,13 +59,12 @@ else
 endif
 
 MAKE_CC = clang
-MAKE_CFLAGS = -std=gnu23 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -fno-fat-lto-objects
+MAKE_CFLAGS = -std=gnu23 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -fno-fat-lto-objects -pipe \
+			-Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$(TARGET_DIR)'
 
 ifneq ($(static),)
 	RUSTFLAGS += -Ctarget-feature=+crt-static
-	MAKE_CFLAGS += -static -static-pie
 else
-	MAKE_CFLAGS += -pipe -Wl,--gc-sections,-z,relro,-z,now,-rpath='$$ORIGIN',-rpath='$$ORIGIN/lib',-rpath='$$ORIGIN/../lib',-rpath='$(TARGET_DIR)'
 ifneq ($(dynamic),)
 	RUSTFLAGS += -Cprefer-dynamic \
 				-Clink-args=-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/lib,-rpath,$ORIGIN/../,-rpath,$ORIGIN/../lib,-rpath,$ORIGIN/../../,-rpath,$ORIGIN/../../lib,-rpath,$ORIGIN/../../../,-rpath,$ORIGIN/../../../lib
@@ -89,8 +88,8 @@ ifdef CARGO_TARGET_DIR
 export CARGO_TARGET_DIR
 endif
 
-MAKE_AOBJS = $(wildcard $(TARGET_DIR)/*.a)
-MAKE_OBJS = $(MAKE_AOBJS:.a=.o)
+MAKE_SOBJS = $(wildcard $(TARGET_DIR)/*.so)
+MAKE_AOBJS = $(MAKE_SOBJS:.so=.a)
 
 ALL =
 TESTS =
@@ -167,9 +166,9 @@ flags:
 env:
 	env|sort
 
-objs: $(MAKE_OBJS)
+objs: $(MAKE_AOBJS)
 
-%.o: %.a
+%.a: %.so
 	ar rcs $@ $<
 
 _confirm:
