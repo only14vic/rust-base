@@ -31,9 +31,10 @@ RUSTFLAGS =
 
 ifneq ($(static),)
 	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
+	export OPENSSL_DIR = /opt/openssl-static
 endif
 
-ifneq ($(arm),)
+ifneq ($(aarch64),)
 	CARGO_BUILD_TARGET = aarch64-unknown-linux-gnu
 	RUSTFLAGS = -Clinker=aarch64-linux-gnu-gcc \
 				-Clink-arg=-fuse-ld=lld
@@ -57,8 +58,8 @@ else
 	TARGET_DIR := $(TARGET_DIR)/debug
 endif
 
-MAKE_CC = cc
-MAKE_CFLAGS = -std=gnu18 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -flto=2 -fno-fat-lto-objects -fuse-linker-plugin
+MAKE_CC = clang
+MAKE_CFLAGS = -std=gnu23 -Wall -Wextra -L$(TARGET_DIR) -fPIC -Os -g -march=native -fno-fat-lto-objects
 
 ifneq ($(static),)
 	RUSTFLAGS += -Ctarget-feature=+crt-static
