@@ -37,6 +37,7 @@ ifneq ($(arm),)
 	CARGO_BUILD_TARGET = aarch64-unknown-linux-gnu
 	RUSTFLAGS = -Clinker=aarch64-linux-gnu-gcc \
 				-Clink-arg=-fuse-ld=lld
+	export OPENSSL_DIR = /opt/openssl-aarch64
 else
 	RUSTFLAGS += -Ctarget-cpu=native \
 				 -Clink-arg=-fuse-ld=lld
