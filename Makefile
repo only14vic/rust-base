@@ -88,8 +88,8 @@ ifdef CARGO_TARGET_DIR
 export CARGO_TARGET_DIR
 endif
 
-MAKE_SOBJS = $(wildcard $(TARGET_DIR)/*.so)
-MAKE_AOBJS = $(MAKE_SOBJS:.so=.a)
+MAKE_OOBJS = $(wildcard $(TARGET_DIR)/*.o)
+MAKE_AOBJS = $(MAKE_OOBJS:.o=.a)
 
 ALL =
 TESTS =
@@ -168,7 +168,7 @@ env:
 
 objs: $(MAKE_AOBJS)
 
-%.a: %.so
+%.a: %.o
 	ar rcs $@ $<
 
 _confirm:
