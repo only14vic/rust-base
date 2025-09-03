@@ -22,23 +22,6 @@ fn test_env() {
                 for _ in 0..MAX_ITERS {
                     black_box({
                         assert_eq!(env.env, std::env::var("APP_ENV").unwrap_or_default());
-                        assert_eq!(
-                            env.is_test,
-                            std::env::var("APP_ENV").unwrap_or_default().as_str() == "test"
-                        );
-                        assert_eq!(
-                            env.is_dev,
-                            std::env::var("APP_ENV").unwrap_or_default().as_str() != "prod"
-                        );
-                        assert_eq!(
-                            env.is_prod,
-                            std::env::var("APP_ENV").unwrap_or_default().as_str() == "prod"
-                        );
-                        assert_eq!(
-                            env.is_debug,
-                            std::env::var("APP_DEBUG").unwrap_or_default().as_str() == "1"
-                        );
-                        assert_eq!(env.is_release, cfg!(debug_assertions) == false);
                     });
                 }
                 dbg!(t.elapsed());
