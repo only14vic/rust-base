@@ -14,7 +14,41 @@ fn test_env() {
 
     let barrier = Barrier::new(THREADS_COUNT);
     let ta = Instant::now();
+    std::thread::scope(|s| {
+        for _ in 0..THREADS_COUNT {
+            s.spawn(|| {
+                barrier.wait();
+                let t = Instant::now();
+                for _ in 0..MAX_ITERS {
+                    black_box({
+                        assert_eq!(env.env, std::env::var("APP_ENV").unwrap_or_default());
+                        assert_eq!(
+                            env.is_test,
+                            std::env::var("APP_ENV").unwrap_or_default().as_str() == "test"
+                        );
+                        assert_eq!(
+                            env.is_dev,
+                            std::env::var("APP_ENV").unwrap_or_default().as_str() != "prod"
+                        );
+                        assert_eq!(
+                            env.is_prod,
+                            std::env::var("APP_ENV").unwrap_or_default().as_str() == "prod"
+                        );
+                        assert_eq!(
+                            env.is_debug,
+                            std::env::var("APP_DEBUG").unwrap_or_default().as_str() == "1"
+                        );
+                        assert_eq!(env.is_release, cfg!(debug_assertions) == false);
+                    });
+                }
+                dbg!(t.elapsed());
+            });
+        }
+    });
+    println!("std::env:var() - time all: {:?} \n", ta.elapsed());
 
+    let barrier = Barrier::new(THREADS_COUNT);
+    let ta = Instant::now();
     std::thread::scope(|s| {
         for _ in 0..THREADS_COUNT {
             s.spawn(|| {
@@ -30,11 +64,9 @@ fn test_env() {
                         assert_eq!(env.is_release, Env::is_release());
                     });
                 }
-
                 dbg!(t.elapsed());
             });
         }
     });
-
-    dbg!(ta.elapsed());
+    println!("Env struct - time all: {:?}", ta.elapsed());
 }
