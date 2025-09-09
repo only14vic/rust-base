@@ -15,11 +15,16 @@ use {
 pub trait AppConfigExt:
     Debug
     + Default
+    + Send
+    + Sync
+    + 'static
     + for<'iter> Extend<(&'iter str, Option<&'iter str>)>
     + LoadArgs
     + LoadEnv
     + LoadDirs
 {
+    const CONFIG_FILE_NAME: &'static str = concat!(env!("APP_BIN"), ".ini");
+    const DEFAULT_COMMAND: &'static str = "run";
 }
 
 #[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
@@ -33,8 +38,8 @@ impl<C> AppConfig<C>
 where
     C: AppConfigExt
 {
-    pub const CONFIG_FILE_NAME: &'static str = concat!(env!("APP_BIN"), ".ini");
-    pub const DEFAULT_COMMAND: &'static str = "run";
+    pub const CONFIG_FILE_NAME: &'static str = C::CONFIG_FILE_NAME;
+    pub const DEFAULT_COMMAND: &'static str = C::DEFAULT_COMMAND;
 
     pub fn load(&mut self, args: Option<&Args>) -> Ok<&mut Self> {
         let mut dirs = Dirs::default();

@@ -42,7 +42,7 @@ fn test_app_config() -> Void {
 
     assert_eq!(
         Some("Bar".into()),
-        config.custom.as_ref().map(|v| unsafe { v.as_ref() })
+        config.custom.as_ref().map(|v| v.as_ref())
     );
 
     ok()

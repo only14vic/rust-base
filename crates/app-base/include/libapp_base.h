@@ -25,6 +25,10 @@ typedef enum LogLevel {
  */
 typedef struct Logger Logger;
 
+
+
+
+
 /**
  * Loads .env file variables
  *

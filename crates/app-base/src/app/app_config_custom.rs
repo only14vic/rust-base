@@ -1,19 +1,19 @@
 use {
     crate::{app::AppConfigExt, prelude::*},
     alloc::{
+        boxed::Box,
         fmt::Display,
         string::{String, ToString},
         vec::Vec
     },
     app_macros::ExtendFromIter,
-    core::{fmt::Debug, ptr::NonNull},
+    core::fmt::Debug,
     serde::{Deserialize, Serialize}
 };
 
 #[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
 pub struct AppConstomConfig {
-    #[serde(skip)]
-    pub custom: Option<NonNull<str>>
+    pub custom: Option<Box<str>>
 }
 
 impl AppConfigExt for AppConstomConfig {}
@@ -25,7 +25,7 @@ impl<'a> From<&'a AppConstomConfig> for Vec<(&'static str, String)> {
             &value
                 .custom
                 .as_ref()
-                .map(|v| unsafe { v.as_ref() })
+                .map(|v| v.as_ref())
                 .unwrap_or_default() as &dyn Display
         )]
         .into_iter()

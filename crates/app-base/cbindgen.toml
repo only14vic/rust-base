@@ -22,7 +22,7 @@ exclude = ["rust_eh_personality", "_Unwind_Resume"]
 include = []
 
 [export.rename]
-#FooStruct = "foo_struct"
+Void = "unsigned int"
 
 [export.mangle]
 rename_types = "SnakeCase"
