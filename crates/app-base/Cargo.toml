@@ -56,6 +56,7 @@ trim-in-place = { workspace = true }
 md5 = { workspace = true }
 heck = { workspace = true }
 any_ascii = { workspace = true }
+impls = { workspace = true }
 # required "std" lib
 criterion = { workspace = true, optional = true }
 

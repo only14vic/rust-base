@@ -21,4 +21,5 @@ libc-print = { workspace = true }
 
 [dev-dependencies]
 ahash = { workspace = true }
+impls = { workspace = true }
 indexmap = { workspace = true }

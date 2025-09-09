@@ -2,9 +2,13 @@ use {
     ahash::AHasher,
     alloc::{
         boxed::Box,
-        string::{String, ToString}
+        format,
+        rc::Rc,
+        string::{String, ToString},
+        sync::Arc
     },
     core::{
+        any::type_name,
         error::Error,
         fmt::{self, Debug, Display},
         hash::BuildHasherDefault,
@@ -200,5 +204,33 @@ where
         Self: Deserialize<'a>
     {
         serde_json::from_slice(value)
+    }
+}
+
+pub trait TryMut {
+    type Inner;
+
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner>;
+}
+
+impl<T> TryMut for Arc<T> {
+    type Inner = T;
+
+    #[inline]
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
+        Arc::get_mut(self)
+            .ok_or_else(|| format!("Could not get mutable reference of {}", type_name::<Self>()))?
+            .into_ok()
+    }
+}
+
+impl<T> TryMut for Rc<T> {
+    type Inner = T;
+
+    #[inline]
+    fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
+        Rc::get_mut(self)
+            .ok_or_else(|| format!("Could not get mutable reference of {}", type_name::<Self>()))?
+            .into_ok()
     }
 }

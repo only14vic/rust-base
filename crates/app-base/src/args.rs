@@ -22,7 +22,7 @@ type ArgsMap = IndexMap<String, Option<String>>;
 #[derive(Debug, Default, PartialEq, Eq)]
 pub enum ArgUndefined {
     Skip,
-    Allow,
+    Add,
     #[default]
     Error
 }
@@ -33,7 +33,7 @@ impl FromStr for ArgUndefined {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().trim() {
             "skip" => Ok(Self::Skip),
-            "allow" => Ok(Self::Allow),
+            "allow" => Ok(Self::Add),
             "error" => Ok(Self::Error),
             s => Err(format!("Invalid value '{s}' of type ArgUndefinedBehavior."))
         }
@@ -185,8 +185,8 @@ impl Args {
             })
             .map(|(&n, _)| n.into_ok())
             .unwrap_or_else(|| {
-                if self.opts.is_empty() || arg == "0" || self.undefined == ArgUndefined::Allow {
-                    arg.into_ok()
+                if self.opts.is_empty() || arg == "0" || self.undefined == ArgUndefined::Add {
+                    arg.trim_start_matches("-").into_ok()
                 } else if self.undefined == ArgUndefined::Skip {
                     "".into_ok()
                 } else {

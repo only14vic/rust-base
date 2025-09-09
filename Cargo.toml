@@ -2,7 +2,7 @@
 resolver = "2"
 members = ["crates/*"]
 default-members = ["crates/*"]
-exclude = []
+exclude = ["crates/app-migrator"]
 
 [workspace.package]
 version = "0.1.0"
@@ -76,7 +76,8 @@ quote = "1.0.40"
 proc-macro2 = "1.0.94"
 ahash = { version = "=0.8.10", default-features = false }
 dashmap = { version = "6.1", features = ["serde"] }
-indexmap = { version = "2.9.0", default-features = false }
+rayon = { version = "1.11.0" }
+indexmap = { version = "2.9.0", default-features = false, features = ["serde"] }
 yansi = { version = "1.0", default-features = false }
 serde = { version = "1.0.219", default-features = false, features = [
   "derive",
@@ -147,6 +148,8 @@ reqwest = { version = "0.12", features = [
   "gzip",
 ] }
 curl = { version = "0.4" }
+impls = { version = "1.0.3" }
+struct-field-names-as-array = { version = "0.3.0" }
 sqlx = { version = "0.8", default-features = false, features = [
   "runtime-tokio-native-tls",
   "macros",
@@ -171,5 +174,6 @@ app = { path = "crates/app", default-features = false }
 app-base = { path = "crates/app-base", default-features = false }
 app-macros = { path = "crates/app-macros", default-features = false }
 app-async = { path = "crates/app-async", default-features = false }
+#app-migrator = { path = "crates/app-migrator", default-features = false }
 app-web = { path = "crates/app-web", default-features = false }
 app-testing = { path = "crates/app-testing", default-features = false }

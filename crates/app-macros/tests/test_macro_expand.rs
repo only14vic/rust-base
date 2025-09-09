@@ -50,7 +50,7 @@ where
 {
     x: &'b str,
     y: RefCell<c_float>,
-    z: Zar,
+    z: RefCell<Zar>,
     _phantom: PhantomData<&'b T>
 }
 
@@ -81,7 +81,8 @@ impl FromStr for Lang {
 
 #[test]
 fn test_extend() -> Result<(), Box<dyn Error>> {
-    let values = gen_values();
+    let values1 = gen_values1();
+    let values2 = gen_values2();
     let mut foo = Foo::<String>::default();
     foo.h = Some("Predefined value".into());
     foo.zar.b = Some(vec![1, 2, 3].into());
@@ -90,7 +91,8 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
     let t = Instant::now();
     for _ in 0..max_iters {
         foo.g = vec!["zzz"];
-        foo.extend(values.clone());
+        foo.extend(values1.clone());
+        foo.extend(values2.clone());
     }
     let time = t.elapsed();
     dbg!(&foo);
@@ -137,20 +139,32 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
 
     assert_eq!(foo.bar.x, "This is Bar");
     assert_eq!(foo.bar.y, 9.999.into());
-    assert_eq!(foo.bar.z.a, Some(-1111));
-    assert_eq!(foo.bar.z.b, Some(vec![-123, 0, 123].into()));
+    assert_eq!(foo.bar.z.borrow().a, Some(-1111));
+    assert_eq!(foo.bar.z.borrow().b, Some(vec![-123, 0, 123].into()));
     assert_eq!(foo.zar.a, Some(-333));
     assert_eq!(foo.zar.b, Some(vec![1, 2, 3].into()));
 
     Ok(())
 }
 
-fn gen_values() -> Vec<(&'static str, Option<&'static str>)> {
+fn gen_values1() -> Vec<(&'static str, Option<&'static str>)> {
     vec![
         ("a", "Hello".into()),
         ("b", "0".into()),
         ("c", "true".into()),
         ("d", "X".into()),
+        ("o.fooooo", "Foooooo".into()),
+        ("p", "C void".into()),
+        ("r", "C str".into()),
+        ("s", "C string".into()),
+        ("bar.x", "This is Bar".into()),
+        ("bar.z.a", "-1111".into()),
+        ("zar.a", "-333".into()),
+    ]
+}
+
+fn gen_values2() -> Vec<(&'static str, Option<&'static str>)> {
+    vec![
         ("e", "1.23".into()),
         ("f", "World".into()),
         ("g", "   a ,   b ,    c   ".into()),
@@ -159,15 +173,8 @@ fn gen_values() -> Vec<(&'static str, Option<&'static str>)> {
         ("m", "  -1111, 0, 111  ".into()),
         ("n.foo", " Foo ".into()),
         ("n.bar", " Bar ".into()),
-        ("o.fooooo", "Foooooo".into()),
         ("o.baaaar", "Baaaaar".into()),
-        ("p", "C void".into()),
-        ("r", "C str".into()),
-        ("s", "C string".into()),
-        ("bar.x", "This is Bar".into()),
         ("bar.y", "9.999".into()),
-        ("bar.z.a", "-1111".into()),
         ("bar.z.b", "  -123, 0, 123 ".into()),
-        ("zar.a", "-333".into()),
     ]
 }

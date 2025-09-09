@@ -9,7 +9,6 @@ use {
 pub struct BaseConfig {
     pub language: String,
     pub timezone: String,
-    #[serde(skip)]
     pub locales: IndexMap<String, Option<String>>,
     #[serde(skip)]
     pub log: LogConfig
@@ -32,7 +31,8 @@ impl LoadEnv for BaseConfig {
         self.extend(
             [
                 ("language", getenv("LANG")),
-                ("timezone", getenv("TZ"))
+                ("timezone", getenv("TZ")),
+                ("locales", getenv("LOCALES"))
             ]
             .iter()
             .map(convert::tuple_option_str)
@@ -54,6 +54,7 @@ impl LoadArgs for BaseConfig {
             [
                 ("language", args.get("language")),
                 ("timezone", args.get("timezone")),
+                ("locales", args.get("locales")),
             ]
             .iter().map(convert::tuple_option_option_str)
         );

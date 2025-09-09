@@ -155,7 +155,7 @@ impl ExtendMacros {
             let mut ty_iter = types.into_iter().enumerate().peekable();
             let mut iterable = false;
             let field_token =
-                self.get_value_token(&field_name, &field.attrs, ty_iter, &mut iterable);
+                self.get_value_token(&field_name, &field.attrs, ty_iter, None, &mut iterable);
 
             if iterable {
                 quote! { #field_token }
@@ -175,6 +175,7 @@ impl ExtendMacros {
         name: &str,
         attrs: &[Attribute],
         mut types: Peekable<I>,
+        prev_ty: Option<&str>,
         iterable: &mut bool
     ) -> TokenStream2 {
         let Some((n, mut ty)) = types.next() else {
@@ -225,23 +226,16 @@ impl ExtendMacros {
             },
             "c_void" => {
                 if n == 0 {
-                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap().into_raw().cast(); }
+                    quote! { self.#name_ident = ::alloc::ffi::CString::new(v).unwrap().into_raw().cast(); }
                 } else {
-                    quote! { ::alloc::ffi::CString::from_str(v).unwrap().into_raw().cast() }
+                    quote! { ::alloc::ffi::CString::new(v).unwrap().into_raw().cast() }
                 }
             },
             "CString" => {
                 if n == 0 {
-                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap(); }
+                    quote! { self.#name_ident = ::alloc::ffi::CString::new(v).unwrap(); }
                 } else {
-                    quote! { ::alloc::ffi::CString::from_str(v).unwrap() }
-                }
-            },
-            "Box" if next_ty == Some("CStr".into()) => {
-                if n == 0 {
-                    quote! { self.#name_ident = ::alloc::ffi::CString::from_str(v).unwrap().into(); }
-                } else {
-                    quote! { ::alloc::ffi::CString::from_str(v).unwrap().into() }
+                    quote! { ::alloc::ffi::CString::new(v).unwrap() }
                 }
             },
             "char" => {
@@ -265,7 +259,14 @@ impl ExtendMacros {
                     quote! { v.to_string() }
                 }
             },
-            "Box" if next_ty == Some("str".into()) => {
+            "Box" | "Arc" | "Rc" | "NonNull" if next_ty == Some("CStr".into()) => {
+                if n == 0 {
+                    quote! { self.#name_ident =  #ty_ident::from(Box::leak(::alloc::ffi::CString::new(v).unwrap().into_boxed_c_str())); }
+                } else {
+                    quote! { #ty_ident::from(Box::leak(::alloc::ffi::CString::new(v).unwrap().into_boxed_c_str())) }
+                }
+            },
+            "Box" | "Arc" | "Rc" | "NonNull" if next_ty == Some("str".into()) => {
                 if n == 0 {
                     quote! { self.#name_ident = #ty_ident::from(v); }
                 } else {
@@ -273,15 +274,58 @@ impl ExtendMacros {
                 }
             },
             "Option" => {
-                let token = self.get_value_token(name, attrs, types, iterable);
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
                 if n == 0 {
                     quote! { self.#name_ident = #ty_ident::from(#token); }
                 } else {
                     quote! { #ty_ident::from(#token) }
                 }
             },
-            "Box" | "Arc" | "Rc" | "RefCell" | "Cell" | "NonZero" | "NonNull" => {
-                let token = self.get_value_token(name, attrs, types, iterable);
+            "Box" => {
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
+                if n == 0 {
+                    quote! { self.#name_ident.extend(#token); }
+                } else {
+                    quote! { #ty_ident::new(#token) }
+                }
+            },
+            "Arc" | "Rc" => {
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
+                if n == 0 {
+                    if *iterable {
+                        quote! {
+                            #ty_ident::get_mut(&mut self.#name_ident)
+                                .ok_or_else(||
+                                    format!(
+                                        "Could not get mutable reference of {}.{}",
+                                        ::core::any::type_name::<#ty_ident<Self>>(),
+                                        #name
+                                    )
+                                )
+                                .unwrap()
+                                .extend(#token);
+                        }
+                    } else {
+                        quote! { self.#name_ident = #ty_ident::new(#token); }
+                    }
+                } else {
+                    quote! { #ty_ident::new(#token) }
+                }
+            },
+            "RefCell" => {
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
+                if n == 0 {
+                    if *iterable {
+                        quote! { self.#name_ident.borrow_mut().extend(#token); }
+                    } else {
+                        quote! { self.#name_ident = #ty_ident::new(#token); }
+                    }
+                } else {
+                    quote! { #ty_ident::new(#token) }
+                }
+            },
+            "Cell" | "NonZero" | "NonNull" => {
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
                 if n == 0 {
                     quote! { self.#name_ident = #ty_ident::new(#token); }
                 } else {
@@ -289,7 +333,7 @@ impl ExtendMacros {
                 }
             },
             "Vec" | "HashSet" | "IndexSet" => {
-                let token = self.get_value_token(name, attrs, types, iterable);
+                let token = self.get_value_token(name, attrs, types, Some(&ty), iterable);
                 let token = quote! {
                     v.split_terminator(',').map(|s| { let v = s.trim(); #token })
                 };
@@ -321,15 +365,26 @@ impl ExtendMacros {
                 let token = quote! {
                      map.iter()
                         .filter_map(|(&name, &value)| {
-                            name.starts_with(concat!(#name, "."))
-                                .then(|| (
-                                    name.trim_start_matches(concat!(#name, ".")).into(),
-                                    value.map(|v| v.into())
-                                ))
+                            (value.is_some() && (name.starts_with(concat!(#name, ".")) || name == #name))
+                                .then(|| {
+                                    let mut name = name.trim_start_matches(#name).trim_start_matches(".");
+                                    let mut value = value;
+
+                                    if value.is_some() && let Some((n, v)) = value.unwrap().split_once("=") {
+                                        name = String::leak([name,".",n.trim()].concat()).trim_start_matches(".");
+                                        value = Some(v.trim());
+                                    }
+
+                                    (name.into(), value.map(|v| v.into()))
+                                })
                         })
                 };
                 if n == 0 {
                     quote! { self.#name_ident.extend(#token); }
+                } else if n == 1
+                    && prev_ty.map(|p| ["Box", "Arc", "Rc", "RefCell"].contains(&p)) == Some(true)
+                {
+                    quote! { #token }
                 } else {
                     quote! { #ty_ident::from_iter(#token) }
                 }
