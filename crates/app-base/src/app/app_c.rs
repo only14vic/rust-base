@@ -1,14 +1,12 @@
 use {
     super::{AppConstomConfig, AppEvent},
+    crate::prelude::*,
     alloc::{boxed::Box, vec::Vec},
     core::{
         ffi::{CStr, c_char, c_int, c_uint},
         mem::transmute
     }
 };
-
-#[cfg(not(feature = "std"))]
-use crate::prelude::*;
 
 pub type App = super::App<AppConstomConfig>;
 
@@ -24,7 +22,6 @@ unsafe extern "C" fn app_new(modules: *mut AppModuleC, count: c_uint) -> *mut Ap
 #[unsafe(no_mangle)]
 #[allow(unused_variables)]
 unsafe extern "C" fn app_boot(app: *mut App, argc: c_int, argv: *const *const c_char) {
-    #[cfg(not(feature = "std"))]
     Di::from_static().set(unsafe { Box::from_raw(app) });
 
     let app = unsafe { &mut *app };

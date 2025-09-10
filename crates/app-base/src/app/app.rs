@@ -245,14 +245,10 @@ where
         }
     }
 
-    #[cfg(feature = "std")]
-    fn panic_handler(info: &PanicHookInfo) {
-        eprintln!("PANIC: {info}");
-        log::error!("{info}");
-    }
-
-    #[cfg(not(feature = "std"))]
-    fn panic_handler(info: &PanicInfo) {
+    fn panic_handler(
+        #[cfg(feature = "std")] info: &PanicHookInfo,
+        #[cfg(not(feature = "std"))] info: &PanicInfo
+    ) {
         eprintln!("PANIC: {info}");
         log::error!("{info}");
         Di::from_static().clear();
