@@ -210,53 +210,15 @@ where
     }
 }
 
-impl<'a, C> IterMut<'a, &'a mut dyn LoadDirs> for AppConfig<C>
-where
-    C: AppConfigExt
-{
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadDirs> {
-        [
-            &mut self.base.try_mut().unwrap().log as &mut dyn LoadDirs,
-            self.external.try_mut().unwrap()
-        ]
-        .into_iter()
-    }
-}
-
-impl<'a, C> IterMut<'a, &'a mut dyn LoadEnv> for AppConfig<C>
-where
-    C: AppConfigExt
-{
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadEnv> {
-        [
-            self.base.try_mut().unwrap() as &mut dyn LoadEnv,
-            self.dirs.try_mut().unwrap(),
-            self.external.try_mut().unwrap()
-        ]
-        .into_iter()
-    }
-}
-
-impl<'a, C> IterMut<'a, &'a mut dyn LoadArgs> for AppConfig<C>
-where
-    C: AppConfigExt
-{
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadArgs> {
-        [
-            self.base.try_mut().unwrap() as &mut dyn LoadArgs,
-            self.dirs.try_mut().unwrap(),
-            self.external.try_mut().unwrap()
-        ]
-        .into_iter()
-    }
-}
-
 impl<C> LoadDirs for AppConfig<C>
 where
     C: AppConfigExt
 {
     fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        let list = <Self as IterMut<&mut dyn LoadDirs>>::iter_mut(self).collect::<Vec<_>>();
+        let list = [
+            &mut self.base.try_mut().unwrap().log as &mut dyn LoadDirs,
+            self.external.try_mut().unwrap()
+        ];
 
         for item in list {
             item.load_dirs(dirs)?;
@@ -271,7 +233,11 @@ where
     C: AppConfigExt
 {
     fn load_env(&mut self) -> Void {
-        let list = <Self as IterMut<&mut dyn LoadEnv>>::iter_mut(self);
+        let list = [
+            self.base.try_mut().unwrap() as &mut dyn LoadEnv,
+            self.dirs.try_mut().unwrap(),
+            self.external.try_mut().unwrap()
+        ];
 
         for item in list {
             item.load_env()?;
@@ -286,7 +252,11 @@ where
     C: AppConfigExt
 {
     fn load_args(&mut self, args: &Args) -> Void {
-        let list = <Self as IterMut<&mut dyn LoadArgs>>::iter_mut(self);
+        let list = [
+            self.base.try_mut().unwrap() as &mut dyn LoadArgs,
+            self.dirs.try_mut().unwrap(),
+            self.external.try_mut().unwrap()
+        ];
 
         for item in list {
             item.load_args(args)?;

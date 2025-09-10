@@ -31,24 +31,6 @@ impl Iter<'_, (&'static str, String)> for AppConstomConfig {
     }
 }
 
-impl<'a> IterMut<'a, &'a mut dyn LoadDirs> for AppConstomConfig {
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadDirs> {
-        [].into_iter()
-    }
-}
-
-impl<'a> IterMut<'a, &'a mut dyn LoadEnv> for AppConstomConfig {
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadEnv> {
-        [].into_iter()
-    }
-}
-
-impl<'a> IterMut<'a, &'a mut dyn LoadArgs> for AppConstomConfig {
-    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadArgs> {
-        [].into_iter()
-    }
-}
-
 impl LoadArgs for AppConstomConfig {
     fn load_args(&mut self, args: &Args) -> Void {
         #[rustfmt::skip]
@@ -60,7 +42,7 @@ impl LoadArgs for AppConstomConfig {
             .map(convert::tuple_option_option_str)
         );
 
-        let list = <Self as IterMut<&mut dyn LoadArgs>>::iter_mut(self);
+        let list = [] as [&mut dyn LoadArgs; 0];
 
         for item in list {
             item.load_args(args)?;
@@ -81,7 +63,7 @@ impl LoadEnv for AppConstomConfig {
             .map(convert::tuple_option_str)
         );
 
-        let list = <Self as IterMut<&mut dyn LoadEnv>>::iter_mut(self);
+        let list = [] as [&mut dyn LoadEnv; 0];
 
         for item in list {
             item.load_env()?;
@@ -93,7 +75,7 @@ impl LoadEnv for AppConstomConfig {
 
 impl LoadDirs for AppConstomConfig {
     fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        let list = <Self as IterMut<&mut dyn LoadDirs>>::iter_mut(self);
+        let list = [] as [&mut dyn LoadDirs; 0];
 
         for item in list {
             item.load_dirs(dirs)?;
