@@ -116,14 +116,14 @@ where
         #[cfg(not(feature = "std"))] argc: c_int,
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<&mut Self> {
+        dotenv(false);
+
+        let log = Logger::from_static().unwrap();
+
         #[cfg(feature = "std")]
         std::panic::set_hook(Box::new(Self::panic_handler));
         #[cfg(not(feature = "std"))]
         set_panic_handler(Box::new(Self::panic_handler));
-
-        dotenv(false);
-
-        let log = Logger::from_static().unwrap();
 
         let mut args = Args::new([
             ("exe", &["0"][..], None),
