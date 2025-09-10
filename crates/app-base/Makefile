@@ -4,6 +4,7 @@ ALL += app-base-build, \
 		app-base-build static=1 no_std=1, \
 
 TESTS += app-base-tests, \
+		app-base-examples, \
 		app-base-build, \
 		app-base-build no_std=1, \
 		app-base-build static=1, \
@@ -25,11 +26,17 @@ endif
 
 .PHONY: app-base-examples
 app-base-examples: flags
-	cargo run -p app-base --example app-base-example1 $(CARGO_ARGS)
+	cargo test -p app-base --examples $(CARGO_ARGS)
 
 .PHONY: app-base-tests
 app-base-tests: flags
 	cargo test -p app-base --tests $(CARGO_ARGS) -- --nocapture
+
+app-base-test_%: flags
+	cargo test -p app-base --test test_$* $(CARGO_ARGS) -- --nocapture
+
+app-base%example: flags
+	cargo run -p app-base --example $@ $(CARGO_ARGS)
 
 app-base%example.c:
 	$(MAKE_CC) $(MAKE_CFLAGS) -lapp_base \
@@ -39,7 +46,7 @@ app-base%example.c:
 
 .PHONY: app-base-check
 app-base-check:
-	find target -type f -executable -path "*/release/examples/app-base-example1" \( \
+	find target -type f -executable -path "*/release/examples/app-base-example" \( \
 			-exec echo -e "-----------------------\n" \; \
 			-exec ls -sh {} \; -exec ldd {} \; \
 			-exec valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --error-exitcode=1 {} \; \
@@ -48,5 +55,5 @@ app-base-check:
 .PHONY: app-base-perf
 app-base-perf:
 	perf record -F99 --call-graph dwarf \
-		"$(shell find target -type f -executable -path "*/release/examples/app-base-example1" | head -n1)"
+		"$(shell find target -type f -executable -path "*/release/examples/app-base-example" | head -n1)"
 	perf report

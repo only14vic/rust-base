@@ -12,8 +12,8 @@ name = "app_base"
 crate-type = ["lib"]
 
 [[example]]
-name = "app-base-example1"
-path = "examples/app-base-example1.rs"
+name = "app-base-example"
+path = "examples/app-base-example.rs"
 
 [[bench]]
 name = "bench_stdlib"
