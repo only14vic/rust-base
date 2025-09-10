@@ -18,37 +18,34 @@ pub struct AppConstomConfig {
 
 impl AppConfigExt for AppConstomConfig {}
 
-impl<'a> From<&'a AppConstomConfig> for Vec<(&'static str, String)> {
-    fn from(value: &'a AppConstomConfig) -> Self {
+impl Iter<'_, (&'static str, String)> for AppConstomConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
         [(
             "custom",
-            &value
-                .custom
-                .as_ref()
-                .map(|v| v.as_ref())
-                .unwrap_or_default() as &dyn Display
+            &self.custom.as_ref().map(|v| v.as_ref()).unwrap_or_default() as &dyn Display
         )]
         .into_iter()
         .map(|(k, v)| (k, v.to_string()))
-        .collect()
+        .collect::<Vec<_>>()
+        .into_iter()
     }
 }
 
-impl<'a> From<&'a mut AppConstomConfig> for Vec<&'a mut dyn LoadDirs> {
-    fn from(_value: &'a mut AppConstomConfig) -> Self {
-        alloc::vec![]
+impl<'a> IterMut<'a, &'a mut dyn LoadDirs> for AppConstomConfig {
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadDirs> {
+        [].into_iter()
     }
 }
 
-impl<'a> From<&'a mut AppConstomConfig> for Vec<&'a mut dyn LoadEnv> {
-    fn from(_value: &'a mut AppConstomConfig) -> Self {
-        alloc::vec![]
+impl<'a> IterMut<'a, &'a mut dyn LoadEnv> for AppConstomConfig {
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadEnv> {
+        [].into_iter()
     }
 }
 
-impl<'a> From<&'a mut AppConstomConfig> for Vec<&'a mut dyn LoadArgs> {
-    fn from(_value: &'a mut AppConstomConfig) -> Self {
-        alloc::vec![]
+impl<'a> IterMut<'a, &'a mut dyn LoadArgs> for AppConstomConfig {
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadArgs> {
+        [].into_iter()
     }
 }
 
@@ -63,10 +60,10 @@ impl LoadArgs for AppConstomConfig {
             .map(convert::tuple_option_option_str)
         );
 
-        let list: Vec<&mut dyn LoadArgs> = self.into();
+        let list = <Self as IterMut<&mut dyn LoadArgs>>::iter_mut(self);
 
-        for config in list {
-            config.load_args(args)?;
+        for item in list {
+            item.load_args(args)?;
         }
 
         ok()
@@ -84,10 +81,10 @@ impl LoadEnv for AppConstomConfig {
             .map(convert::tuple_option_str)
         );
 
-        let list: Vec<&mut dyn LoadEnv> = self.into();
+        let list = <Self as IterMut<&mut dyn LoadEnv>>::iter_mut(self);
 
-        for config in list {
-            config.load_env()?;
+        for item in list {
+            item.load_env()?;
         }
 
         ok()
@@ -96,10 +93,10 @@ impl LoadEnv for AppConstomConfig {
 
 impl LoadDirs for AppConstomConfig {
     fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        let list: Vec<&mut dyn LoadDirs> = self.into();
+        let list = <Self as IterMut<&mut dyn LoadDirs>>::iter_mut(self);
 
-        for config in list {
-            config.load_dirs(dirs)?;
+        for item in list {
+            item.load_dirs(dirs)?;
         }
 
         ok()

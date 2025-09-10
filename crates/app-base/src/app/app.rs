@@ -3,17 +3,29 @@ use std::panic::PanicHookInfo;
 #[cfg(not(feature = "std"))]
 use core::panic::PanicInfo;
 
+#[cfg(not(feature = "std"))]
+use {core::ffi::c_char, core::ffi::c_int};
 use {
     super::AppConfig,
     crate::{app::AppConfigExt, prelude::*},
     alloc::{boxed::Box, format, sync::Arc, vec::Vec},
     core::{
-        ffi::{CStr, c_char, c_int, c_uint},
         mem::forget,
         ops::{Deref, DerefMut},
         ptr::addr_eq
     }
 };
+
+#[repr(C)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AppEvent {
+    APP_INIT,
+    APP_LOADED,
+    APP_BOOT,
+    APP_RUN,
+    APP_END
+}
 
 pub type AppModule<C> = fn(&mut App<C>, AppEvent) -> Void;
 
@@ -27,17 +39,6 @@ where
     modules: Vec<AppModule<C>>,
     commands: IndexMap<&'static str, AppModule<C>>,
     pub clear_global: bool
-}
-
-#[repr(C)]
-#[allow(non_camel_case_types)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum AppEvent {
-    APP_INIT,
-    APP_LOADED,
-    APP_BOOT,
-    APP_RUN,
-    APP_END
 }
 
 impl<C> Deref for App<C>
@@ -256,52 +257,5 @@ where
         log::error!("{info}");
         Di::from_static().clear();
         Logger::from_static().unwrap().log_close();
-    }
-
-    #[unsafe(no_mangle)]
-    extern "C" fn app_new(modules: *mut AppModule<C>, count: c_uint) -> *mut App<C> {
-        let modules = unsafe { Vec::from_raw_parts(modules, count as usize, count as usize) };
-        let app = Self::new(modules);
-        Box::into_raw(app.into())
-    }
-
-    #[unsafe(no_mangle)]
-    #[allow(unused_variables)]
-    extern "C" fn app_boot(app: *mut App<C>, argc: c_int, argv: *const *const c_char) {
-        #[cfg(not(feature = "std"))]
-        Di::from_static().set(unsafe { Box::from_raw(app) });
-
-        let app = unsafe { &mut *app };
-
-        #[cfg(feature = "std")]
-        let _ = app.boot().unwrap_or_else(|e| panic!("{e}"));
-
-        #[cfg(not(feature = "std"))]
-        let _ = app.boot(argc, argv).unwrap_or_else(|e| panic!("{e}"));
-    }
-
-    #[unsafe(no_mangle)]
-    extern "C" fn app_run(app: *mut App<C>) {
-        let app = unsafe { &mut *app };
-        app.run().unwrap_or_else(|e| panic!("{e}"));
-    }
-
-    #[unsafe(no_mangle)]
-    extern "C" fn app_free(app: *mut App<C>) {
-        let _ = unsafe { Box::from_raw(app) };
-    }
-
-    #[unsafe(no_mangle)]
-    #[allow(improper_ctypes_definitions)]
-    unsafe extern "C" fn app_register_command(
-        app: *mut App<C>,
-        command: *const c_char,
-        module: AppModule<C>
-    ) {
-        unsafe {
-            let app = &mut *app;
-            let command = CStr::from_ptr(command).to_str().unwrap();
-            app.register_command(command, module);
-        }
     }
 }

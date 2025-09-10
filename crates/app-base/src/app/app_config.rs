@@ -13,12 +13,13 @@ use {
 };
 
 pub trait AppConfigExt:
-    Debug
-    + Default
+    Default
     + Send
     + Sync
     + 'static
-    + for<'iter> Extend<(&'iter str, Option<&'iter str>)>
+    + Debug
+    + for<'a> Extend<(&'a str, Option<&'a str>)>
+    + for<'a> Iter<'a, (&'static str, String)>
     + LoadArgs
     + LoadEnv
     + LoadDirs
@@ -137,12 +138,11 @@ where
     }
 }
 
-impl<'a, C> From<&'a AppConfig<C>> for Vec<(&'static str, String)>
+impl<C> Iter<'_, (&'static str, String)> for AppConfig<C>
 where
-    C: AppConfigExt,
-    &'a C: Into<Vec<(&'static str, String)>>
+    C: AppConfigExt
 {
-    fn from(value: &'a AppConfig<C>) -> Self {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
         let env = Env::from_static();
         let mut res: Vec<_> = [
             ("env.env", &env.env as &dyn Display),
@@ -150,12 +150,11 @@ where
             ("env.is_dev", &env.is_dev),
             ("env.is_debug", &env.is_debug),
             ("env.is_release", &env.is_release),
-            ("base.language", &value.base.language),
+            ("base.language", &self.base.language),
             (
                 "base.locales",
                 Box::leak(Box::new(
-                    value
-                        .base
+                    self.base
                         .locales
                         .iter()
                         .map(|(n, m)| format!("{n}={}", m.as_ref().unwrap_or(&"".into())))
@@ -163,14 +162,13 @@ where
                         .join("\n")
                 ))
             ),
-            ("base.timezone", &value.base.timezone),
-            ("base.log.level", &value.base.log.level),
-            ("base.log.color", &value.base.log.color),
+            ("base.timezone", &self.base.timezone),
+            ("base.log.level", &self.base.log.level),
+            ("base.log.color", &self.base.log.color),
             (
                 "base.log.filter",
                 Box::leak(Box::new(
-                    value
-                        .base
+                    self.base
                         .log
                         .filter
                         .as_ref()
@@ -180,74 +178,76 @@ where
             ),
             (
                 "base.log.file",
-                Box::leak(Box::new(value.base.log.file.as_deref().unwrap_or_default()))
+                Box::leak(Box::new(self.base.log.file.as_deref().unwrap_or_default()))
             ),
-            ("dirs.exe", Box::leak(Box::new(value.dirs.exe()))),
-            ("dirs.bin", &value.dirs.bin),
-            ("dirs.sbin", &value.dirs.sbin),
-            ("dirs.lib", &value.dirs.lib),
-            ("dirs.man", &value.dirs.man),
-            ("dirs.doc", &value.dirs.doc),
-            ("dirs.var", &value.dirs.var),
-            ("dirs.run", &value.dirs.run),
-            ("dirs.log", &value.dirs.log),
-            ("dirs.data", &value.dirs.data),
-            ("dirs.cache", &value.dirs.cache),
-            ("dirs.state", &value.dirs.state),
-            ("dirs.config", &value.dirs.config),
-            ("dirs.user_config", &value.dirs.user_config),
-            ("dirs.home", &value.dirs.home),
-            ("dirs.include", &value.dirs.include),
-            ("dirs.tmp", &value.dirs.tmp),
-            ("dirs.prefix", &value.dirs.prefix),
-            ("dirs.suffix", &value.dirs.suffix)
+            ("dirs.exe", Box::leak(Box::new(self.dirs.exe()))),
+            ("dirs.bin", &self.dirs.bin),
+            ("dirs.sbin", &self.dirs.sbin),
+            ("dirs.lib", &self.dirs.lib),
+            ("dirs.man", &self.dirs.man),
+            ("dirs.doc", &self.dirs.doc),
+            ("dirs.var", &self.dirs.var),
+            ("dirs.run", &self.dirs.run),
+            ("dirs.log", &self.dirs.log),
+            ("dirs.data", &self.dirs.data),
+            ("dirs.cache", &self.dirs.cache),
+            ("dirs.state", &self.dirs.state),
+            ("dirs.config", &self.dirs.config),
+            ("dirs.user_config", &self.dirs.user_config),
+            ("dirs.home", &self.dirs.home),
+            ("dirs.include", &self.dirs.include),
+            ("dirs.tmp", &self.dirs.tmp),
+            ("dirs.prefix", &self.dirs.prefix),
+            ("dirs.suffix", &self.dirs.suffix)
         ]
         .into_iter()
         .map(|(k, v)| (k, v.to_string()))
         .collect();
 
-        let custom: Vec<(&str, String)> = value.external.as_ref().into();
-        res.extend(custom);
+        res.extend(self.external.iter());
 
-        res
+        res.into_iter()
     }
 }
 
-impl<'a, C> From<&'a mut AppConfig<C>> for Vec<&'a mut dyn LoadDirs>
+impl<'a, C> IterMut<'a, &'a mut dyn LoadDirs> for AppConfig<C>
 where
     C: AppConfigExt
 {
-    fn from(value: &'a mut AppConfig<C>) -> Self {
-        alloc::vec![
-            &mut value.base.try_mut().unwrap().log,
-            value.external.try_mut().unwrap()
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadDirs> {
+        [
+            &mut self.base.try_mut().unwrap().log as &mut dyn LoadDirs,
+            self.external.try_mut().unwrap()
         ]
+        .into_iter()
     }
 }
 
-impl<'a, C> From<&'a mut AppConfig<C>> for Vec<&'a mut dyn LoadEnv>
+impl<'a, C> IterMut<'a, &'a mut dyn LoadEnv> for AppConfig<C>
 where
     C: AppConfigExt
 {
-    fn from(value: &'a mut AppConfig<C>) -> Self {
-        alloc::vec![
-            value.base.try_mut().unwrap(),
-            value.dirs.try_mut().unwrap(),
-            value.external.try_mut().unwrap()
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadEnv> {
+        [
+            self.base.try_mut().unwrap() as &mut dyn LoadEnv,
+            self.dirs.try_mut().unwrap(),
+            self.external.try_mut().unwrap()
         ]
+        .into_iter()
     }
 }
 
-impl<'a, C> From<&'a mut AppConfig<C>> for Vec<&'a mut dyn LoadArgs>
+impl<'a, C> IterMut<'a, &'a mut dyn LoadArgs> for AppConfig<C>
 where
     C: AppConfigExt
 {
-    fn from(value: &'a mut AppConfig<C>) -> Self {
-        alloc::vec![
-            value.base.try_mut().unwrap(),
-            value.dirs.try_mut().unwrap(),
-            value.external.try_mut().unwrap()
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = &'a mut dyn LoadArgs> {
+        [
+            self.base.try_mut().unwrap() as &mut dyn LoadArgs,
+            self.dirs.try_mut().unwrap(),
+            self.external.try_mut().unwrap()
         ]
+        .into_iter()
     }
 }
 
@@ -256,10 +256,10 @@ where
     C: AppConfigExt
 {
     fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        let list = <Vec<&mut dyn LoadDirs>>::from(self);
+        let list = <Self as IterMut<&mut dyn LoadDirs>>::iter_mut(self).collect::<Vec<_>>();
 
-        for config in list {
-            config.load_dirs(dirs)?;
+        for item in list {
+            item.load_dirs(dirs)?;
         }
 
         ok()
@@ -271,10 +271,10 @@ where
     C: AppConfigExt
 {
     fn load_env(&mut self) -> Void {
-        let list = <Vec<&mut dyn LoadEnv>>::from(self);
+        let list = <Self as IterMut<&mut dyn LoadEnv>>::iter_mut(self);
 
-        for config in list {
-            config.load_env()?;
+        for item in list {
+            item.load_env()?;
         }
 
         ok()
@@ -286,10 +286,10 @@ where
     C: AppConfigExt
 {
     fn load_args(&mut self, args: &Args) -> Void {
-        let list: Vec<&mut dyn LoadArgs> = self.into();
+        let list = <Self as IterMut<&mut dyn LoadArgs>>::iter_mut(self);
 
-        for config in list {
-            config.load_args(args)?;
+        for item in list {
+            item.load_args(args)?;
         }
 
         ok()

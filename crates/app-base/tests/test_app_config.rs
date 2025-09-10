@@ -28,7 +28,7 @@ fn test_app_config() -> Void {
 
     config.load(Some(&args))?;
 
-    let config_dump: Vec<(&str, String)> = config.as_ref().into();
+    let config_dump: Vec<(&str, String)> = config.iter().collect();
 
     dbg!(&args, &config);
 

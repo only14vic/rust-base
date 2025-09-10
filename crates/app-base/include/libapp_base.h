@@ -8,6 +8,14 @@
 #include <stdlib.h>
 
 
+typedef enum AppEvent {
+  APP_INIT,
+  APP_LOADED,
+  APP_BOOT,
+  APP_RUN,
+  APP_END,
+} AppEvent;
+
 /**
  * Logging levels for C
  */
@@ -20,14 +28,34 @@ typedef enum LogLevel {
   TRACE = 5,
 } LogLevel;
 
+typedef struct App_app_constom_config App_app_constom_config;
+
 /**
  * Logger
  */
 typedef struct Logger Logger;
 
+typedef struct App_app_constom_config App;
+
+typedef unsigned int (*AppModuleC)(App*, enum AppEvent);
 
 
 
+
+
+#define MODULE_APP_CONFIG module_app_config_c
+
+App *app_new(AppModuleC *modules, unsigned int count);
+
+void app_boot(App *app, int argc, const char *const *argv);
+
+void app_run(App *app);
+
+void app_free(App *app);
+
+void app_register_command(App *app, const char *command, AppModuleC module);
+
+unsigned int module_app_config_c(App *app, enum AppEvent event);
 
 /**
  * Loads .env file variables

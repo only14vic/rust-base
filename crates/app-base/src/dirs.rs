@@ -14,7 +14,7 @@ use {
 const PATH_MAX: usize = libc::PATH_MAX as usize;
 
 pub trait LoadDirs {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void;
+    fn load_dirs<'a>(&'a mut self, dirs: &'a Dirs) -> Void;
 }
 
 #[derive(Debug, Clone, ExtendFromIter, Serialize, Deserialize)]

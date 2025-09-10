@@ -234,3 +234,11 @@ impl<T> TryMut for Rc<T> {
             .into_ok()
     }
 }
+
+pub trait Iter<'a, I: 'a> {
+    fn iter(&'a self) -> impl Iterator<Item = I>;
+}
+
+pub trait IterMut<'a, I: 'a> {
+    fn iter_mut(&'a mut self) -> impl Iterator<Item = I>;
+}
