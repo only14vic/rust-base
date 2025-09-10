@@ -25,7 +25,7 @@ endif
 
 .PHONY: app-base-examples
 app-base-examples: flags
-	cargo run -p app-base --examples $(CARGO_ARGS)
+	cargo run -p app-base --example app-base-example1 $(CARGO_ARGS)
 
 .PHONY: app-base-tests
 app-base-tests: flags
