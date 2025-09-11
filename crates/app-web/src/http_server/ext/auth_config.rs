@@ -83,14 +83,22 @@ pub struct AuthConfig {
     pub modules: AuthModules
 }
 
-impl LoadEnv for AuthConfig {
-    fn load_env(&mut self) -> Void {
-        ok()
+impl Iter<'_, (&'static str, String)> for AuthConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [("web.auth.modules", &self.modules as &dyn Display)]
+            .into_iter()
+            .map(|(k, v)| (k, v.to_string()))
     }
 }
 
+impl InitArgs for AuthConfig {
+    fn init_args(&mut self, _args: &mut Args) {}
+}
+
 impl LoadArgs for AuthConfig {
-    fn load_args(&mut self, _args: &Args) -> Void {
-        ok()
-    }
+    fn load_args(&mut self, _args: &Args) {}
+}
+
+impl LoadEnv for AuthConfig {
+    fn load_env(&mut self) {}
 }

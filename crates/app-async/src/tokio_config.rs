@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    core::fmt::Display,
     serde::{Deserialize, Serialize}
 };
 
@@ -20,24 +21,49 @@ impl Default for TokioConfig {
     }
 }
 
+impl Iter<'_, (&'static str, String)> for TokioConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("tokio.threads", &self.threads as &dyn Display),
+            ("tokio.blocking_threads", &self.blocking_threads),
+            ("tokio.thread_name", &self.thread_name)
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+    }
+}
+
+impl InitArgs for TokioConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("tokio-threads", &[][..], None),
+            ("tokio-blocking-threads", &[], None),
+            ("tokio-thread-name", &[], None)
+        ])
+        .unwrap();
+    }
+}
+
+impl LoadArgs for TokioConfig {
+    fn load_args(&mut self, args: &Args) {
+        self.extend(
+            [
+                ("threads", args.get("tokio-threads")),
+                ("blocking_threads", args.get("tokio-blocking-threads")),
+                ("thread_name", args.get("tokio-thread-name"))
+            ]
+            .iter()
+            .map(convert::tuple_result_option_str)
+        );
+    }
+}
+
 impl LoadEnv for TokioConfig {
-    fn load_env(&mut self) -> Void {
+    fn load_env(&mut self) {
         self.extend(
             [("threads", getenv("TOKIO_THREADS"))]
                 .iter()
                 .map(convert::tuple_option_str)
         );
-        ok()
-    }
-}
-
-impl LoadArgs for TokioConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
-        self.extend(
-            [("threads", args.get("tokio-threads"))]
-                .iter()
-                .map(convert::tuple_result_option_str)
-        );
-        ok()
     }
 }

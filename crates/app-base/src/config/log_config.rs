@@ -31,46 +31,20 @@ impl Default for LogConfig {
     }
 }
 
-impl LoadDirs for LogConfig {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        if self.file.eq(&Some(String::default())) {
-            self.file = None;
-        }
-        if dirs.log.is_empty() == false
-            && let Some(file) = self.file.as_mut()
-            && file.starts_with("/") == false
-        {
-            file.insert(0, '/');
-            file.insert_str(0, dirs.log.trim_end_matches('/'));
-        }
-        ok()
-    }
-}
-
-impl LoadEnv for LogConfig {
-    fn load_env(&mut self) -> Void {
-        self.extend(
-            [
-                ("level", getenv("LOG_LEVEL")),
-                ("file", getenv("LOG_FILE")),
-                ("color", getenv("LOG_COLOR")),
-                ("filter", getenv("LOG_FILTER"))
-            ]
-            .iter()
-            .map(convert::tuple_option_str)
-        );
-        if self.file.eq(&Some(String::default())) {
-            self.file = None;
-        }
-        ok()
+impl InitArgs for LogConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("log-level", &[][..], None),
+            ("log-color", &[], None),
+            ("log-file", &[], None),
+            ("log-filter", &[], None)
+        ])
+        .unwrap();
     }
 }
 
 impl LoadArgs for LogConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
-        if args.get("debug").unwrap_or_default().is_some() {
-            self.level = LevelFilter::Debug;
-        }
+    fn load_args(&mut self, args: &Args) {
         #[rustfmt::skip]
         self.extend(
             [
@@ -85,6 +59,41 @@ impl LoadArgs for LogConfig {
         if self.file.eq(&Some(String::default())) {
             self.file = None;
         }
-        ok()
+        if args.get("debug").unwrap_or_default().is_some() && self.level < LevelFilter::Debug {
+            self.level = LevelFilter::Debug;
+        }
+    }
+}
+
+impl LoadDirs for LogConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) {
+        if self.file.eq(&Some(String::default())) {
+            self.file = None;
+        }
+        if dirs.log.is_empty() == false
+            && let Some(file) = self.file.as_mut()
+            && file.starts_with("/") == false
+        {
+            file.insert(0, '/');
+            file.insert_str(0, dirs.log.trim_end_matches('/'));
+        }
+    }
+}
+
+impl LoadEnv for LogConfig {
+    fn load_env(&mut self) {
+        self.extend(
+            [
+                ("level", getenv("LOG_LEVEL")),
+                ("file", getenv("LOG_FILE")),
+                ("color", getenv("LOG_COLOR")),
+                ("filter", getenv("LOG_FILTER"))
+            ]
+            .iter()
+            .map(convert::tuple_option_str)
+        );
+        if self.file.eq(&Some(String::default())) {
+            self.file = None;
+        }
     }
 }

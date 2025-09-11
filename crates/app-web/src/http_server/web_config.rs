@@ -5,7 +5,7 @@ use {
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
     app_base::prelude::*,
-    core::num::NonZero,
+    core::{fmt::Display, num::NonZero},
     serde::{Deserialize, Serialize}
 };
 
@@ -46,44 +46,70 @@ impl Default for WebConfig {
     }
 }
 
-impl LoadDirs for WebConfig {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
-            self.static_dir.insert(0, '/');
-            self.static_dir.insert_str(0, &dirs.data);
-        }
-        self.html_render.load_dirs(dirs)?;
-        ok()
+impl Iter<'_, (&'static str, String)> for WebConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        let mut res: Vec<_> = [
+            ("web.host", &self.host as &dyn Display),
+            ("web.hostname", &self.hostname),
+            ("web.base_url", &self.base_url),
+            (
+                "web.trusted_hosts",
+                Box::leak(Box::new(self.trusted_hosts.join(",")))
+            ),
+            (
+                "web.accept_hosts",
+                Box::leak(Box::new(self.accept_hosts.join(",")))
+            ),
+            ("web.static_dir", &self.static_dir),
+            ("web.static_path", &self.static_path),
+            (
+                "web.static_cache",
+                Box::leak(Box::new(
+                    self.static_cache.map(|v| v.get()).unwrap_or_default()
+                ))
+            )
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+        .collect();
+
+        res.extend(self.api.iter());
+        res.extend(self.jwt.iter());
+        res.extend(self.auth.iter());
+        res.extend(self.firewall.iter());
+        res.extend(self.html_render.iter());
+
+        res.into_iter()
     }
 }
 
-impl LoadEnv for WebConfig {
-    fn load_env(&mut self) -> Void {
-        self.extend(
-            [
-                ("host", getenv("WEB_HOST")),
-                ("hostname", getenv("WEB_HOSTNAME")),
-                ("base_url", getenv("WEB_BASE_URL")),
-                ("trusted_hosts", getenv("WEB_TRUSTED_HOSTS")),
-                ("accept_hosts", getenv("WEB_ACCEPT_HOSTS")),
-                ("static_dir", getenv("WEB_STATIC_DIR")),
-                ("static_path", getenv("WEB_STATIC_PATH")),
-                ("static_cache", getenv("WEB_STATIC_CACHE"))
-            ]
-            .iter()
-            .map(convert::tuple_option_str)
-        );
-        self.api.load_env()?;
-        self.jwt.load_env()?;
-        self.auth.load_env()?;
-        self.firewall.load_env()?;
-        self.html_render.load_env()?;
-        ok()
+impl InitArgs for WebConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("web-host", &[][..], None),
+            ("web-hostname", &[], None),
+            ("web-base-url", &[], None),
+            ("web-trusted-hosts", &[], None),
+            ("web-accept-hosts", &[], None),
+            ("web-static-dir", &[], None),
+            ("web-static-path", &[], None),
+            ("web-static-cache", &[], None)
+        ])
+        .unwrap();
+
+        let list = [
+            &mut self.api as &mut dyn InitArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
+            &mut self.html_render
+        ];
+
+        for item in list {
+            item.init_args(args);
+        }
     }
 }
 
 impl LoadArgs for WebConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
+    fn load_args(&mut self, args: &Args) {
         self.extend(
             [
                 ("host", args.get("web-host")),
@@ -98,11 +124,57 @@ impl LoadArgs for WebConfig {
             .iter()
             .map(convert::tuple_result_option_str)
         );
-        self.api.load_args(args)?;
-        self.jwt.load_args(args)?;
-        self.auth.load_args(args)?;
-        self.firewall.load_args(args)?;
-        self.html_render.load_args(args)?;
-        ok()
+
+        let list = [
+            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
+            &mut self.html_render
+        ];
+
+        for item in list {
+            item.load_args(args);
+        }
+    }
+}
+
+impl LoadEnv for WebConfig {
+    fn load_env(&mut self) {
+        self.extend(
+            [
+                ("host", getenv("WEB_HOST")),
+                ("hostname", getenv("WEB_HOSTNAME")),
+                ("base_url", getenv("WEB_BASE_URL")),
+                ("trusted_hosts", getenv("WEB_TRUSTED_HOSTS")),
+                ("accept_hosts", getenv("WEB_ACCEPT_HOSTS")),
+                ("static_dir", getenv("WEB_STATIC_DIR")),
+                ("static_path", getenv("WEB_STATIC_PATH")),
+                ("static_cache", getenv("WEB_STATIC_CACHE"))
+            ]
+            .iter()
+            .map(convert::tuple_option_str)
+        );
+
+        let list = [
+            &mut self.api as &mut dyn LoadEnv, &mut self.jwt, &mut self.auth, &mut self.firewall,
+            &mut self.html_render
+        ];
+
+        for item in list {
+            item.load_env();
+        }
+    }
+}
+
+impl LoadDirs for WebConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) {
+        if dirs.data.is_empty() == false && self.static_dir.starts_with("/") == false {
+            self.static_dir.insert(0, '/');
+            self.static_dir.insert_str(0, &dirs.data);
+        }
+
+        let list = [&mut self.html_render as &mut dyn LoadDirs];
+
+        for item in list {
+            item.load_dirs(dirs);
+        }
     }
 }

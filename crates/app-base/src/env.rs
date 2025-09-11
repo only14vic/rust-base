@@ -1,5 +1,4 @@
 use {
-    crate::prelude::Void,
     alloc::{boxed::Box, string::String},
     core::{
         ptr::null_mut,
@@ -32,7 +31,7 @@ pub fn getenv(name: &str) -> Option<String> {
 }
 
 pub trait LoadEnv {
-    fn load_env(&mut self) -> Void;
+    fn load_env(&mut self);
 }
 
 static ENV: AtomicPtr<Env> = AtomicPtr::new(null_mut());

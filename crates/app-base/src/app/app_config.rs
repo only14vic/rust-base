@@ -1,13 +1,6 @@
 use {
     crate::prelude::*,
-    alloc::{
-        boxed::Box,
-        fmt::{Debug, Display},
-        format,
-        string::{String, ToString},
-        sync::Arc,
-        vec::Vec
-    },
+    alloc::{fmt::Debug, format, string::String, sync::Arc, vec::Vec},
     core::ops::{Deref, DerefMut},
     serde::{Deserialize, Serialize}
 };
@@ -20,6 +13,7 @@ pub trait AppConfigExt:
     + Debug
     + for<'a> Extend<(&'a str, Option<&'a str>)>
     + for<'a> Iter<'a, (&'static str, String)>
+    + InitArgs
     + LoadArgs
     + LoadEnv
     + LoadDirs
@@ -44,10 +38,10 @@ where
 
     pub fn load(&mut self, args: Option<&Args>) -> Ok<&mut Self> {
         let mut dirs = Dirs::default();
-        dirs.load_env()?;
+        dirs.load_env();
 
         if let Some(args) = args {
-            dirs.load_args(args)?;
+            dirs.load_args(args);
         }
 
         dirs.init();
@@ -87,14 +81,14 @@ where
         self.extend(&ini);
         self.external.try_mut()?.extend(&ini);
 
-        self.load_env()?;
+        self.load_env();
 
         if let Some(args) = args {
-            self.load_args(args)?;
+            self.load_args(args);
         }
 
         self.dirs.try_mut()?.init();
-        self.load_dirs(&self.dirs.clone())?;
+        self.load_dirs(&self.dirs.clone());
 
         Ok(self)
     }
@@ -143,107 +137,28 @@ where
     C: AppConfigExt
 {
     fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
-        let env = Env::from_static();
-        let mut res: Vec<_> = [
-            ("env.env", &env.env as &dyn Display),
-            ("env.is_prod", &env.is_prod),
-            ("env.is_dev", &env.is_dev),
-            ("env.is_debug", &env.is_debug),
-            ("env.is_release", &env.is_release),
-            ("base.language", &self.base.language),
-            (
-                "base.locales",
-                Box::leak(Box::new(
-                    self.base
-                        .locales
-                        .iter()
-                        .map(|(n, m)| format!("{n}={}", m.as_ref().unwrap_or(&"".into())))
-                        .collect::<Vec<_>>()
-                        .join("\n")
-                ))
-            ),
-            ("base.timezone", &self.base.timezone),
-            ("base.log.level", &self.base.log.level),
-            ("base.log.color", &self.base.log.color),
-            (
-                "base.log.filter",
-                Box::leak(Box::new(
-                    self.base
-                        .log
-                        .filter
-                        .as_ref()
-                        .map(|v| v.join(","))
-                        .unwrap_or_default()
-                ))
-            ),
-            (
-                "base.log.file",
-                Box::leak(Box::new(self.base.log.file.as_deref().unwrap_or_default()))
-            ),
-            ("dirs.exe", Box::leak(Box::new(self.dirs.exe()))),
-            ("dirs.bin", &self.dirs.bin),
-            ("dirs.sbin", &self.dirs.sbin),
-            ("dirs.lib", &self.dirs.lib),
-            ("dirs.man", &self.dirs.man),
-            ("dirs.doc", &self.dirs.doc),
-            ("dirs.var", &self.dirs.var),
-            ("dirs.run", &self.dirs.run),
-            ("dirs.log", &self.dirs.log),
-            ("dirs.data", &self.dirs.data),
-            ("dirs.cache", &self.dirs.cache),
-            ("dirs.state", &self.dirs.state),
-            ("dirs.config", &self.dirs.config),
-            ("dirs.user_config", &self.dirs.user_config),
-            ("dirs.home", &self.dirs.home),
-            ("dirs.include", &self.dirs.include),
-            ("dirs.tmp", &self.dirs.tmp),
-            ("dirs.prefix", &self.dirs.prefix),
-            ("dirs.suffix", &self.dirs.suffix)
-        ]
-        .into_iter()
-        .map(|(k, v)| (k, v.to_string()))
-        .collect();
-
+        let mut res = Vec::new();
+        res.extend(self.base.iter());
+        res.extend(self.dirs.iter());
         res.extend(self.external.iter());
-
         res.into_iter()
     }
 }
 
-impl<C> LoadDirs for AppConfig<C>
+impl<C> InitArgs for AppConfig<C>
 where
     C: AppConfigExt
 {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+    fn init_args(&mut self, args: &mut Args) {
         let list = [
-            &mut self.base.try_mut().unwrap().log as &mut dyn LoadDirs,
-            self.external.try_mut().unwrap()
-        ];
-
-        for item in list {
-            item.load_dirs(dirs)?;
-        }
-
-        ok()
-    }
-}
-
-impl<C> LoadEnv for AppConfig<C>
-where
-    C: AppConfigExt
-{
-    fn load_env(&mut self) -> Void {
-        let list = [
-            self.base.try_mut().unwrap() as &mut dyn LoadEnv,
+            self.base.try_mut().unwrap() as &mut dyn InitArgs,
             self.dirs.try_mut().unwrap(),
             self.external.try_mut().unwrap()
         ];
 
         for item in list {
-            item.load_env()?;
+            item.init_args(args);
         }
-
-        ok()
     }
 }
 
@@ -251,7 +166,7 @@ impl<C> LoadArgs for AppConfig<C>
 where
     C: AppConfigExt
 {
-    fn load_args(&mut self, args: &Args) -> Void {
+    fn load_args(&mut self, args: &Args) {
         let list = [
             self.base.try_mut().unwrap() as &mut dyn LoadArgs,
             self.dirs.try_mut().unwrap(),
@@ -259,9 +174,40 @@ where
         ];
 
         for item in list {
-            item.load_args(args)?;
+            item.load_args(args);
         }
+    }
+}
 
-        ok()
+impl<C> LoadDirs for AppConfig<C>
+where
+    C: AppConfigExt
+{
+    fn load_dirs(&mut self, dirs: &Dirs) {
+        let list = [
+            self.base.try_mut().unwrap() as &mut dyn LoadDirs,
+            self.external.try_mut().unwrap()
+        ];
+
+        for item in list {
+            item.load_dirs(dirs);
+        }
+    }
+}
+
+impl<C> LoadEnv for AppConfig<C>
+where
+    C: AppConfigExt
+{
+    fn load_env(&mut self) {
+        let list = [
+            self.base.try_mut().unwrap() as &mut dyn LoadEnv,
+            self.dirs.try_mut().unwrap(),
+            self.external.try_mut().unwrap()
+        ];
+
+        for item in list {
+            item.load_env();
+        }
     }
 }

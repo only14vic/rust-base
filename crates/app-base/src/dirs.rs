@@ -1,12 +1,13 @@
 use {
     crate::prelude::*,
     alloc::{
+        boxed::Box,
         ffi::CString,
         format,
         string::{String, ToString},
         vec::Vec
     },
-    core::{cell::RefCell, mem::ManuallyDrop, ptr::null_mut, str::FromStr},
+    core::{cell::RefCell, fmt::Display, mem::ManuallyDrop, ptr::null_mut, str::FromStr},
     libc::{getcwd, readlink},
     serde::{Deserialize, Serialize}
 };
@@ -14,7 +15,7 @@ use {
 const PATH_MAX: usize = libc::PATH_MAX as usize;
 
 pub trait LoadDirs {
-    fn load_dirs<'a>(&'a mut self, dirs: &'a Dirs) -> Void;
+    fn load_dirs<'a>(&'a mut self, dirs: &'a Dirs);
 }
 
 #[derive(Debug, Clone, ExtendFromIter, Serialize, Deserialize)]
@@ -246,8 +247,75 @@ impl Dirs {
     }
 }
 
+impl Iter<'_, (&'static str, String)> for Dirs {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("dirs.exe", Box::leak(Box::new(self.exe())) as &dyn Display),
+            ("dirs.bin", &self.bin),
+            ("dirs.sbin", &self.sbin),
+            ("dirs.lib", &self.lib),
+            ("dirs.man", &self.man),
+            ("dirs.doc", &self.doc),
+            ("dirs.var", &self.var),
+            ("dirs.run", &self.run),
+            ("dirs.log", &self.log),
+            ("dirs.data", &self.data),
+            ("dirs.cache", &self.cache),
+            ("dirs.state", &self.state),
+            ("dirs.config", &self.config),
+            ("dirs.user_config", &self.user_config),
+            ("dirs.home", &self.home),
+            ("dirs.include", &self.include),
+            ("dirs.tmp", &self.tmp),
+            ("dirs.prefix", &self.prefix),
+            ("dirs.suffix", &self.suffix)
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+    }
+}
+
+impl InitArgs for Dirs {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("home-dir", &[][..], None),
+            ("config-dir", &[], None),
+            ("user-config-dir", &[], None),
+            ("log-dir", &[], None),
+            ("var-dir", &[], None),
+            ("run-dir", &[], None),
+            ("data-dir", &[], None),
+            ("cache-dir", &[], None),
+            ("state-dir", &[], None),
+            ("tmp-dir", &[], None)
+        ])
+        .unwrap();
+    }
+}
+
+impl LoadArgs for Dirs {
+    fn load_args(&mut self, args: &Args) {
+        self.extend(
+            [
+                ("home", args.get("home-dir")),
+                ("config", args.get("config-dir")),
+                ("user_config", args.get("user-config-dir")),
+                ("log", args.get("log-dir")),
+                ("var", args.get("var-dir")),
+                ("run", args.get("run-dir")),
+                ("data", args.get("data-dir")),
+                ("cache", args.get("cache-dir")),
+                ("state", args.get("state-dir")),
+                ("tmp", args.get("tmp-dir"))
+            ]
+            .iter()
+            .map(convert::tuple_result_option_str)
+        );
+    }
+}
+
 impl LoadEnv for Dirs {
-    fn load_env(&mut self) -> Void {
+    fn load_env(&mut self) {
         #[rustfmt::skip]
         self.extend(
             [
@@ -270,28 +338,5 @@ impl LoadEnv for Dirs {
             .iter()
             .map(convert::tuple_option_str)
         );
-        ok()
-    }
-}
-
-impl LoadArgs for Dirs {
-    fn load_args(&mut self, args: &Args) -> Void {
-        self.extend(
-            [
-                ("home", args.get("home-dir")?),
-                ("config", args.get("config-dir")?),
-                ("user_config", args.get("user-config-dir")?),
-                ("log", args.get("log-dir")?),
-                ("var", args.get("var-dir")?),
-                ("run", args.get("run-dir")?),
-                ("data", args.get("data-dir")?),
-                ("cache", args.get("cache-dir")?),
-                ("state", args.get("state-dir")?),
-                ("tmp", args.get("tmp-dir")?)
-            ]
-            .iter()
-            .map(convert::tuple_option_str)
-        );
-        ok()
     }
 }

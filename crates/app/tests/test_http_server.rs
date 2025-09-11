@@ -2,7 +2,7 @@ use {
     actix_web::{
         HttpRequest, HttpResponse, body::MessageBody, dev::Service, test::TestRequest, web
     },
-    app::{App, AppConfig, HttpServer},
+    app::{App, HttpServer},
     app_base::prelude::*,
     common::TEST
 };
@@ -10,12 +10,12 @@ use {
 mod common;
 
 #[actix_web::test]
-async fn test_app_http_server_success() -> Void {
+async fn test_http_server_success() -> Void {
     TEST.run(async {
         let mut app = App::new([]);
         app.boot()?;
 
-        let config = app.get::<AppConfig>().unwrap();
+        let config = app.config();
         let mut server_config = HttpServer::new(&config);
 
         server_config.add_service(|srv, _cfg| {

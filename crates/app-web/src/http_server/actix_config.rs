@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    core::fmt::Display,
     serde::{Deserialize, Serialize}
 };
 
@@ -24,34 +25,36 @@ impl Default for ActixConfig {
     }
 }
 
-impl LoadDirs for ActixConfig {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
-        if dirs.run.is_empty() == false && self.socket.starts_with("/") == false {
-            self.socket.insert(0, '/');
-            self.socket.insert_str(0, &dirs.run);
-        }
-        ok()
+impl Iter<'_, (&'static str, String)> for ActixConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("actix.port", &self.port as &dyn Display),
+            ("actix.socket", &self.socket),
+            ("actix.listen", &self.listen),
+            ("actix.threads", &self.threads),
+            (
+                "actix.blocking_threads_per_worker", &self.blocking_threads_per_worker
+            )
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
     }
 }
 
-impl LoadEnv for ActixConfig {
-    fn load_env(&mut self) -> Void {
-        self.extend(
-            [
-                ("socket", getenv("ACTIX_SOCKET")),
-                ("listen", getenv("ACTIX_LISTEN")),
-                ("port", getenv("ACTIX_PORT")),
-                ("threads", getenv("ACTIX_THREADS"))
-            ]
-            .iter()
-            .map(convert::tuple_option_str)
-        );
-        ok()
+impl InitArgs for ActixConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("actix-socket", &[][..], None),
+            ("actix-listen", &[], None),
+            ("actix-port", &[], None),
+            ("actix-threads", &[], None)
+        ])
+        .unwrap();
     }
 }
 
 impl LoadArgs for ActixConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
+    fn load_args(&mut self, args: &Args) {
         self.extend(
             [
                 ("socket", args.get("actix-socket")),
@@ -62,6 +65,29 @@ impl LoadArgs for ActixConfig {
             .iter()
             .map(convert::tuple_result_option_str)
         );
-        ok()
+    }
+}
+
+impl LoadDirs for ActixConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) {
+        if dirs.run.is_empty() == false && self.socket.starts_with("/") == false {
+            self.socket.insert(0, '/');
+            self.socket.insert_str(0, &dirs.run);
+        }
+    }
+}
+
+impl LoadEnv for ActixConfig {
+    fn load_env(&mut self) {
+        self.extend(
+            [
+                ("socket", getenv("ACTIX_SOCKET")),
+                ("listen", getenv("ACTIX_LISTEN")),
+                ("port", getenv("ACTIX_PORT")),
+                ("threads", getenv("ACTIX_THREADS"))
+            ]
+            .iter()
+            .map(convert::tuple_option_str)
+        );
     }
 }

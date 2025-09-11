@@ -12,10 +12,10 @@ name = "app_web"
 crate-type = ["lib"]
 
 [features]
-default = []
+default = ["app-base/std"]
 
 [dependencies]
-app-base = { workspace = true, features = ["std"] }
+app-base = { workspace = true }
 app-async = { workspace = true }
 tokio = { workspace = true }
 actix = { workspace = true }

@@ -10,7 +10,7 @@ extern crate core;
 use core::ffi::{c_char, c_int};
 
 #[allow(unused_imports)]
-use {app::*, app_base::prelude::*};
+use {app::App, app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {

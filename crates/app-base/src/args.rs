@@ -12,8 +12,12 @@ use {
     }
 };
 
+pub trait InitArgs {
+    fn init_args(&mut self, args: &mut Args);
+}
+
 pub trait LoadArgs {
-    fn load_args(&mut self, args: &Args) -> Void;
+    fn load_args(&mut self, args: &Args);
 }
 
 type ArgsOpts = IndexMap<&'static str, &'static [&'static str]>;

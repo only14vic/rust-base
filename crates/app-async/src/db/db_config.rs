@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    core::fmt::Display,
     serde::{Deserialize, Serialize}
 };
 
@@ -28,8 +29,43 @@ impl Default for DbConfig {
     }
 }
 
+impl Iter<'_, (&'static str, String)> for DbConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("db.url", &self.url as &dyn Display),
+            (
+                "db.schema",
+                Box::leak(Box::new(self.schema.as_deref().unwrap_or_default()))
+            ),
+            ("db.min_conn", &self.min_conn),
+            ("db.max_conn", &self.max_conn),
+            ("db.idle_timeout", &self.idle_timeout),
+            ("db.max_lifetime", &self.max_lifetime),
+            ("db.acquire_timeout", &self.acquire_timeout)
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+    }
+}
+
+impl InitArgs for DbConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([("db-url", &[][..], None)]).unwrap();
+    }
+}
+
+impl LoadArgs for DbConfig {
+    fn load_args(&mut self, args: &Args) {
+        self.extend(
+            [("url", args.get("db-url"))]
+                .iter()
+                .map(convert::tuple_result_option_str)
+        );
+    }
+}
+
 impl LoadEnv for DbConfig {
-    fn load_env(&mut self) -> Void {
+    fn load_env(&mut self) {
         self.extend(
             [
                 ("url", getenv("DATABASE_URL")),
@@ -40,17 +76,5 @@ impl LoadEnv for DbConfig {
             .iter()
             .map(convert::tuple_option_str)
         );
-        ok()
-    }
-}
-
-impl LoadArgs for DbConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
-        self.extend(
-            [("url", args.get("db-url"))]
-                .iter()
-                .map(convert::tuple_result_option_str)
-        );
-        ok()
     }
 }

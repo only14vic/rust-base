@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    core::fmt::Display,
     serde::{Deserialize, Serialize},
     std::fmt::Debug
 };
@@ -25,8 +26,59 @@ impl Default for JwtConfig {
     }
 }
 
+impl Iter<'_, (&'static str, String)> for JwtConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("web.jwt.secret", &self.secret as &dyn Display),
+            ("web.jwt.issuer", &self.issuer),
+            ("web.jwt.audience", &self.audience),
+            ("web.jwt.access_token_lifetime", &self.access_token_lifetime),
+            (
+                "web.jwt.refresh_token_lifetime", &self.refresh_token_lifetime
+            )
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+    }
+}
+
+impl InitArgs for JwtConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("web-jwt-secret", &[][..], None),
+            ("web-jwt-issuer", &[], None),
+            ("web-jwt-audience", &[], None),
+            ("web-jwt-access-token-lifetime", &[], None),
+            ("web-jwt-refresh-token-lifetime", &[], None)
+        ])
+        .unwrap();
+    }
+}
+
+impl LoadArgs for JwtConfig {
+    fn load_args(&mut self, args: &Args) {
+        self.extend(
+            [
+                ("secret", args.get("web-jwt-secret")),
+                ("issuer", args.get("web-jwt-issuer")),
+                ("audience", args.get("web-jwt-audience")),
+                (
+                    "access_token_lifetime",
+                    args.get("web-jwt-access-token-lifetime")
+                ),
+                (
+                    "refresh_token_lifetime",
+                    args.get("web-jwt-refresh-token-lifetime")
+                )
+            ]
+            .iter()
+            .map(convert::tuple_result_option_str)
+        );
+    }
+}
+
 impl LoadEnv for JwtConfig {
-    fn load_env(&mut self) -> Void {
+    fn load_env(&mut self) {
         self.extend(
             [
                 ("secret", getenv("JWT_SECRET")),
@@ -41,29 +93,5 @@ impl LoadEnv for JwtConfig {
             .iter()
             .map(convert::tuple_option_str)
         );
-        ok()
-    }
-}
-
-impl LoadArgs for JwtConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
-        self.extend(
-            [
-                ("secret", args.get("jwt-secret")),
-                ("issuer", args.get("jwt-issuer")),
-                ("audience", args.get("jwt-audience")),
-                (
-                    "access_token_lifetime",
-                    args.get("jwt-access-token-lifetime")
-                ),
-                (
-                    "refresh_token_lifetime",
-                    args.get("jwt-refresh-token-lifetime")
-                )
-            ]
-            .iter()
-            .map(convert::tuple_result_option_str)
-        );
-        ok()
     }
 }

@@ -12,13 +12,13 @@ use {
 };
 
 #[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
-pub struct AppConstomConfig {
+pub struct AppSimpleConfig {
     pub custom: Option<Box<str>>
 }
 
-impl AppConfigExt for AppConstomConfig {}
+impl AppConfigExt for AppSimpleConfig {}
 
-impl Iter<'_, (&'static str, String)> for AppConstomConfig {
+impl Iter<'_, (&'static str, String)> for AppSimpleConfig {
     fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
         [(
             "custom",
@@ -31,11 +31,19 @@ impl Iter<'_, (&'static str, String)> for AppConstomConfig {
     }
 }
 
-impl LoadArgs for AppConstomConfig {
-    fn load_args(&mut self, args: &Args) -> Void {
+impl InitArgs for AppSimpleConfig {
+    fn init_args(&mut self, args: &mut Args) {
         #[rustfmt::skip]
-        self.extend(
-            [
+        args.add_options([
+            ("custom", &[][..], None)
+        ]).unwrap();
+    }
+}
+
+impl LoadArgs for AppSimpleConfig {
+    fn load_args(&mut self, args: &Args) {
+        #[rustfmt::skip]
+        self.extend([
                 ("custom", args.get("custom"))
             ]
             .iter()
@@ -45,15 +53,13 @@ impl LoadArgs for AppConstomConfig {
         let list = [] as [&mut dyn LoadArgs; 0];
 
         for item in list {
-            item.load_args(args)?;
+            item.load_args(args);
         }
-
-        ok()
     }
 }
 
-impl LoadEnv for AppConstomConfig {
-    fn load_env(&mut self) -> Void {
+impl LoadEnv for AppSimpleConfig {
+    fn load_env(&mut self) {
         #[rustfmt::skip]
         self.extend(
             [
@@ -66,21 +72,17 @@ impl LoadEnv for AppConstomConfig {
         let list = [] as [&mut dyn LoadEnv; 0];
 
         for item in list {
-            item.load_env()?;
+            item.load_env();
         }
-
-        ok()
     }
 }
 
-impl LoadDirs for AppConstomConfig {
-    fn load_dirs(&mut self, dirs: &Dirs) -> Void {
+impl LoadDirs for AppSimpleConfig {
+    fn load_dirs(&mut self, dirs: &Dirs) {
         let list = [] as [&mut dyn LoadDirs; 0];
 
         for item in list {
-            item.load_dirs(dirs)?;
+            item.load_dirs(dirs);
         }
-
-        ok()
     }
 }

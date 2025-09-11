@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    core::fmt::Display,
     serde::{Deserialize, Serialize}
 };
 
@@ -20,23 +21,31 @@ impl Default for ApiConfig {
     }
 }
 
-impl LoadEnv for ApiConfig {
-    fn load_env(&mut self) -> app_base::prelude::Void {
-        self.extend(
-            [
-                ("url", getenv("WEB_API_URL")),
-                ("path", getenv("WEB_API_PATH")),
-                ("proxy_url", getenv("WEB_API_PROXY_URL"))
-            ]
-            .iter()
-            .map(convert::tuple_option_str)
-        );
-        ok()
+impl Iter<'_, (&'static str, String)> for ApiConfig {
+    fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
+        [
+            ("web.api.url", &self.url as &dyn Display),
+            ("web.api.path", &self.path),
+            ("web.api.proxy_url", &self.proxy_url)
+        ]
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+    }
+}
+
+impl InitArgs for ApiConfig {
+    fn init_args(&mut self, args: &mut Args) {
+        args.add_options([
+            ("web-api-url", &[][..], None),
+            ("web-api-path", &[], None),
+            ("web-api-proxy-url", &[], None)
+        ])
+        .unwrap();
     }
 }
 
 impl LoadArgs for ApiConfig {
-    fn load_args(&mut self, args: &app_base::prelude::Args) -> app_base::prelude::Void {
+    fn load_args(&mut self, args: &app_base::prelude::Args) {
         self.extend(
             [
                 ("url", args.get("web-api-url")),
@@ -46,6 +55,19 @@ impl LoadArgs for ApiConfig {
             .iter()
             .map(convert::tuple_result_option_str)
         );
-        ok()
+    }
+}
+
+impl LoadEnv for ApiConfig {
+    fn load_env(&mut self) {
+        self.extend(
+            [
+                ("url", getenv("WEB_API_URL")),
+                ("path", getenv("WEB_API_PATH")),
+                ("proxy_url", getenv("WEB_API_PROXY_URL"))
+            ]
+            .iter()
+            .map(convert::tuple_option_str)
+        );
     }
 }

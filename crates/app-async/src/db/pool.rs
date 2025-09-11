@@ -22,7 +22,7 @@ static POOLS: LazyLock<Mutex<PoolsMap>> = LazyLock::new(Default::default);
 
 static DEFAULT_CONFIG: LazyLock<Arc<DbConfig>> = LazyLock::new(|| {
     let mut config = DbConfig::default();
-    config.load_env().unwrap();
+    config.load_env();
     config.into()
 });
 

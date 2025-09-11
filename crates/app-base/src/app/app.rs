@@ -87,7 +87,7 @@ where
             global_di.clear();
         }
 
-        Env::is_debug().then(|| log::trace!("App finished"));
+        Env::is_debug().then(|| log::debug!("App finished"));
 
         Logger::from_static().unwrap().log_close();
     }
@@ -154,7 +154,7 @@ where
         }
 
         Env::is_debug().then(|| {
-            log::trace!(
+            log::debug!(
                 "Preloaded command line arguments: {:?}",
                 &args
                     .args
@@ -164,6 +164,7 @@ where
             )
         });
 
+        self.config.try_mut().unwrap().init_args(&mut args);
         self.set(args);
 
         self.trigger_event(AppEvent::APP_INIT)?;
@@ -185,7 +186,7 @@ where
         };
 
         Env::is_debug().then(|| {
-            log::trace!(
+            log::debug!(
                 "Loaded command line arguments: {:?}",
                 &args
                     .args
@@ -200,7 +201,7 @@ where
 
         log.configure(&self.config.base.log)?;
 
-        Env::is_debug().then(|| log::trace!("Loaded: {:#?}", &self.config));
+        Env::is_debug().then(|| log::debug!("Loaded: {:#?}", &self.config));
 
         self.trigger_event(AppEvent::APP_LOADED)?;
         self.trigger_event(AppEvent::APP_BOOT)?;
@@ -219,7 +220,7 @@ where
     }
 
     fn trigger_event(&mut self, event: AppEvent) -> Void {
-        Env::is_debug().then(|| log::trace!("Triggering event: {event:#?}"));
+        Env::is_debug().then(|| log::debug!("Triggering event: {event:#?}"));
 
         for module in self.modules.clone() {
             module(self, event)?;
@@ -240,13 +241,13 @@ where
             .iter()
             .find_map(|(name, module)| name.eq(&command).then_some(module))
         {
-            Env::is_debug().then(|| log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN));
+            Env::is_debug().then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
             module(self, AppEvent::APP_RUN)
         } else if command == AppConfig::<C>::DEFAULT_COMMAND
             && self.commands.is_empty()
             && let Some(module) = self.modules.first()
         {
-            Env::is_debug().then(|| log::trace!("Triggering event: {:#?}", AppEvent::APP_RUN));
+            Env::is_debug().then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
             module(self, AppEvent::APP_RUN)
         } else {
             Err(format!("Invalid command '{command}'"))?

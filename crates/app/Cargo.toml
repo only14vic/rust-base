@@ -16,12 +16,14 @@ path = "src/main.rs"
 name = "app"
 
 [features]
-default = ["std", "db"]
+default = ["std"]
 std = [
   "app-base/std",
   "app-macros/std",
+  "app-async/db",
   "dep:app-async",
   "dep:app-web",
+  #"dep:app-migrator",
   "dep:tokio",
   "dep:actix",
   "dep:actix-web",
@@ -30,8 +32,9 @@ std = [
   "dep:actix-multipart",
   "dep:actix-web-grants",
   "dep:futures",
+  "dep:sqlx",
+
 ]
-db = ["std", "app-async/db", "dep:sqlx"]
 
 [build-dependencies]
 cc = { workspace = true }
@@ -45,6 +48,7 @@ app-base = { workspace = true }
 app-macros = { workspace = true }
 app-async = { workspace = true, optional = true }
 app-web = { workspace = true, optional = true }
+#app-migrator = { workspace = true, optional = true }
 libc = { workspace = true }
 log = { workspace = true }
 ahash = { workspace = true }

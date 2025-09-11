@@ -1,11 +1,15 @@
 use {crate::*, app_base::prelude::*};
 
-pub const MODULE_APP: AppModule = module_app;
+pub type App = app_base::prelude::App<Config>;
+pub type AppConfig = app_base::prelude::AppConfig<Config>;
+
+pub const MODULE_APP: AppModule<Config> = module_app;
+pub const MODULE_APP_CONFIG: AppModule<Config> = module_app_config;
 
 fn module_app(app: &mut App, event: AppEvent) -> Void {
     match event {
         AppEvent::APP_INIT => {
-            app.register_command(AppConfig::DEFAULT_COMMAND, MODULE_APP);
+            app.register_command(Config::DEFAULT_COMMAND, MODULE_APP);
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
@@ -23,6 +27,7 @@ fn module_app(app: &mut App, event: AppEvent) -> Void {
 
                 #[cfg(feature = "std")]
                 server_run(app)?;
+
                 #[cfg(not(feature = "std"))]
                 mem_stats();
             }
@@ -47,7 +52,7 @@ Commands:
 Options:
     -h, --help - show usage help
 "#,
-        default = AppConfig::DEFAULT_COMMAND
+        default = Config::DEFAULT_COMMAND
     );
     ok()
 }
@@ -61,10 +66,10 @@ fn server_run(app: &mut App) -> Void {
         serde_json::Value
     };
 
-    let config = app.get::<AppConfig>().unwrap();
+    let config = app.config();
 
     actix_with_tokio_start(Some(&config.tokio), async {
-        let mut server = HttpServer::new(&config);
+        let mut server = HttpServer::new(config);
 
         server.add_service(|srv, cfg| {
             srv.service({

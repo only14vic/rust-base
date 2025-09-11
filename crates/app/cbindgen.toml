@@ -17,15 +17,18 @@ item_types = [
   "unions",
   "opaque",
   "functions",
-  "typedefs",
+  #  "typedefs",
 ]
-exclude = ["rust_eh_personality", "_Unwind_Resume"]
+exclude = [
+  "rust_eh_personality",
+  "_Unwind_Resume",
+  "MODULE_APP",
+  "MODULE_APP_CONFIG",
+]
 include = []
 
 [export.rename]
 Void = "unsigned int"
-module_app = "module_app_c"
-module_app_config = "module_app_config_c"
 
 [export.mangle]
 rename_types = "SnakeCase"

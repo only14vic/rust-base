@@ -113,7 +113,7 @@ impl Logger {
                 let logger_ref: &'static mut Self = unsafe { &mut *logger_ptr };
                 log::set_logger(logger_ref).map_err(|e| e.to_string())?;
 
-                logger.load_env()?;
+                logger.load_env();
                 logger.configure(&logger_ref.config)?;
 
                 forget(logger);

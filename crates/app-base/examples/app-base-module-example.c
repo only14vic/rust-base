@@ -27,7 +27,7 @@ int main(int argc, const char *argv[]) {
 static unsigned int main_module(App *, AppEvent event) {
     char msg[100] = "";
     sprintf(msg, "Catched event: %d", event);
-    log_msg(INFO, __FUNCTION__, msg);
+    log_msg(DEBUG, __FUNCTION__, msg);
 
     if (event == APP_RUN) {
         log_msg(INFO, __FUNCTION__, "Application running...");

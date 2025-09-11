@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define MODULE_APP_CONFIG module_app_config_c
+
+
 
 typedef enum AppEvent {
   APP_INIT,
@@ -28,22 +31,20 @@ typedef enum LogLevel {
   TRACE = 5,
 } LogLevel;
 
-typedef struct App_app_constom_config App_app_constom_config;
+typedef struct App_app_simple_config App_app_simple_config;
 
 /**
  * Logger
  */
 typedef struct Logger Logger;
 
-typedef struct App_app_constom_config App;
+typedef struct App_app_simple_config App;
 
 typedef unsigned int (*AppModuleC)(App*, enum AppEvent);
 
 
 
 
-
-#define MODULE_APP_CONFIG module_app_config_c
 
 App *app_new(AppModuleC *modules, unsigned int count);
 

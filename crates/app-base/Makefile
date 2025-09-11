@@ -9,12 +9,13 @@ TESTS += app-base-tests, \
 		app-base-build no_std=1, \
 		app-base-build static=1, \
 		app-base-build static=1 no_std=1, \
-		app-base-examples.c, \
-		app-base-module-examples.c, \
+		app-base-example.c, \
+		app-base-module-example.c, \
 		app-base-examples, \
-		app-base-examples no_std=1, \
-		app-base-examples static=1, \
-		app-base-examples static=1 no_std=1, \
+		app-base-example, \
+		app-base-example no_std=1, \
+		app-base-example static=1, \
+		app-base-example static=1 no_std=1, \
 
 .PHONY: app-base-build
 app-base-build: flags
@@ -25,14 +26,14 @@ else
 endif
 
 .PHONY: app-base-examples
-app-base-examples: flags
+app-base-examples:
 	cargo test -p app-base --examples $(CARGO_ARGS)
 
 .PHONY: app-base-tests
-app-base-tests: flags
+app-base-tests:
 	cargo test -p app-base --tests $(CARGO_ARGS) -- --nocapture
 
-app-base-test_%: flags
+app-base-test_%:
 	cargo test -p app-base --test test_$* $(CARGO_ARGS) -- --nocapture
 
 app-base%example: flags
@@ -55,5 +56,5 @@ app-base-check:
 .PHONY: app-base-perf
 app-base-perf:
 	perf record -F99 --call-graph dwarf \
-		"$(shell find target -type f -executable -path "*/release/examples/app-base-example" | head -n1)"
+		"$(TARGET_DIR)/examples/app-base-example"
 	perf report

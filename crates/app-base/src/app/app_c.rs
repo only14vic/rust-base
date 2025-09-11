@@ -1,5 +1,5 @@
 use {
-    super::{AppConstomConfig, AppEvent},
+    super::{AppEvent, AppSimpleConfig},
     crate::prelude::*,
     alloc::{boxed::Box, vec::Vec},
     core::{
@@ -8,7 +8,7 @@ use {
     }
 };
 
-pub type App = super::App<AppConstomConfig>;
+pub type App = super::App<AppSimpleConfig>;
 
 pub type AppModuleC = extern "C" fn(*mut App, AppEvent) -> c_uint;
 
@@ -54,6 +54,7 @@ unsafe extern "C" fn app_register_command(
     unsafe {
         let app = &mut *app;
         let command = CStr::from_ptr(command).to_str().unwrap();
+        #[allow(clippy::missing_transmute_annotations)]
         app.register_command(command, transmute(module));
     }
 }

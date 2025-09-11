@@ -570,7 +570,6 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "actix-web",
- "app",
  "app-base",
  "app-testing",
  "dashmap",

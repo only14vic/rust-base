@@ -3,7 +3,7 @@ use {
     std::env::set_current_dir
 };
 
-type MyConfig = AppConfig<AppConstomConfig>;
+type MyConfig = AppConfig<AppSimpleConfig>;
 
 #[test]
 fn test_app_config() -> Void {

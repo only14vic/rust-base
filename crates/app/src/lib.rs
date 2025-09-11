@@ -5,12 +5,19 @@
 extern crate core;
 extern crate alloc;
 
-mod app;
 mod app_module;
-mod app_config;
-mod app_config_module;
 
-pub use {app::*, app_config::*, app_config_module::*, app_module::*};
+pub use app_module::*;
+
+#[cfg(feature = "std")]
+mod config;
+#[cfg(feature = "std")]
+pub use config::*;
+
+#[cfg(not(feature = "std"))]
+mod config_no_std;
+#[cfg(not(feature = "std"))]
+pub use config_no_std::*;
 
 #[cfg(feature = "std")]
 mod http_server;

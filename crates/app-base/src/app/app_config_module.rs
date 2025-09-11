@@ -4,8 +4,6 @@ use {
     core::ffi::c_uint
 };
 
-pub const MODULE_APP_CONFIG: app_c::AppModuleC = module_app_config_c;
-
 #[unsafe(no_mangle)]
 extern "C" fn module_app_config_c(app: *mut app_c::App, event: AppEvent) -> c_uint {
     match module_app_config(unsafe { &mut *app }, event) {
@@ -21,27 +19,8 @@ where
     match event {
         AppEvent::APP_INIT => {
             app.register_command("config", module_app_config);
+
             let args = app.get_mut::<Args>()?.unwrap();
-            args.add_options([
-                ("log-level", &[][..], None),
-                ("log-color", &[], None),
-                ("log-file", &[], None),
-                ("log-filter", &[], None),
-                ("language", &[], None),
-                ("timezone", &[], None),
-                ("locales", &[], None),
-                ("home-dir", &[], None),
-                ("config-dir", &[], None),
-                ("user-config-dir", &[], None),
-                ("log-dir", &[], None),
-                ("var-dir", &[], None),
-                ("run-dir", &[], None),
-                ("data-dir", &[], None),
-                ("cache-dir", &[], None),
-                ("state-dir", &[], None),
-                ("tmp-dir", &[], None)
-            ])
-            .unwrap();
             if Some("config") == args.get("command").unwrap() {
                 args.add_options([("name", &["2"][..], None)]).unwrap();
             }
