@@ -150,7 +150,7 @@ where
 
         if args.get("debug").unwrap().is_some() {
             Env::from_static().is_debug = true;
-            set_max_level(log::LevelFilter::Trace);
+            set_max_level(log::LevelFilter::Debug);
         }
 
         Env::is_debug().then(|| {

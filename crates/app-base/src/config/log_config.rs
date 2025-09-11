@@ -68,6 +68,9 @@ impl LoadEnv for LogConfig {
 
 impl LoadArgs for LogConfig {
     fn load_args(&mut self, args: &Args) -> Void {
+        if args.get("debug").unwrap_or_default().is_some() {
+            self.level = LevelFilter::Debug;
+        }
         #[rustfmt::skip]
         self.extend(
             [
@@ -81,9 +84,6 @@ impl LoadArgs for LogConfig {
         );
         if self.file.eq(&Some(String::default())) {
             self.file = None;
-        }
-        if args.get("debug").unwrap_or_default().is_some() {
-            self.level = LevelFilter::Trace;
         }
         ok()
     }
