@@ -13,7 +13,6 @@ pub trait AppConfigExt:
     + Debug
     + for<'a> Extend<(&'a str, Option<&'a str>)>
     + for<'a> Iter<'a, (&'static str, String)>
-    + InitArgs
     + LoadArgs
     + LoadEnv
     + LoadDirs
@@ -145,13 +144,13 @@ where
     }
 }
 
-impl<C> InitArgs for AppConfig<C>
+impl<C> LoadArgs for AppConfig<C>
 where
     C: AppConfigExt
 {
     fn init_args(&mut self, args: &mut Args) {
         let list = [
-            self.base.try_mut().unwrap() as &mut dyn InitArgs,
+            self.base.try_mut().unwrap() as &mut dyn LoadArgs,
             self.dirs.try_mut().unwrap(),
             self.external.try_mut().unwrap()
         ];
@@ -160,12 +159,7 @@ where
             item.init_args(args);
         }
     }
-}
 
-impl<C> LoadArgs for AppConfig<C>
-where
-    C: AppConfigExt
-{
     fn load_args(&mut self, args: &Args) {
         let list = [
             self.base.try_mut().unwrap() as &mut dyn LoadArgs,

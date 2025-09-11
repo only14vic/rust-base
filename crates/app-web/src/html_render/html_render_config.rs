@@ -57,7 +57,7 @@ impl Iter<'_, (&'static str, String)> for HtmlRenderConfig {
     }
 }
 
-impl InitArgs for HtmlRenderConfig {
+impl LoadArgs for HtmlRenderConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("web-html-render-assets-dir", &[][..], None),
@@ -69,9 +69,7 @@ impl InitArgs for HtmlRenderConfig {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for HtmlRenderConfig {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [

@@ -33,7 +33,7 @@ impl Iter<'_, (&'static str, String)> for ApiConfig {
     }
 }
 
-impl InitArgs for ApiConfig {
+impl LoadArgs for ApiConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("web-api-url", &[][..], None),
@@ -42,9 +42,7 @@ impl InitArgs for ApiConfig {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for ApiConfig {
     fn load_args(&mut self, args: &app_base::prelude::Args) {
         self.extend(
             [

@@ -80,7 +80,7 @@ impl Iter<'_, (&'static str, String)> for BaseConfig {
     }
 }
 
-impl InitArgs for BaseConfig {
+impl LoadArgs for BaseConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("language", &[][..], None),
@@ -91,9 +91,7 @@ impl InitArgs for BaseConfig {
 
         self.log.init_args(args);
     }
-}
 
-impl LoadArgs for BaseConfig {
     fn load_args(&mut self, args: &Args) {
         #[rustfmt::skip]
         self.extend(

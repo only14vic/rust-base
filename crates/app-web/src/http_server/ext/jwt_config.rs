@@ -42,7 +42,7 @@ impl Iter<'_, (&'static str, String)> for JwtConfig {
     }
 }
 
-impl InitArgs for JwtConfig {
+impl LoadArgs for JwtConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("web-jwt-secret", &[][..], None),
@@ -53,9 +53,7 @@ impl InitArgs for JwtConfig {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for JwtConfig {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [

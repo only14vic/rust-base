@@ -23,15 +23,26 @@ impl Iter<'_, (&'static str, String)> for Config {
     }
 }
 
-impl InitArgs for Config {
+impl LoadArgs for Config {
     fn init_args(&mut self, args: &mut Args) {
         let list = [
-            self.tokio.try_mut().unwrap() as &mut dyn InitArgs,
+            self.tokio.try_mut().unwrap() as &mut dyn LoadArgs,
             self.db.try_mut().unwrap()
         ];
 
         for item in list {
             item.init_args(args);
+        }
+    }
+
+    fn load_args(&mut self, args: &Args) {
+        let list = [
+            self.tokio.try_mut().unwrap() as &mut dyn LoadArgs,
+            self.db.try_mut().unwrap()
+        ];
+
+        for item in list {
+            item.load_args(args);
         }
     }
 }
@@ -55,19 +66,6 @@ impl LoadEnv for Config {
 
         for item in list {
             item.load_env();
-        }
-    }
-}
-
-impl LoadArgs for Config {
-    fn load_args(&mut self, args: &Args) {
-        let list = [
-            self.tokio.try_mut().unwrap() as &mut dyn LoadArgs,
-            self.db.try_mut().unwrap()
-        ];
-
-        for item in list {
-            item.load_args(args);
         }
     }
 }

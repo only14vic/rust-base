@@ -48,13 +48,11 @@ impl Iter<'_, (&'static str, String)> for DbConfig {
     }
 }
 
-impl InitArgs for DbConfig {
+impl LoadArgs for DbConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([("db-url", &[][..], None)]).unwrap();
     }
-}
 
-impl LoadArgs for DbConfig {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [("url", args.get("db-url"))]

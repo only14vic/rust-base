@@ -27,11 +27,9 @@ impl Iter<'_, (&'static str, String)> for FirewallConfig {
     }
 }
 
-impl InitArgs for FirewallConfig {
-    fn init_args(&mut self, _args: &mut Args) {}
-}
-
 impl LoadArgs for FirewallConfig {
+    fn init_args(&mut self, _args: &mut Args) {}
+
     fn load_args(&mut self, _args: &Args) {}
 }
 

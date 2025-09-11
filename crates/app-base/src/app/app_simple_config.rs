@@ -31,16 +31,14 @@ impl Iter<'_, (&'static str, String)> for AppSimpleConfig {
     }
 }
 
-impl InitArgs for AppSimpleConfig {
+impl LoadArgs for AppSimpleConfig {
     fn init_args(&mut self, args: &mut Args) {
         #[rustfmt::skip]
         args.add_options([
             ("custom", &[][..], None)
         ]).unwrap();
     }
-}
 
-impl LoadArgs for AppSimpleConfig {
     fn load_args(&mut self, args: &Args) {
         #[rustfmt::skip]
         self.extend([

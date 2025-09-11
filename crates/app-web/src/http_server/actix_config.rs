@@ -41,7 +41,7 @@ impl Iter<'_, (&'static str, String)> for ActixConfig {
     }
 }
 
-impl InitArgs for ActixConfig {
+impl LoadArgs for ActixConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("actix-socket", &[][..], None),
@@ -51,9 +51,7 @@ impl InitArgs for ActixConfig {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for ActixConfig {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [

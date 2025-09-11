@@ -31,7 +31,7 @@ impl Default for LogConfig {
     }
 }
 
-impl InitArgs for LogConfig {
+impl LoadArgs for LogConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("log-level", &[][..], None),
@@ -41,9 +41,7 @@ impl InitArgs for LogConfig {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for LogConfig {
     fn load_args(&mut self, args: &Args) {
         #[rustfmt::skip]
         self.extend(

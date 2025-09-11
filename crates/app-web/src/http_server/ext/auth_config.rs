@@ -91,11 +91,9 @@ impl Iter<'_, (&'static str, String)> for AuthConfig {
     }
 }
 
-impl InitArgs for AuthConfig {
-    fn init_args(&mut self, _args: &mut Args) {}
-}
-
 impl LoadArgs for AuthConfig {
+    fn init_args(&mut self, _args: &mut Args) {}
+
     fn load_args(&mut self, _args: &Args) {}
 }
 

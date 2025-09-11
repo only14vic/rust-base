@@ -15,11 +15,9 @@ impl Iter<'_, (&'static str, String)> for Config {
     }
 }
 
-impl InitArgs for Config {
-    fn init_args(&mut self, _args: &mut Args) {}
-}
-
 impl LoadArgs for Config {
+    fn init_args(&mut self, _args: &mut Args) {}
+
     fn load_args(&mut self, _args: &Args) {}
 }
 

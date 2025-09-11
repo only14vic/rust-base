@@ -275,7 +275,7 @@ impl Iter<'_, (&'static str, String)> for Dirs {
     }
 }
 
-impl InitArgs for Dirs {
+impl LoadArgs for Dirs {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("home-dir", &[][..], None),
@@ -291,9 +291,7 @@ impl InitArgs for Dirs {
         ])
         .unwrap();
     }
-}
 
-impl LoadArgs for Dirs {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [

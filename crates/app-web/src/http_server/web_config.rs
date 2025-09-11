@@ -83,7 +83,7 @@ impl Iter<'_, (&'static str, String)> for WebConfig {
     }
 }
 
-impl InitArgs for WebConfig {
+impl LoadArgs for WebConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
             ("web-host", &[][..], None),
@@ -98,7 +98,7 @@ impl InitArgs for WebConfig {
         .unwrap();
 
         let list = [
-            &mut self.api as &mut dyn InitArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
+            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
             &mut self.html_render
         ];
 
@@ -106,9 +106,7 @@ impl InitArgs for WebConfig {
             item.init_args(args);
         }
     }
-}
 
-impl LoadArgs for WebConfig {
     fn load_args(&mut self, args: &Args) {
         self.extend(
             [

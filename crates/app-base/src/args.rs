@@ -12,11 +12,9 @@ use {
     }
 };
 
-pub trait InitArgs {
-    fn init_args(&mut self, args: &mut Args);
-}
-
 pub trait LoadArgs {
+    fn init_args(&mut self, args: &mut Args);
+
     fn load_args(&mut self, args: &Args);
 }
 
