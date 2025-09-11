@@ -96,7 +96,7 @@ impl LoadArgs for WebConfig {
                 ("static_cache", args.get("web-static-cache"))
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
         self.api.load_args(args)?;
         self.jwt.load_args(args)?;

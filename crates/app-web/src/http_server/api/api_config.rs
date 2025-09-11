@@ -44,7 +44,7 @@ impl LoadArgs for ApiConfig {
                 ("proxy_url", args.get("web-api-proxy-url"))
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
         ok()
     }

@@ -56,7 +56,7 @@ impl LoadArgs for BaseConfig {
                 ("timezone", args.get("timezone")),
                 ("locales", args.get("locales")),
             ]
-            .iter().map(convert::tuple_option_option_str)
+            .iter().map(convert::tuple_result_option_str)
         );
         self.log.load_args(args)?;
         ok()

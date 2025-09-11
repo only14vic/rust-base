@@ -71,7 +71,7 @@ impl Default for Env {
 
 impl Env {
     #[inline]
-    pub fn from_static() -> &'static Self {
+    pub fn from_static() -> &'static mut Self {
         let mut env = ENV.load(Ordering::Acquire);
 
         if env.is_null() {
@@ -88,7 +88,7 @@ impl Env {
             }
         }
 
-        unsafe { &*env }
+        unsafe { &mut *env }
     }
 
     #[inline]

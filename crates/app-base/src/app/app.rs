@@ -13,7 +13,8 @@ use {
         mem::forget,
         ops::{Deref, DerefMut},
         ptr::addr_eq
-    }
+    },
+    log::set_max_level
 };
 
 #[repr(C)]
@@ -128,6 +129,7 @@ where
         let mut args = Args::new([
             ("exe", &["0"][..], None),
             ("command", &["1"], Some(AppConfig::<C>::DEFAULT_COMMAND)),
+            ("debug", &[], None),
             ("help", &["-h"], None)
         ])
         .unwrap();
@@ -145,6 +147,12 @@ where
         };
         // Throws error if undefined arguments are detected for next load.
         args.set_undefined(ArgUndefined::Error);
+
+        if args.get("debug").unwrap().is_some() {
+            Env::from_static().is_debug = true;
+            set_max_level(log::LevelFilter::Trace);
+        }
+
         Env::is_debug().then(|| {
             log::trace!(
                 "Preloaded command line arguments: {:?}",
@@ -175,6 +183,7 @@ where
         unsafe {
             args.parse_argc(argc, argv)?
         };
+
         Env::is_debug().then(|| {
             log::trace!(
                 "Loaded command line arguments: {:?}",
@@ -223,8 +232,7 @@ where
         let args = self.get_ref::<Args>().unwrap();
         let command = args
             .get("command")
-            .ok_or("Command line argument 'command' is undefined")?
-            .as_ref()
+            .unwrap()
             .ok_or("Command not specified")?;
 
         if let Some(module) = self

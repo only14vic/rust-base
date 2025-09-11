@@ -278,19 +278,19 @@ impl LoadArgs for Dirs {
     fn load_args(&mut self, args: &Args) -> Void {
         self.extend(
             [
-                ("home", args.get("home-dir")),
-                ("config", args.get("config-dir")),
-                ("user_config", args.get("user-config-dir")),
-                ("log", args.get("log-dir")),
-                ("var", args.get("var-dir")),
-                ("run", args.get("run-dir")),
-                ("data", args.get("data-dir")),
-                ("cache", args.get("cache-dir")),
-                ("state", args.get("state-dir")),
-                ("tmp", args.get("tmp-dir"))
+                ("home", args.get("home-dir")?),
+                ("config", args.get("config-dir")?),
+                ("user_config", args.get("user-config-dir")?),
+                ("log", args.get("log-dir")?),
+                ("var", args.get("var-dir")?),
+                ("run", args.get("run-dir")?),
+                ("data", args.get("data-dir")?),
+                ("cache", args.get("cache-dir")?),
+                ("state", args.get("state-dir")?),
+                ("tmp", args.get("tmp-dir")?)
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_option_str)
         );
         ok()
     }

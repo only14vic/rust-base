@@ -77,10 +77,13 @@ impl LoadArgs for LogConfig {
                 ("filter", args.get("log-filter")),
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
         if self.file.eq(&Some(String::default())) {
             self.file = None;
+        }
+        if args.get("debug").unwrap_or_default().is_some() {
+            self.level = LevelFilter::Trace;
         }
         ok()
     }

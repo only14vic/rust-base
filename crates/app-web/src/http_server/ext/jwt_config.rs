@@ -62,7 +62,7 @@ impl LoadArgs for JwtConfig {
                 )
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
         ok()
     }

@@ -164,7 +164,7 @@ impl Args {
         self.into_ok()
     }
 
-    pub fn get_option(&self, name: &str) -> Ok<Option<&str>> {
+    pub fn get(&self, name: &str) -> Ok<Option<&str>> {
         self.args
             .get(name)
             .ok_or(format!(

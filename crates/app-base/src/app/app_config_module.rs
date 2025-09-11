@@ -42,15 +42,15 @@ where
                 ("tmp-dir", &[], None)
             ])
             .unwrap();
-            if Some("config") == args.get_option("command").unwrap() {
+            if Some("config") == args.get("command").unwrap() {
                 args.add_options([("name", &["2"][..], None)]).unwrap();
             }
         },
         AppEvent::APP_RUN => {
             let args = app.get_ref::<Args>().unwrap();
-            let name = args.get_option("name").unwrap();
+            let name = args.get("name").unwrap();
 
-            if args.get_option("help").unwrap().is_some() {
+            if args.get("help").unwrap().is_some() {
                 show_help(app)?;
             } else {
                 show_config(app, name)?;

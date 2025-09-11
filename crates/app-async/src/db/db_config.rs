@@ -49,7 +49,7 @@ impl LoadArgs for DbConfig {
         self.extend(
             [("url", args.get("db-url"))]
                 .iter()
-                .map(convert::tuple_option_option_str)
+                .map(convert::tuple_result_option_str)
         );
         ok()
     }

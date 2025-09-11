@@ -39,7 +39,7 @@ impl LoadArgs for AppConstomConfig {
                 ("custom", args.get("custom"))
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
 
         let list = [] as [&mut dyn LoadArgs; 0];

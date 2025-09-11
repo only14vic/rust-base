@@ -60,7 +60,7 @@ impl LoadArgs for ActixConfig {
                 ("threads", args.get("actix-threads"))
             ]
             .iter()
-            .map(convert::tuple_option_option_str)
+            .map(convert::tuple_result_option_str)
         );
         ok()
     }
