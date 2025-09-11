@@ -6,12 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-static unsigned int main_module(App *app, AppEvent event);
+const void *main_module(App *app, AppEvent event);
 
 const AppModuleC MAIN_MODULE = &main_module;
 
 int main(int argc, const char *argv[]) {
-    unsigned int (*modules[])(App *, AppEvent) = {
+    const void *(*modules[])(App *, AppEvent) = {
         MAIN_MODULE, MODULE_APP_CONFIG
     };
 
@@ -24,8 +24,9 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-static unsigned int main_module(App *, AppEvent event) {
+const void *main_module(App *, AppEvent event) {
     char msg[100] = "";
+
     sprintf(msg, "Catched event: %d", event);
     log_msg(DEBUG, __FUNCTION__, msg);
 
@@ -34,5 +35,5 @@ static unsigned int main_module(App *, AppEvent event) {
         malloc_stats();
     }
 
-    return 0;
+    return NULL;
 }

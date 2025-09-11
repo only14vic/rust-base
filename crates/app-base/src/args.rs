@@ -20,7 +20,7 @@ pub trait LoadArgs {
     fn load_args(&mut self, args: &Args);
 }
 
-type ArgsOpts = IndexMap<&'static str, &'static [&'static str]>;
+type ArgsOpt = IndexMap<&'static str, &'static [&'static str]>;
 type ArgsMap = IndexMap<String, Option<String>>;
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -46,7 +46,7 @@ impl FromStr for ArgUndefined {
 
 #[derive(Debug, Default)]
 pub struct Args {
-    pub opts: ArgsOpts,
+    pub opts: ArgsOpt,
     pub args: ArgsMap,
     pub undefined: ArgUndefined
 }

@@ -28,7 +28,7 @@ exclude = [
 include = []
 
 [export.rename]
-Void = "unsigned int"
+Void = "void*"
 
 [export.mangle]
 rename_types = "SnakeCase"

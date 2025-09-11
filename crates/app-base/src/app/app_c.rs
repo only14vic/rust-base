@@ -3,14 +3,14 @@ use {
     crate::prelude::*,
     alloc::{boxed::Box, vec::Vec},
     core::{
-        ffi::{CStr, c_char, c_int, c_uint},
+        ffi::{CStr, c_char, c_int, c_uint, c_void},
         mem::transmute
     }
 };
 
 pub type App = super::App<AppSimpleConfig>;
 
-pub type AppModuleC = extern "C" fn(*mut App, AppEvent) -> c_uint;
+pub type AppModuleC = extern "C" fn(*mut App, AppEvent) -> *const c_void;
 
 #[unsafe(no_mangle)]
 unsafe extern "C" fn app_new(modules: *mut AppModuleC, count: c_uint) -> *mut App {

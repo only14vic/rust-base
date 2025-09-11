@@ -1,13 +1,13 @@
 use {
     crate::prelude::*,
     alloc::{format, vec::Vec},
-    core::ffi::c_uint
+    core::{ffi::c_void, ptr::null}
 };
 
 #[unsafe(no_mangle)]
-extern "C" fn module_app_config_c(app: *mut app_c::App, event: AppEvent) -> c_uint {
+extern "C" fn module_app_config_c(app: *mut app_c::App, event: AppEvent) -> *const c_void {
     match module_app_config(unsafe { &mut *app }, event) {
-        Ok(..) => 0,
+        Ok(..) => null(),
         Err(e) => panic!("{e}")
     }
 }
