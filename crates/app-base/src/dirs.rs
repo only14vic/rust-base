@@ -224,7 +224,7 @@ impl Dirs {
         }
         match std::fs::create_dir_all(path) {
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => ok(),
-            Err(e) => Err(e)?,
+            Err(e) => Err(format!("Could not create directory - {e}: {path}"))?,
             Ok(..) => ok()
         }
     }
