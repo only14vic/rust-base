@@ -161,8 +161,11 @@ impl Args {
                     }
                 }
             } else {
-                self.args
-                    .insert(self.arg_name(&n.to_string())?, arg.into_some());
+                self.args.insert(
+                    self.arg_name(&n.to_string())
+                        .map_err(|e| e.replace(&format!("'{n}'"), &format!("'{arg}'")))?,
+                    arg.into_some()
+                );
                 n += 1;
             }
         }
