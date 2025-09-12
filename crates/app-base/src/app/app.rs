@@ -230,7 +230,7 @@ where
                 .then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
             module(self, AppEvent::APP_RUN)
         } else {
-            Err(format!("Invalid command '{command}'"))?
+            Err(format!("Invalid command: '{command}'"))?
         }
     }
 

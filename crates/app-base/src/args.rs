@@ -203,7 +203,7 @@ impl Args {
                 } else if self.undefined == ArgUndefined::Skip {
                     "".into_ok()
                 } else {
-                    Err(format!("Invalid command line argument: {arg}"))
+                    Err(format!("Invalid command line argument: '{arg}'"))
                 }
             })
     }
