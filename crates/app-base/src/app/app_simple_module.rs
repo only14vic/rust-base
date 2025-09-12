@@ -8,6 +8,7 @@ where
     C: AppConfigExt
 {
     const COMMAND: &str = C::DEFAULT_COMMAND;
+    const DESCRIPTION: &str = "simple example command";
 
     type Config = C;
 
@@ -18,18 +19,19 @@ where
 
     fn help(&self, app: &mut App<Self::Config>) -> Void {
         let config = app.config();
-        let bin = config.dirs.exe_file();
-        let command = Self::COMMAND;
 
         println!(
             r#"
-Usage: {bin} {command} [options]
+Usage: {bin} {cmd} [options]
 
-This is simple command.
+This command is {desc}.
 
 Options:
     -h, --help  - show usage help
 "#,
+            bin = config.dirs.exe_file(),
+            cmd = Self::COMMAND,
+            desc = Self::DESCRIPTION
         );
 
         ok()

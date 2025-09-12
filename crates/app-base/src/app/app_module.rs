@@ -4,6 +4,7 @@ pub type AppModule<C> = fn(&mut App<C>, AppEvent) -> Void;
 
 pub trait AppModuleExt: Default + Send + Sync + 'static {
     const COMMAND: &str;
+    const DESCRIPTION: &str;
 
     type Config: AppConfigExt;
 

@@ -8,6 +8,7 @@ where
     C: AppConfigExt
 {
     const COMMAND: &str = "migrator";
+    const DESCRIPTION: &str = "migrates SQL files";
 
     type Config = C;
 
@@ -15,7 +16,7 @@ where
         let args = app.get_mut::<Args>().unwrap();
 
         if Some(Self::COMMAND) == args.get("command").unwrap() {
-            args.add_options([("name", &["2"][..], None)]).unwrap();
+            args.add_options([("action", &["2"][..], None)]).unwrap();
         }
 
         ok()
@@ -29,21 +30,24 @@ where
 
     fn help(&self, app: &mut App<Self::Config>) -> Void {
         let config = app.config();
-        let bin = config.dirs.exe_file();
-        let command = Self::COMMAND;
 
         println!(
             r#"
-Usage: {bin} {command} [action] [options]
+Usage: {bin} {cmd} [action] [options]
+
+This command {desc}.
 
 Actions:
-    apply       - apply migrations (default)
-    revert      - revert migrations
-    status      - show migrations status
+    apply   - apply migrations (default)
+    revert  - revert migrations
+    status  - show migrations status
 
 Options:
     -h, --help - show usage help
 "#,
+            bin = config.dirs.exe_file(),
+            cmd = Self::COMMAND,
+            desc = Self::DESCRIPTION
         );
 
         ok()

@@ -13,6 +13,7 @@ pub struct HttpServerModule<C: AppConfigExt>(PhantomData<C>);
 
 impl AppModuleExt for HttpServerModule<Config> {
     const COMMAND: &str = Config::DEFAULT_COMMAND;
+    const DESCRIPTION: &str = "run http server (default)";
 
     type Config = Config;
 
@@ -34,20 +35,27 @@ impl AppModuleExt for HttpServerModule<Config> {
 
     fn help(&self, app: &mut AppBase<Self::Config>) -> Void {
         let config = app.config();
-        let bin = config.dirs.exe_file();
-        let command = Self::COMMAND;
 
         println!(
             r#"
-Usage: {bin} [{command}] [options]
+Usage: {bin} [{cmd}] [options]
 
 Commands:
-    {command}       - run http server (default)
-    config    - show config options
+    {cmd:<len$} - {desc}
+    {cfg:<len$} - {cfg_desc}
+    {mtr:<len$} - {mtr_desc}
 
 Options:
     -h, --help - show usage help
 "#,
+            len = 10,
+            bin = config.dirs.exe_file(),
+            cmd = Self::COMMAND,
+            desc = Self::DESCRIPTION,
+            cfg = AppConfigModule::<Self::Config>::COMMAND,
+            cfg_desc = AppConfigModule::<Self::Config>::DESCRIPTION,
+            mtr = MigratorModule::<Self::Config>::COMMAND,
+            mtr_desc = MigratorModule::<Self::Config>::DESCRIPTION
         );
 
         ok()

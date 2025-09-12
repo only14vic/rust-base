@@ -20,6 +20,7 @@ where
     C: AppConfigExt
 {
     const COMMAND: &str = "config";
+    const DESCRIPTION: &str = "displays config options";
 
     type Config = C;
 
@@ -72,14 +73,12 @@ where
 
     fn help(&self, app: &mut App<Self::Config>) -> Void {
         let config = app.config();
-        let bin = config.dirs.exe_file();
-        let command = Self::COMMAND;
 
         println!(
             r#"
-Usage: {bin} {command} [name] [options]
+Usage: {bin} {cmd} [name] [options]
 
-This command displays config options.
+This command {desc}.
 
 Arguments:
     name - if defined, then it displays option(s) filtered by name
@@ -87,6 +86,9 @@ Arguments:
 Options:
     -h, --help  - show usage help
 "#,
+            bin = config.dirs.exe_file(),
+            cmd = Self::COMMAND,
+            desc = Self::DESCRIPTION
         );
 
         ok()
