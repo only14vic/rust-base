@@ -50,7 +50,8 @@ pub struct Env {
 impl Default for Env {
     fn default() -> Self {
         Self {
-            is_test: cfg!(test) || getenv("APP_ENV").map(|v| &v == "test").unwrap_or_default(),
+            is_test: cfg!(test)
+                || getenv("APP_ENV").map(|v| &v == "test").unwrap_or_default(),
             is_prod: getenv("APP_ENV")
                 .map(|v| &v.to_lowercase() == "prod" || v.is_empty())
                 .unwrap_or(true),

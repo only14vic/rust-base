@@ -12,9 +12,9 @@ use {
     proc_macro2::{Span, TokenStream as TokenStream2, TokenTree},
     quote::{ToTokens, quote},
     syn::{
-        Attribute, Data, DeriveInput, Field, Fields, GenericParam, Generics, Ident, ImplGenerics,
-        Lifetime, LifetimeParam, Path, TypePath, WhereClause, parse_macro_input, parse_str,
-        punctuated::Punctuated, token::Comma
+        Attribute, Data, DeriveInput, Field, Fields, GenericParam, Generics, Ident,
+        ImplGenerics, Lifetime, LifetimeParam, Path, TypePath, WhereClause,
+        parse_macro_input, parse_str, punctuated::Punctuated, token::Comma
     }
 };
 #[cfg(not(feature = "std"))]
@@ -57,7 +57,8 @@ impl ExtendMacros {
 
         #[cfg(feature = "std")]
         let map_type: TypePath =
-            syn::parse_str("::std::collections::HashMap<&'iter str, Option<&'iter str>>").unwrap();
+            syn::parse_str("::std::collections::HashMap<&'iter str, Option<&'iter str>>")
+                .unwrap();
 
         #[cfg(not(feature = "std"))]
         let map_type: TypePath = syn::parse_str(
@@ -154,8 +155,8 @@ impl ExtendMacros {
 
             let mut ty_iter = types.into_iter().enumerate().peekable();
             let mut iterable = false;
-            let field_token =
-                self.get_value_token(&field_name, &field.attrs, ty_iter, None, &mut iterable);
+            let field_token = self
+                .get_value_token(&field_name, &field.attrs, ty_iter, None, &mut iterable);
 
             if iterable {
                 quote! { #field_token }
@@ -211,10 +212,10 @@ impl ExtendMacros {
                     token
                 }
             },
-            ty @ ("i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32" | "u64" | "u128"
-            | "f32" | "f64" | "f128" | "isize" | "usize" | "c_char" | "c_short"
-            | "c_ushort" | "c_int" | "c_uint" | "c_long" | "c_ulong" | "c_longlong"
-            | "c_ulonglong" | "c_double" | "c_float") => {
+            ty @ ("i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32"
+            | "u64" | "u128" | "f32" | "f64" | "f128" | "isize" | "usize"
+            | "c_char" | "c_short" | "c_ushort" | "c_int" | "c_uint" | "c_long"
+            | "c_ulong" | "c_longlong" | "c_ulonglong" | "c_double" | "c_float") => {
                 let token = quote! {
                     v.parse::<#ty_ident>().map_err(|_| format!("Failed parse '{v}' to type {}", #ty)).unwrap()
                 };
@@ -382,7 +383,8 @@ impl ExtendMacros {
                 if n == 0 {
                     quote! { self.#name_ident.extend(#token); }
                 } else if n == 1
-                    && prev_ty.map(|p| ["Box", "Arc", "Rc", "RefCell"].contains(&p)) == Some(true)
+                    && prev_ty.map(|p| ["Box", "Arc", "Rc", "RefCell"].contains(&p))
+                        == Some(true)
                 {
                     quote! { #token }
                 } else {

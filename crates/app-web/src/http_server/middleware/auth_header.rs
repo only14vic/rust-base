@@ -58,7 +58,9 @@ where
         {
             if let Some(token) = cookies.iter().find(|c| c.name() == "access_token") {
                 authorization = Some(token.value().to_string());
-            } else if let Some(token) = cookies.iter().find(|c| c.name() == "refresh_token") {
+            } else if let Some(token) =
+                cookies.iter().find(|c| c.name() == "refresh_token")
+            {
                 authorization = Some(token.value().to_string());
             }
         }

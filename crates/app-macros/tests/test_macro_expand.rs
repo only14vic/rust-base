@@ -7,8 +7,8 @@ use {
     alloc::{rc::Rc, sync::Arc},
     app_macros::*,
     core::{
-        cell::RefCell, error::Error, ffi::*, marker::PhantomData, num::NonZero, ptr::NonNull,
-        str::FromStr
+        cell::RefCell, error::Error, ffi::*, marker::PhantomData, num::NonZero,
+        ptr::NonNull, str::FromStr
     },
     std::{
         collections::{HashMap, HashSet},
@@ -130,8 +130,9 @@ fn test_extend() -> Result<(), Box<dyn Error>> {
         ])
     );
     assert_eq!(
-        foo.p
-            .map(|p| unsafe { CStr::from_ptr(p.as_ptr() as *const i8).to_str().unwrap() }),
+        foo.p.map(|p| unsafe {
+            CStr::from_ptr(p.as_ptr() as *const i8).to_str().unwrap()
+        }),
         "C void".into()
     );
     assert_eq!(foo.r.to_str().unwrap(), "C str");

@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define MODULE_APP_CONFIG module_app_config_c
+#define MODULE_APP_CONFIG module_app_config
 
 
 
@@ -56,7 +56,7 @@ void app_free(App *app);
 
 void app_register_command(App *app, const char *command, AppModuleC module);
 
-const void *module_app_config_c(App *app, enum AppEvent event);
+const void *module_app_config(App *app, enum AppEvent event);
 
 /**
  * Loads .env file variables

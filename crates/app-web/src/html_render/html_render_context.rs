@@ -46,10 +46,9 @@ impl FromRequest for HtmlRenderContext {
                 (
                     "locales".into(),
                     serde_json::Map::from_iter(
-                        base_config
-                            .locales
-                            .iter()
-                            .map(|(n, v)| (n.to_string(), v.to_json().unwrap_or_default()))
+                        base_config.locales.iter().map(|(n, v)| {
+                            (n.to_string(), v.to_json().unwrap_or_default())
+                        })
                     )
                     .into()
                 ),
@@ -75,9 +74,11 @@ impl FromRequest for HtmlRenderContext {
                 "query".into(),
                 Value::from_iter(
                     [
-                        web::Query::<Vec<(Cow<str>, Cow<str>)>>::from_query(req.query_string())
-                            .map(web::Query::into_inner)
-                            .unwrap_or_default(),
+                        web::Query::<Vec<(Cow<str>, Cow<str>)>>::from_query(
+                            req.query_string()
+                        )
+                        .map(web::Query::into_inner)
+                        .unwrap_or_default(),
                         req.match_info()
                             .iter()
                             .map(|(name, value)| (name.into(), value.into()))

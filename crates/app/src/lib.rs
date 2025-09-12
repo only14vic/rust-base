@@ -5,10 +5,6 @@
 extern crate core;
 extern crate alloc;
 
-mod app_module;
-
-pub use app_module::*;
-
 #[cfg(feature = "std")]
 mod config;
 #[cfg(feature = "std")]
@@ -23,3 +19,28 @@ pub use config_no_std::*;
 mod http_server;
 #[cfg(feature = "std")]
 pub use http_server::*;
+
+#[cfg(feature = "std")]
+mod http_server_module;
+#[cfg(feature = "std")]
+pub use http_server_module::*;
+use app_base::prelude::AppSimpleModule;
+
+#[rustfmt::skip]
+use app_base::prelude::{
+    App as AppBase,
+    AppConfig as AppBaseConfig,
+    AppConfigModule,
+    AppModule,
+    AppModuleExt
+};
+
+pub type App = AppBase<Config>;
+pub type AppConfig = AppBaseConfig<Config>;
+
+pub const MODULE_APP_SIMPLE: AppModule<Config> = AppSimpleModule::handle;
+pub const MODULE_APP_CONFIG: AppModule<Config> = AppConfigModule::handle;
+#[cfg(feature = "std")]
+pub const MODULE_HTTP_SERVER: AppModule<Config> = HttpServerModule::handle;
+#[cfg(feature = "std")]
+pub const MODULE_APP_MIGRATOR: AppModule<Config> = app_migrator::module_app_migrator;

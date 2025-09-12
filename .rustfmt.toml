@@ -1,6 +1,6 @@
 edition = "2024"
 style_edition = "2024"
-max_width = 100
+max_width = 90
 fn_call_width = 60
 chain_width = 60
 comment_width = 80

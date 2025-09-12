@@ -1,7 +1,9 @@
 use core::ops::Deref;
 
 #[inline]
-pub fn tuple_option_str<'a, T>(item: &'a (&'a str, Option<T>)) -> (&'a str, Option<&'a str>)
+pub fn tuple_option_str<'a, T>(
+    item: &'a (&'a str, Option<T>)
+) -> (&'a str, Option<&'a str>)
 where
     T: Deref<Target = str>
 {

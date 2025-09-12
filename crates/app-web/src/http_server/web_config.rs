@@ -100,8 +100,8 @@ impl LoadArgs for WebConfig {
         .unwrap();
 
         let list = [
-            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
-            &mut self.html_render
+            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth,
+            &mut self.firewall, &mut self.html_render
         ];
 
         for item in list {
@@ -126,8 +126,8 @@ impl LoadArgs for WebConfig {
         );
 
         let list = [
-            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth, &mut self.firewall,
-            &mut self.html_render
+            &mut self.api as &mut dyn LoadArgs, &mut self.jwt, &mut self.auth,
+            &mut self.firewall, &mut self.html_render
         ];
 
         for item in list {
@@ -154,8 +154,8 @@ impl LoadEnv for WebConfig {
         );
 
         let list = [
-            &mut self.api as &mut dyn LoadEnv, &mut self.jwt, &mut self.auth, &mut self.firewall,
-            &mut self.html_render
+            &mut self.api as &mut dyn LoadEnv, &mut self.jwt, &mut self.auth,
+            &mut self.firewall, &mut self.html_render
         ];
 
         for item in list {

@@ -5,7 +5,10 @@ use {
     reqwest::{Client, Method, Url},
     serde::{Deserialize, Serialize},
     serde_json::Value,
-    std::{collections::HashSet, env, ops::Deref, str::FromStr, sync::LazyLock, time::Duration},
+    std::{
+        collections::HashSet, env, ops::Deref, str::FromStr, sync::LazyLock,
+        time::Duration
+    },
     validator::ValidationError
 };
 
@@ -35,7 +38,8 @@ impl Recaptcha {
 
         if env::var("RECAPTCHA_KEY").is_ok() && env::var("RECAPTCHA_SECRET").is_ok() {
             return Some(Self {
-                key: env::var("RECAPTCHA_KEY").expect("Env variable RECAPTCHA_KEY is not defined."),
+                key: env::var("RECAPTCHA_KEY")
+                    .expect("Env variable RECAPTCHA_KEY is not defined."),
                 secret: env::var("RECAPTCHA_SECRET")
                     .expect("Env variable RECAPTCHA_SECRET is not defined."),
                 action: req.path().to_string()
@@ -46,7 +50,8 @@ impl Recaptcha {
     }
 
     pub async fn validate(&self, captcha: &str, user_ip: Option<String>) -> Void {
-        let mut url = Url::parse("https://www.google.com/recaptcha/api/siteverify").unwrap();
+        let mut url =
+            Url::parse("https://www.google.com/recaptcha/api/siteverify").unwrap();
 
         url.query_pairs_mut().extend_pairs(&[
             ("secret", self.secret.to_string()),

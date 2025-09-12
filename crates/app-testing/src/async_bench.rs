@@ -22,10 +22,9 @@ use {
 ///         b.to_async(ActixRuntime::new()).iter_custom(|iters| {
 ///             async move {
 ///                 let app = init_service(App::new().configure(|config| {
-///                     config.service(
-///                         web::resource("/test")
-///                             .route(web::to(|| async { HttpResponse::Ok().body("Test") }))
-///                     );
+///                     config.service(web::resource("/test").route(web::to(|| {
+///                         async { HttpResponse::Ok().body("Test") }
+///                     })));
 ///                 }))
 ///                 .await;
 ///

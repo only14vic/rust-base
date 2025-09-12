@@ -59,7 +59,9 @@ impl Deref for Args {
 
 impl Args {
     pub fn new(
-        opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
+        opts: impl IntoIterator<
+            Item = (&'static str, &'static [&'static str], Option<&'static str>)
+        >
     ) -> Ok<Self> {
         let mut args = Self::default();
         args.add_options(opts)?;
@@ -73,7 +75,9 @@ impl Args {
 
     pub fn add_options(
         &mut self,
-        opts: impl IntoIterator<Item = (&'static str, &'static [&'static str], Option<&'static str>)>
+        opts: impl IntoIterator<
+            Item = (&'static str, &'static [&'static str], Option<&'static str>)
+        >
     ) -> Ok<&mut Self> {
         for (n, o, v) in opts {
             if self.opts.contains_key(n) {
@@ -94,7 +98,11 @@ impl Args {
         Ok(self)
     }
 
-    pub unsafe fn parse_argc(&mut self, argc: c_int, argv: *const *const c_char) -> Ok<&mut Self> {
+    pub unsafe fn parse_argc(
+        &mut self,
+        argc: c_int,
+        argv: *const *const c_char
+    ) -> Ok<&mut Self> {
         let mut args = Vec::with_capacity(argc as usize);
 
         for arg in unsafe { slice::from_raw_parts(argv, argc as usize) } {
@@ -187,7 +195,10 @@ impl Args {
             })
             .map(|(&n, _)| n.into_ok())
             .unwrap_or_else(|| {
-                if self.opts.is_empty() || arg == "0" || self.undefined == ArgUndefined::Add {
+                if self.opts.is_empty()
+                    || arg == "0"
+                    || self.undefined == ArgUndefined::Add
+                {
                     arg.trim_start_matches("-").into_ok()
                 } else if self.undefined == ArgUndefined::Skip {
                     "".into_ok()

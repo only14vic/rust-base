@@ -548,6 +548,7 @@ dependencies = [
  "app-async",
  "app-base",
  "app-macros",
+ "app-migrator",
  "app-testing",
  "app-web",
  "bindgen",
@@ -621,6 +622,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "app-migrator"
+version = "0.1.0"
+dependencies = [
+ "app-async",
+ "app-base",
+ "app-testing",
+ "dashmap",
+ "futures",
+ "log",
+ "sqlx",
+ "tokio",
 ]
 
 [[package]]

@@ -117,7 +117,8 @@ impl HtmlRender {
             .filter_map(|p| p.ok())
             .map(|p| {
                 let path = p.to_string_lossy().to_string();
-                let mut name = path.replacen(&*module_path.to_string_lossy(), module_name, 1);
+                let mut name =
+                    path.replacen(&*module_path.to_string_lossy(), module_name, 1);
 
                 if name.starts_with(&[module_name, "/", html_pages_dir, "/"].concat())
                     && name.contains("/_") == false
@@ -137,7 +138,11 @@ impl HtmlRender {
     }
 
     #[inline]
-    pub fn render(&self, template_name: &str, context: &HtmlRenderContext) -> tera::Result<String> {
+    pub fn render(
+        &self,
+        template_name: &str,
+        context: &HtmlRenderContext
+    ) -> tera::Result<String> {
         self.tera.render(template_name, &context.borrow())
     }
 

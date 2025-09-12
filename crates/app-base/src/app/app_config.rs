@@ -59,7 +59,8 @@ where
             },
         };
 
-        let user_config_file = format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
+        let user_config_file =
+            format!("{}/{}", &dirs.user_config, Self::CONFIG_FILE_NAME);
         match Ini::from_file(&user_config_file) {
             Ok(user_ini) => {
                 Env::is_debug().then(|| log::trace!("Loading: {user_config_file}"));

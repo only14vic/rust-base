@@ -7,7 +7,7 @@ use {
 pub type App = app_base::prelude::App<Config>;
 pub type AppConfig = app_base::prelude::AppConfig<Config>;
 
-pub const MODULE_APP_CONFIG: AppModule<Config> = module_app_config::<Config>;
+pub const MODULE_APP_CONFIG: AppModule<Config> = AppConfigModule::<Config>::handle;
 
 #[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
 pub struct Config {

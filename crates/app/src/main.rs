@@ -14,7 +14,12 @@ use {app::App, app::*, app_base::prelude::*};
 
 #[cfg(feature = "std")]
 fn main() -> Void {
-    App::new([MODULE_APP, MODULE_APP_CONFIG])
+    #[rustfmt::skip]
+    App::new([
+            MODULE_HTTP_SERVER,
+            MODULE_APP_CONFIG,
+            MODULE_APP_MIGRATOR
+        ])
         .boot()
         .inspect_err(|e| log::error!("{e}"))?
         .run()
@@ -26,7 +31,11 @@ fn main() -> Void {
 #[cfg(not(feature = "std"))]
 #[unsafe(no_mangle)]
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
-    App::new([MODULE_APP, MODULE_APP_CONFIG])
+    #[rustfmt::skip]
+    App::new([
+            MODULE_APP_SIMPLE,
+            MODULE_APP_CONFIG,
+        ])
         .boot(argc, argv)
         .unwrap_or_else(|e| panic!("{e}"))
         .run()

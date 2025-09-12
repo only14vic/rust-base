@@ -28,8 +28,6 @@ pub enum AppEvent {
     APP_END
 }
 
-pub type AppModule<C> = fn(&mut App<C>, AppEvent) -> Void;
-
 #[derive(Default)]
 pub struct App<C>
 where
@@ -173,7 +171,7 @@ where
         // Full loading of command line arguments after initializing modules.
         // Modules can add arguments depending on the command.
         //
-        let args = self.get_mut::<Args>().unwrap().unwrap();
+        let args = self.get_mut::<Args>().unwrap();
         // Skips undefined arguments on tests.
         if Env::is_test() {
             args.set_undefined(ArgUndefined::Skip);
@@ -209,7 +207,38 @@ where
         Ok(self)
     }
 
-    pub fn register_command(&mut self, command: &'static str, module: AppModule<C>) -> &mut Self {
+    pub fn run(&mut self) -> Void {
+        let args = self.get_ref::<Args>().unwrap();
+        let command = args
+            .get("command")
+            .unwrap()
+            .ok_or("Command not specified")?;
+
+        if let Some(module) = self
+            .commands
+            .iter()
+            .find_map(|(name, module)| name.eq(&command).then_some(module))
+        {
+            Env::is_debug()
+                .then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
+            module(self, AppEvent::APP_RUN)
+        } else if command == AppConfig::<C>::DEFAULT_COMMAND
+            && self.commands.is_empty()
+            && let Some(module) = self.modules.first()
+        {
+            Env::is_debug()
+                .then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
+            module(self, AppEvent::APP_RUN)
+        } else {
+            Err(format!("Invalid command '{command}'"))?
+        }
+    }
+
+    pub fn register_command(
+        &mut self,
+        command: &'static str,
+        module: AppModule<C>
+    ) -> &mut Self {
         self.commands.insert(command, module);
         self
     }
@@ -227,31 +256,6 @@ where
         }
 
         ok()
-    }
-
-    pub fn run(&mut self) -> Void {
-        let args = self.get_ref::<Args>().unwrap();
-        let command = args
-            .get("command")
-            .unwrap()
-            .ok_or("Command not specified")?;
-
-        if let Some(module) = self
-            .commands
-            .iter()
-            .find_map(|(name, module)| name.eq(&command).then_some(module))
-        {
-            Env::is_debug().then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
-            module(self, AppEvent::APP_RUN)
-        } else if command == AppConfig::<C>::DEFAULT_COMMAND
-            && self.commands.is_empty()
-            && let Some(module) = self.modules.first()
-        {
-            Env::is_debug().then(|| log::debug!("Triggering event: {:#?}", AppEvent::APP_RUN));
-            module(self, AppEvent::APP_RUN)
-        } else {
-            Err(format!("Invalid command '{command}'"))?
-        }
     }
 
     fn panic_handler(

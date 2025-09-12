@@ -72,7 +72,11 @@ where
                     if let Ok(ref current_user) = current_user {
                         if item.roles.is_empty() == false
                             && let Err(err) = current_user.is_granted(
-                                &item.roles.iter().map(String::as_str).collect::<Vec<_>>()
+                                &item
+                                    .roles
+                                    .iter()
+                                    .map(String::as_str)
+                                    .collect::<Vec<_>>()
                             )
                         {
                             let res = HttpResponse::from_error(err);

@@ -141,7 +141,8 @@ impl Logger {
         {
             Dirs::mkdir(Dirs::dirname(path))?;
             unsafe {
-                let file = libc::fopen(CString::new(path.as_str())?.as_ptr(), c"a+".as_ptr());
+                let file =
+                    libc::fopen(CString::new(path.as_str())?.as_ptr(), c"a+".as_ptr());
                 if file.is_null() {
                     Err(format!("Could not open log file: {path}"))?;
                 }

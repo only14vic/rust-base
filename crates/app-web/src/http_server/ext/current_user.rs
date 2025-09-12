@@ -14,8 +14,8 @@ use {
     serde::{Deserialize, Serialize},
     sqlx::{postgres::PgRow, prelude::*},
     std::{
-        borrow::BorrowMut, collections::HashSet, fmt::Display, future::Future, ops::Deref,
-        pin::Pin, rc::Rc, sync::Arc
+        borrow::BorrowMut, collections::HashSet, fmt::Display, future::Future,
+        ops::Deref, pin::Pin, rc::Rc, sync::Arc
     },
     uuid::Uuid
 };
@@ -151,7 +151,8 @@ impl FromRequest for CurrentUser {
                 let jwt = req.jwt_token().await?;
 
                 let token_hash = jwt.token_hash();
-                let token_lifetime = req.config::<WebConfig>().jwt.access_token_lifetime as u64;
+                let token_lifetime =
+                    req.config::<WebConfig>().jwt.access_token_lifetime as u64;
                 let cacher = req.app_data::<Cacher<ArrayCache>>().unwrap();
 
                 let c_user_id: Option<Arc<Uuid>> = cacher
@@ -206,14 +207,22 @@ impl FromRequest for CurrentUser {
                             },
                             Ok(None) => {
                                 cacher
-                                    .set(&["users_tokens", &token_hash], Uuid::default(), 10)
+                                    .set(
+                                        &["users_tokens", &token_hash],
+                                        Uuid::default(),
+                                        10
+                                    )
                                     .await
                                     .ok();
                                 return Err(ErrorUnauthorized("User not found."))?;
                             },
                             Err(err) => {
                                 cacher
-                                    .set(&["users_tokens", &token_hash], Uuid::default(), 10)
+                                    .set(
+                                        &["users_tokens", &token_hash],
+                                        Uuid::default(),
+                                        10
+                                    )
                                     .await
                                     .ok();
                                 return Err(ErrorUnauthorized(err.to_string()))?;

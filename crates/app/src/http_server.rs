@@ -108,8 +108,9 @@ impl HttpServer {
 
     fn with_db(&mut self) -> &mut Self {
         self.add_service(move |srv, server| {
-            let db_pool =
-                block_on(async { db_pool::<Postgres>(Some(&server.config.db)).await.unwrap() });
+            let db_pool = block_on(async {
+                db_pool::<Postgres>(Some(&server.config.db)).await.unwrap()
+            });
             srv.app_data(Arc::new(DbWeb::new(&db_pool)));
             srv.app_data(db_pool);
         })

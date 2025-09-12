@@ -57,7 +57,7 @@ impl Di {
             .map(|v| v.downcast_ref::<T>().unwrap())
     }
 
-    pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> OkAsync<Option<&mut T>> {
+    pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> OkAsync<&mut T> {
         match self.container.get_mut(&TypeId::of::<T>()) {
             Some(v) => {
                 match Arc::get_mut(v) {
@@ -70,7 +70,12 @@ impl Di {
                     },
                 }
             },
-            None => Ok(None)
+            None => {
+                Err(format!(
+                    "There is no item '{}' in container",
+                    type_name::<T>()
+                ))?
+            },
         }
     }
 

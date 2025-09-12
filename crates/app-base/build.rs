@@ -71,9 +71,11 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings");
 
-    create_dir_all(inc_dir.as_path()).expect(&format!("Couldn't create directory: {inc_dir:?}"));
+    create_dir_all(inc_dir.as_path())
+        .expect(&format!("Couldn't create directory: {inc_dir:?}"));
 
-    let bindings_file = PathBuf::from_iter([inc_dir.as_os_str(), OsStr::new("bindings.rs")]);
+    let bindings_file =
+        PathBuf::from_iter([inc_dir.as_os_str(), OsStr::new("bindings.rs")]);
 
     bindings
         .write_to_file(&bindings_file)

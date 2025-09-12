@@ -12,9 +12,10 @@ use {
     proc_macro2::{Span, TokenStream as TokenStream2, TokenTree},
     quote::{ToTokens, quote},
     syn::{
-        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, GenericParam,
-        Generics, Ident, ImplGenerics, Lifetime, LifetimeParam, Path, TypePath, WhereClause,
-        parse_macro_input, parse_str, punctuated::Punctuated, token::Comma
+        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed,
+        GenericParam, Generics, Ident, ImplGenerics, Lifetime, LifetimeParam, Path,
+        TypePath, WhereClause, parse_macro_input, parse_str, punctuated::Punctuated,
+        token::Comma
     }
 };
 #[cfg(not(feature = "std"))]
@@ -35,8 +36,10 @@ impl StructFields {
         let struct_name = &input.ident;
         let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
-        let Data::Struct(DataStruct { fields: Fields::Named(FieldsNamed { named, .. }), .. }) =
-            &input.data
+        let Data::Struct(DataStruct {
+            fields: Fields::Named(FieldsNamed { named, .. }),
+            ..
+        }) = &input.data
         else {
             panic!("Only structs with named fields are supported");
         };

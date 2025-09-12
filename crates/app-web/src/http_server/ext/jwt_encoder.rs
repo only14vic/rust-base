@@ -2,11 +2,15 @@ use {
     super::JwtToken,
     crate::http_server::ext::JwtConfig,
     app_base::prelude::*,
-    jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode},
+    jsonwebtoken::{
+        Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode
+    },
     serde_json::Value as JsonValue,
     uuid::Uuid
 };
-pub use jsonwebtoken::errors::{Error as JwtError, ErrorKind as JwtErrorKind, Result as JwtResult};
+pub use jsonwebtoken::errors::{
+    Error as JwtError, ErrorKind as JwtErrorKind, Result as JwtResult
+};
 
 pub struct JwtEncoder {
     validation: Validation,
@@ -20,7 +24,8 @@ impl JwtEncoder {
 
         validation.set_audience(&[&config.audience]);
         validation.set_issuer(&[&config.issuer]);
-        validation.set_required_spec_claims(&["aud", "iss", "exp", "user_id", "role", "chk"]);
+        validation
+            .set_required_spec_claims(&["aud", "iss", "exp", "user_id", "role", "chk"]);
 
         let encoding_key = EncodingKey::from_secret(config.secret.as_bytes());
         let decoding_key = DecodingKey::from_secret(config.secret.as_bytes());

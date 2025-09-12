@@ -48,11 +48,19 @@ impl<'a> Test<'a> {
         self.run_inner(None, Box::pin(test)).await
     }
 
-    pub async fn run_sync<R>(&self, order: u32, test: impl Future<Output = Ok<R>> + 'a) -> Ok<R> {
+    pub async fn run_sync<R>(
+        &self,
+        order: u32,
+        test: impl Future<Output = Ok<R>> + 'a
+    ) -> Ok<R> {
         self.run_inner(Some(order), Box::pin(test)).await
     }
 
-    async fn run_inner<R>(&self, order: Option<u32>, test: TestFuture<'a, Ok<R>>) -> Ok<R> {
+    async fn run_inner<R>(
+        &self,
+        order: Option<u32>,
+        test: TestFuture<'a, Ok<R>>
+    ) -> Ok<R> {
         let mut lock = if let Some(order) = order {
             loop {
                 if let Some(lock) = self.init.try_lock()

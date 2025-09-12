@@ -30,14 +30,14 @@ use {
 };
 
 const POSTGREST_OPERATORS: &[&str] = &[
-    "eq", "gt", "gte", "lt", "lte", "neq", "like", "ilike", "match", "imatch", "in", "is",
-    "isdistinct", "fts", "plfts", "phfts", "wfts", "cs", "cd", "ov", "sl", "sr", "nxr", "nxl",
-    "adj", "not", "or", "and", "all", "any"
+    "eq", "gt", "gte", "lt", "lte", "neq", "like", "ilike", "match", "imatch", "in",
+    "is", "isdistinct", "fts", "plfts", "phfts", "wfts", "cs", "cd", "ov", "sl", "sr",
+    "nxr", "nxl", "adj", "not", "or", "and", "all", "any"
 ];
 
 const POSTGREST_QUERY_PARAMS: &[&str] = &[
-    "select", "order", "offset", "limit", "columns", "on_conflict", "or", "and", "not.or",
-    "not.and"
+    "select", "order", "offset", "limit", "columns", "on_conflict", "or", "and",
+    "not.or", "not.and"
 ];
 
 const FORCE_GET_TO_POST_PATHS: &[&str] = &[
@@ -66,7 +66,10 @@ static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .unwrap()
 });
 
-pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> Http<HttpResponse> {
+pub async fn api_postgrest(
+    req: HttpRequest,
+    payload: Option<Bytes>
+) -> Http<HttpResponse> {
     let config = req.config::<WebConfig>();
     let api_proxy_path = config.api.path.trim_end_matches("/");
 
@@ -234,7 +237,8 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> Http<Htt
                 HeaderName::from_static("prefer"),
                 HeaderValue::from_static("return=representation")
             );
-        } else if Method::GET == method && api_req.url().path().starts_with("/rpc/").not() {
+        } else if Method::GET == method && api_req.url().path().starts_with("/rpc/").not()
+        {
             api_req.headers_mut().insert(
                 HeaderName::from_static("prefer"),
                 HeaderValue::from_static("count=exact")
@@ -263,7 +267,8 @@ pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> Http<Htt
             .unwrap_or_default()
             .trim_start();
 
-        if [Method::GET, Method::HEAD].contains(&method) && auth == refresh_token.value() {
+        if [Method::GET, Method::HEAD].contains(&method) && auth == refresh_token.value()
+        {
             let mut api_url = Url::parse(&config.api.proxy_url)?;
             api_url.set_path(REFRESH_TOKEN_PATH);
 

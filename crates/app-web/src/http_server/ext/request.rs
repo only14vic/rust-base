@@ -172,7 +172,8 @@ impl RequestHeadExt for RequestHead {
 
     fn is_mobile(&self) -> bool {
         static MOBILE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-            Regex::new("(?i)android|webos|iphone|ipad|ipod|blackberry|mobile|opera mini").unwrap()
+            Regex::new("(?i)android|webos|iphone|ipad|ipod|blackberry|mobile|opera mini")
+                .unwrap()
         });
 
         match self.user_agent() {

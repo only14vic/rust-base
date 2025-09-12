@@ -5,7 +5,7 @@ no_includes = false
 header = ""
 after_includes = """
 
-#define MODULE_APP_CONFIG module_app_config_c
+#define MODULE_APP_CONFIG module_app_config
 
 """
 #sys_includes = ["string.h", "pthread.h", "unistd.h", "sched.h"]

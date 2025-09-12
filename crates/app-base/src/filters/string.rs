@@ -60,7 +60,10 @@ impl StringExt for String {}
 
 impl StringExt for &str {}
 
-pub fn base64_encode(data: impl AsRef<[u8]>, pad: bool) -> Result<String, EncodeSliceError> {
+pub fn base64_encode(
+    data: impl AsRef<[u8]>,
+    pad: bool
+) -> Result<String, EncodeSliceError> {
     let mut buf = alloc::vec![0; data.as_ref().len() * 4 / 3 + 4];
 
     let len = if pad {

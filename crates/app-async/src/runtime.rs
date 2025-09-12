@@ -1,6 +1,8 @@
 use {crate::TokioConfig, std::future::Future};
 
-pub fn tokio_start(config: Option<&TokioConfig>) -> std::io::Result<tokio::runtime::Runtime> {
+pub fn tokio_start(
+    config: Option<&TokioConfig>
+) -> std::io::Result<tokio::runtime::Runtime> {
     let config_default = Default::default();
     let config = config.unwrap_or(&config_default);
 

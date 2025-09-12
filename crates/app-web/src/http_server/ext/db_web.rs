@@ -29,14 +29,20 @@ impl DbWeb {
     pub async fn find_user_by_login(&self, login: &str) -> Ok<Option<User>> {
         Env::is_debug().then(|| log::trace!("SQL SELECT: auth.find_user_by_login()"));
 
-        sqlx::query_as("select * from app.users_view where id = (auth.find_user_by_login($1)).id")
-            .bind(login)
-            .fetch_optional(self.db_pool.acquire().await?.acquire().await?)
-            .await?
-            .into_ok()
+        sqlx::query_as(
+            "select * from app.users_view where id = (auth.find_user_by_login($1)).id"
+        )
+        .bind(login)
+        .fetch_optional(self.db_pool.acquire().await?.acquire().await?)
+        .await?
+        .into_ok()
     }
 
-    pub async fn find_user_by_token(&self, token: &str, user_agent: &str) -> Ok<Option<User>> {
+    pub async fn find_user_by_token(
+        &self,
+        token: &str,
+        user_agent: &str
+    ) -> Ok<Option<User>> {
         Env::is_debug().then(|| log::trace!("SQL SELECT: auth.find_user_by_token()"));
 
         sqlx::query_as("select * from auth.find_user_by_token($1, $2)")

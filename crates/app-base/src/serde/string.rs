@@ -81,5 +81,7 @@ where
     S: Serializer,
     T: Serialize
 {
-    s.serialize_str(&serde_json::to_string(&v).expect("Unable serialize value to string."))
+    s.serialize_str(
+        &serde_json::to_string(&v).expect("Unable serialize value to string.")
+    )
 }

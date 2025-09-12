@@ -1,6 +1,7 @@
 use {
     actix_web::{
-        HttpRequest, HttpResponse, body::MessageBody, dev::Service, test::TestRequest, web
+        HttpRequest, HttpResponse, body::MessageBody, dev::Service, test::TestRequest,
+        web
     },
     app::{App, HttpServer},
     app_base::prelude::*,

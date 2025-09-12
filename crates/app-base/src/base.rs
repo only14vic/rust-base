@@ -219,7 +219,9 @@ impl<T> TryMut for Arc<T> {
     #[inline]
     fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
         Arc::get_mut(self)
-            .ok_or_else(|| format!("Could not get mutable reference of {}", type_name::<Self>()))?
+            .ok_or_else(|| {
+                format!("Could not get mutable reference of {}", type_name::<Self>())
+            })?
             .into_ok()
     }
 }
@@ -230,7 +232,9 @@ impl<T> TryMut for Rc<T> {
     #[inline]
     fn try_mut(&mut self) -> Ok<&mut Self::Inner> {
         Rc::get_mut(self)
-            .ok_or_else(|| format!("Could not get mutable reference of {}", type_name::<Self>()))?
+            .ok_or_else(|| {
+                format!("Could not get mutable reference of {}", type_name::<Self>())
+            })?
             .into_ok()
     }
 }

@@ -57,7 +57,9 @@ impl LoadArgs for LogConfig {
         if self.file.eq(&Some(String::default())) {
             self.file = None;
         }
-        if args.get("debug").unwrap_or_default().is_some() && self.level < LevelFilter::Debug {
+        if args.get("debug").unwrap_or_default().is_some()
+            && self.level < LevelFilter::Debug
+        {
             self.level = LevelFilter::Debug;
         }
     }

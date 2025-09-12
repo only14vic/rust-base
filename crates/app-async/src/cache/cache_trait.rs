@@ -5,7 +5,8 @@ use {
 
 pub trait Cache {
     fn get_key(&self, keys: &[&str]) -> String {
-        let mut str = String::with_capacity(keys.iter().fold(0, |acc, &key| acc + key.len() + 1));
+        let mut str =
+            String::with_capacity(keys.iter().fold(0, |acc, &key| acc + key.len() + 1));
 
         keys.iter().for_each(|key| {
             str.push_str(key);
@@ -15,7 +16,10 @@ pub trait Cache {
         str
     }
 
-    async fn get<T: Send + Sync + 'static>(&self, keys: &[&str]) -> OkAsync<Option<Arc<T>>>;
+    async fn get<T: Send + Sync + 'static>(
+        &self,
+        keys: &[&str]
+    ) -> OkAsync<Option<Arc<T>>>;
 
     async fn set<T: Send + Sync + 'static>(
         &self,

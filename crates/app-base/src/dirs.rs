@@ -119,10 +119,12 @@ impl Dirs {
                                 dir.replace_range(pos..pos + name.len(), *subdir);
                             }
 
-                            if let Some((pos1, pos2)) = subdir.find('{').zip(subdir.find('}'))
+                            if let Some((pos1, pos2)) =
+                                subdir.find('{').zip(subdir.find('}'))
                                 && pos2 > pos1
                             {
-                                need_repeat = list.contains_key(subdir.get(pos1..=pos2).unwrap());
+                                need_repeat =
+                                    list.contains_key(subdir.get(pos1..=pos2).unwrap());
                             }
                         }
                     }
