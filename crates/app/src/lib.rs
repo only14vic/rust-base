@@ -35,12 +35,15 @@ use app_base::prelude::{
     AppModuleExt
 };
 
+#[cfg(feature = "std")]
+use app_migrator::MigratorModule;
+
 pub type App = AppBase<Config>;
 pub type AppConfig = AppBaseConfig<Config>;
 
-pub const MODULE_APP_SIMPLE: AppModule<Config> = AppSimpleModule::handle;
-pub const MODULE_APP_CONFIG: AppModule<Config> = AppConfigModule::handle;
+pub const MODULE_SIMPLE: AppModule<Config> = AppSimpleModule::handle;
+pub const MODULE_CONFIG: AppModule<Config> = AppConfigModule::handle;
 #[cfg(feature = "std")]
 pub const MODULE_HTTP_SERVER: AppModule<Config> = HttpServerModule::handle;
 #[cfg(feature = "std")]
-pub const MODULE_APP_MIGRATOR: AppModule<Config> = app_migrator::module_app_migrator;
+pub const MODULE_MIGRATOR: AppModule<Config> = MigratorModule::handle;

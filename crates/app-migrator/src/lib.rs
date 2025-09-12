@@ -1,3 +1,3 @@
-mod app_migrator_module;
+mod migrator_module;
 
-pub use app_migrator_module::*;
+pub use migrator_module::*;

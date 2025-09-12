@@ -1,7 +1,7 @@
 use {crate::prelude::*, core::marker::PhantomData};
 
 #[derive(Default)]
-pub struct AppSimpleModule<C>(PhantomData<C>);
+pub struct AppSimpleModule<C: AppConfigExt>(PhantomData<C>);
 
 impl<C> AppModuleExt for AppSimpleModule<C>
 where

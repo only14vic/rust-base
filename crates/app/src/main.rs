@@ -17,8 +17,8 @@ fn main() -> Void {
     #[rustfmt::skip]
     App::new([
             MODULE_HTTP_SERVER,
-            MODULE_APP_CONFIG,
-            MODULE_APP_MIGRATOR
+            MODULE_CONFIG,
+            MODULE_MIGRATOR
         ])
         .boot()
         .inspect_err(|e| log::error!("{e}"))?
@@ -33,8 +33,8 @@ fn main() -> Void {
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
     #[rustfmt::skip]
     App::new([
-            MODULE_APP_SIMPLE,
-            MODULE_APP_CONFIG,
+            MODULE_SIMPLE,
+            MODULE_CONFIG,
         ])
         .boot(argc, argv)
         .unwrap_or_else(|e| panic!("{e}"))
