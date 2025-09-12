@@ -8,7 +8,7 @@ where
     C: AppConfigExt
 {
     const COMMAND: &str = C::DEFAULT_COMMAND;
-    const DESCRIPTION: &str = "simple example command (default)";
+    const DESCRIPTION: &str = "simple example command";
 
     type Config = C;
 
@@ -24,16 +24,18 @@ where
             r#"
 Usage: {bin} [command] [options]
 
-This command is {desc}.
+Version: {name} ({version})
 
 Commands:
-    {cmd:<len$} - {desc}
+    {cmd:<len$} - {desc} (default)
 
 Options:
     -h, --help  - show usage help
 "#,
             len = 5,
             bin = config.dirs.exe_file(),
+            version = config.base.version,
+            name = config.base.name,
             cmd = Self::COMMAND,
             desc = Self::DESCRIPTION
         );

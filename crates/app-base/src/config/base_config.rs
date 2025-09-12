@@ -13,6 +13,8 @@ use {
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct BaseConfig {
+    pub name: Box<str>,
+    pub version: Box<str>,
     pub language: String,
     pub timezone: String,
     pub locales: IndexMap<String, Option<String>>,
@@ -25,6 +27,8 @@ impl AppConfigExt for BaseConfig {}
 impl Default for BaseConfig {
     fn default() -> Self {
         Self {
+            name: env!("APP_NAME").trim_matches(['\'', '"']).into(),
+            version: env!("CARGO_PKG_VERSION").into(),
             language: "en".into(),
             timezone: "UTC".into(),
             locales: Default::default(),
@@ -46,6 +50,8 @@ impl Iter<'_, (&'static str, String)> for BaseConfig {
             ("env.is_release", &env.is_release),
             //
             // base
+            ("base.name", &self.name),
+            ("base.version", &self.version),
             ("base.language", &self.language),
             (
                 "base.locales",

@@ -126,7 +126,8 @@ impl ExtendMacros {
                 .to_token_stream()
                 .to_string()
                 .replace('\n', "")
-                .replace(" :: ", "::");
+                .replace(" :: ", "::")
+                .replace("'static", "");
 
             generic_types.iter().for_each(|ty| {
                 field_type = field_type
@@ -186,7 +187,7 @@ impl ExtendMacros {
             return quote! {};
         }
         if ty.contains('(') || ty.contains(',') || ty.contains(' ') {
-            panic!("Tuple does not supported yet.");
+            panic!("This type not supported yet: {ty}");
         }
         if let Some(pos) = ty.rfind("::") {
             ty = ty.get(pos + 2..).unwrap().to_string();

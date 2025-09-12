@@ -13,11 +13,11 @@ pub struct HttpServerModule<C: AppConfigExt>(PhantomData<C>);
 
 impl AppModuleExt for HttpServerModule<Config> {
     const COMMAND: &str = Config::DEFAULT_COMMAND;
-    const DESCRIPTION: &str = "run http server (default)";
+    const DESCRIPTION: &str = "run http server";
 
     type Config = Config;
 
-    fn run(&mut self, app: &mut AppBase<Self::Config>) -> Void {
+    fn run(&mut self, app: &mut App) -> Void {
         let config = app.config();
 
         Dirs::mkdir(&config.dirs.var)?;
@@ -28,34 +28,36 @@ impl AppModuleExt for HttpServerModule<Config> {
         Dirs::mkdir(&config.dirs.state)?;
         Dirs::mkdir(&config.dirs.user_config)?;
 
-        self.server_run(app)?;
-
-        ok()
+        self.server_run(app)
     }
 
-    fn help(&self, app: &mut AppBase<Self::Config>) -> Void {
+    fn help(&self, app: &mut App) -> Void {
         let config = app.config();
 
         println!(
             r#"
 Usage: {bin} [command] [options]
 
+Version: {name} ({version})
+
 Commands:
-    {cmd:<len$} - {desc}
-    {cfg:<len$} - {cfg_desc}
-    {mtr:<len$} - {mtr_desc}
+    {:<len$} - {} (default)
+    {:<len$} - {}
+    {:<len$} - {}
 
 Options:
     -h, --help - show usage help
 "#,
+            Self::COMMAND,
+            Self::DESCRIPTION,
+            AppConfigModule::<Self::Config>::COMMAND,
+            AppConfigModule::<Self::Config>::DESCRIPTION,
+            MigratorModule::<Self::Config>::COMMAND,
+            MigratorModule::<Self::Config>::DESCRIPTION,
             len = 10,
             bin = config.dirs.exe_file(),
-            cmd = Self::COMMAND,
-            desc = Self::DESCRIPTION,
-            cfg = AppConfigModule::<Self::Config>::COMMAND,
-            cfg_desc = AppConfigModule::<Self::Config>::DESCRIPTION,
-            mtr = MigratorModule::<Self::Config>::COMMAND,
-            mtr_desc = MigratorModule::<Self::Config>::DESCRIPTION
+            version = config.base.version,
+            name = config.base.name,
         );
 
         ok()
