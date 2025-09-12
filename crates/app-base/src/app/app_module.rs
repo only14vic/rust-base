@@ -59,5 +59,7 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
     }
 
     #[allow(unused_variables)]
-    fn help(&self, app: &mut App<Self::Config>) -> Void;
+    fn help(&self, app: &mut App<Self::Config>) -> Void {
+        ok()
+    }
 }
