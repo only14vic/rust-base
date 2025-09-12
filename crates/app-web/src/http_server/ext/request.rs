@@ -9,6 +9,7 @@ use {
         http::header
     },
     app_base::prelude::*,
+    core::any::type_name,
     regex::Regex,
     sqlx::{Pool, Postgres},
     std::{
@@ -18,6 +19,8 @@ use {
 };
 
 pub trait RequestExt {
+    fn app<C: AppConfigExt>(&self) -> &App<C>;
+
     fn config<C: AppConfigExt>(&self) -> &Arc<C>;
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>>;
@@ -38,16 +41,48 @@ pub trait RequestExt {
 }
 
 impl RequestExt for HttpRequest {
+    fn app<C: AppConfigExt>(&self) -> &App<C> {
+        self.app_data::<&App<C>>()
+            .ok_or_else(|| {
+                format!(
+                    "There is no item from: HttpRequest::app_data<{}>()",
+                    type_name::<&App<C>>()
+                )
+            })
+            .unwrap()
+    }
+
     fn config<C: AppConfigExt>(&self) -> &Arc<C> {
-        self.app_data::<Arc<C>>().unwrap()
+        self.app_data::<Arc<C>>()
+            .ok_or_else(|| {
+                format!(
+                    "There is no item from: HttpRequest::app_data<{}>()",
+                    type_name::<Arc<C>>()
+                )
+            })
+            .unwrap()
     }
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>> {
-        self.app_data::<Arc<Pool<Postgres>>>().unwrap()
+        self.app_data::<Arc<Pool<Postgres>>>()
+            .ok_or_else(|| {
+                format!(
+                    "There is no item from: HttpRequest::app_data<{}>()",
+                    type_name::<Arc<Pool<Postgres>>>()
+                )
+            })
+            .unwrap()
     }
 
     fn db_web(&self) -> &Arc<DbWeb> {
-        self.app_data::<Arc<DbWeb>>().unwrap()
+        self.app_data::<Arc<DbWeb>>()
+            .ok_or_else(|| {
+                format!(
+                    "There is no item from: HttpRequest::app_data<{}>()",
+                    type_name::<Arc<DbWeb>>()
+                )
+            })
+            .unwrap()
     }
 
     fn language(&self) -> Cow<'_, str> {

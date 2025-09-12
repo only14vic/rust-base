@@ -66,12 +66,16 @@ fn server_run(app: &mut App) -> Void {
         serde_json::Value
     };
 
+    // Make app static
+    let app = unsafe { &mut *(app as *mut App) };
     let config = app.config();
 
     actix_with_tokio_start(Some(&config.tokio), async {
-        let mut server = HttpServer::new(config);
+        let mut server = HttpServer::new(&config);
 
         server.add_service(|srv, server| {
+            srv.app_data::<&'static App>(app);
+
             srv.service({
                 web::scope(&server.config.web.api.path)
                     .wrap(from_fn(content_type(ContentType::json())))
