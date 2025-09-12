@@ -1,5 +1,8 @@
 use {
-    crate::ext::{AuthToken, OkHttp, RequestExt},
+    crate::{
+        WebConfig,
+        ext::{AuthToken, Http, RequestExt}
+    },
     actix_http::{Method, StatusCode},
     actix_web::{
         HttpRequest, HttpResponse, HttpResponseBuilder,
@@ -63,8 +66,8 @@ static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .unwrap()
 });
 
-pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> OkHttp<HttpResponse> {
-    let config = req.web_config();
+pub async fn api_postgrest(req: HttpRequest, payload: Option<Bytes>) -> Http<HttpResponse> {
+    let config = req.config::<WebConfig>();
     let api_proxy_path = config.api.path.trim_end_matches("/");
 
     let mut url = Url::parse(&config.api.proxy_url)?;

@@ -1,6 +1,6 @@
 use {
     super::{HtmlRenderConfig, HtmlRenderContext},
-    crate::ext::{OkHttp, RequestExt},
+    crate::ext::{Http, RequestExt},
     actix_web::{
         FromRequest, HttpRequest, HttpResponse,
         dev::Payload,
@@ -141,7 +141,7 @@ impl HtmlRender {
         self.tera.render(template_name, &context.borrow())
     }
 
-    pub async fn render_request(&self, req: &HttpRequest) -> OkHttp<HttpResponse> {
+    pub async fn render_request(&self, req: &HttpRequest) -> Http<HttpResponse> {
         static CLEAN_REQUEST_PATTERN: LazyLock<Regex> =
             LazyLock::new(|| Regex::new("/?\\{[^\\}]*\\}").unwrap());
 

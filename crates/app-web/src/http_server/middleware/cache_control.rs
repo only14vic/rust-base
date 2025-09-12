@@ -1,5 +1,5 @@
 use {
-    crate::ext::RequestExt,
+    crate::{WebConfig, ext::RequestExt},
     actix_http::header::{self, TryIntoHeaderValue},
     actix_web::{
         Error,
@@ -13,7 +13,7 @@ pub async fn cache_control(
     req: ServiceRequest,
     next: Next<BoxBody>
 ) -> Result<ServiceResponse, Error> {
-    let web_config = req.request().web_config().clone();
+    let web_config = req.request().config::<WebConfig>().clone();
     let path = [req.path(), "/"].concat();
     let mut res = next.call(req).await?;
 

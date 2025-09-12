@@ -98,31 +98,32 @@ impl HttpServer {
     }
 
     fn with_configs(&mut self) -> &mut Self {
-        self.add_service(move |srv, cfg| {
-            srv.app_data(cfg.config.clone());
-            srv.app_data(cfg.config.base.clone());
-            srv.app_data(cfg.config.web.clone());
+        self.add_service(move |srv, server| {
+            srv.app_data(server.config.clone());
+            srv.app_data(server.config.base.clone());
+            srv.app_data(server.config.web.clone());
+            srv.app_data(server.config.external.clone());
         })
     }
 
     fn with_db(&mut self) -> &mut Self {
-        self.add_service(move |srv, cfg| {
+        self.add_service(move |srv, server| {
             let db_pool =
-                block_on(async { db_pool::<Postgres>(Some(&cfg.config.db)).await.unwrap() });
+                block_on(async { db_pool::<Postgres>(Some(&server.config.db)).await.unwrap() });
             srv.app_data(Arc::new(DbWeb::new(&db_pool)));
             srv.app_data(db_pool);
         })
     }
 
     fn with_jwt(&mut self) -> &mut Self {
-        self.add_service(|srv, cfg| {
-            srv.app_data(JwtEncoder::new(&cfg.config.web.jwt));
+        self.add_service(|srv, server| {
+            srv.app_data(JwtEncoder::new(&server.config.web.jwt));
         })
     }
 
     fn with_multipart(&mut self) -> &mut Self {
-        self.add_service(|srv, cfg| {
-            srv.app_data(TempFileConfig::default().directory(&cfg.config.dirs.tmp));
+        self.add_service(|srv, server| {
+            srv.app_data(TempFileConfig::default().directory(&server.config.dirs.tmp));
         })
     }
 
@@ -133,16 +134,16 @@ impl HttpServer {
     }
 
     fn with_static_files(&mut self) -> &mut Self {
-        self.add_service(|srv, cfg| {
+        self.add_service(|srv, server| {
             srv.service(Files::new(
-                &cfg.config.web.static_path, &cfg.config.web.static_dir
+                &server.config.web.static_path, &server.config.web.static_dir
             ));
         })
     }
 
     fn with_html_render(&mut self) -> &mut Self {
-        self.add_service(|srv, cfg| {
-            srv.app_data(HtmlRender::new(&cfg.config.web.html_render));
+        self.add_service(|srv, server| {
+            srv.app_data(HtmlRender::new(&server.config.web.html_render));
         })
     }
 }

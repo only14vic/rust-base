@@ -1,5 +1,6 @@
 use {
     super::{RequestExt, RequestHeadExt},
+    crate::WebConfig,
     accessory::Accessors,
     actix::fut,
     actix_web::{
@@ -150,7 +151,7 @@ impl FromRequest for CurrentUser {
                 let jwt = req.jwt_token().await?;
 
                 let token_hash = jwt.token_hash();
-                let token_lifetime = req.web_config().jwt.access_token_lifetime as u64;
+                let token_lifetime = req.config::<WebConfig>().jwt.access_token_lifetime as u64;
                 let cacher = req.app_data::<Cacher<ArrayCache>>().unwrap();
 
                 let c_user_id: Option<Arc<Uuid>> = cacher

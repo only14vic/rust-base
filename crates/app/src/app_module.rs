@@ -71,9 +71,9 @@ fn server_run(app: &mut App) -> Void {
     actix_with_tokio_start(Some(&config.tokio), async {
         let mut server = HttpServer::new(config);
 
-        server.add_service(|srv, cfg| {
+        server.add_service(|srv, server| {
             srv.service({
-                web::scope(&cfg.config.web.api.path)
+                web::scope(&server.config.web.api.path)
                     .wrap(from_fn(content_type(ContentType::json())))
                     .default_service(web::to(api_postgrest))
             });

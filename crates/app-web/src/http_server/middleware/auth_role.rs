@@ -1,5 +1,5 @@
 use {
-    crate::http_server::ext::RequestExt,
+    crate::{WebConfig, http_server::ext::RequestExt},
     actix_web::{Error, dev::ServiceRequest},
     app_base::prelude::*
 };
@@ -8,7 +8,7 @@ pub async fn auth_role_extract(req: &ServiceRequest) -> Result<Vec<String>, Erro
     Env::is_debug().then(|| log::trace!("URL: {}", req.path()));
 
     let mut roles = vec![];
-    let api_path = req.request().web_config().api.path.to_string() + "/";
+    let api_path = req.request().config::<WebConfig>().api.path.to_string() + "/";
 
     // Don't extract roles for "/api" requests
     if [req.path(), "/"].concat().starts_with(&api_path) {

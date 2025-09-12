@@ -93,6 +93,8 @@ where
     }
 }
 
+impl<C> AppConfigExt for AppConfig<C> where C: AppConfigExt {}
+
 impl<C> AsRef<AppConfig<C>> for AppConfig<C>
 where
     C: AppConfigExt

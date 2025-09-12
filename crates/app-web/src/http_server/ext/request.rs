@@ -1,7 +1,7 @@
 use {
     crate::{
-        HtmlRender, HtmlRenderContext, WebConfig,
-        ext::{CurrentUser, DbWeb, JwtToken, OkHttp}
+        HtmlRender, HtmlRenderContext,
+        ext::{CurrentUser, DbWeb, Http, JwtToken}
     },
     actix_web::{
         FromRequest, HttpRequest, HttpResponse,
@@ -18,9 +18,7 @@ use {
 };
 
 pub trait RequestExt {
-    fn base_config(&self) -> &Arc<BaseConfig>;
-
-    fn web_config(&self) -> &Arc<WebConfig>;
+    fn config<C: AppConfigExt>(&self) -> &Arc<C>;
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>>;
 
@@ -34,18 +32,14 @@ pub trait RequestExt {
 
     async fn jwt_token(&self) -> Result<JwtToken, actix_web::Error>;
 
-    async fn html_render(&self) -> OkHttp<HttpResponse>;
+    async fn html_render(&self) -> Http<HttpResponse>;
 
-    async fn html_render_context(&self) -> Result<HtmlRenderContext, actix_web::Error>;
+    async fn html_render_context(&self) -> Http<HtmlRenderContext>;
 }
 
 impl RequestExt for HttpRequest {
-    fn base_config(&self) -> &Arc<BaseConfig> {
-        self.app_data::<Arc<BaseConfig>>().unwrap()
-    }
-
-    fn web_config(&self) -> &Arc<WebConfig> {
-        self.app_data::<Arc<WebConfig>>().unwrap()
+    fn config<C: AppConfigExt>(&self) -> &Arc<C> {
+        self.app_data::<Arc<C>>().unwrap()
     }
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>> {
@@ -57,7 +51,7 @@ impl RequestExt for HttpRequest {
     }
 
     fn language(&self) -> Cow<'_, str> {
-        let config = self.base_config();
+        let config = self.config::<BaseConfig>();
         let default_lang = config.language.as_str();
 
         if let Some(cookie_lang) = self.cookie("lang")
@@ -78,7 +72,7 @@ impl RequestExt for HttpRequest {
     }
 
     fn locale(&self) -> Cow<'_, str> {
-        let config = self.base_config();
+        let config = self.config::<BaseConfig>();
         let language = self.language();
 
         match config.locales.get(language.as_ref()) {
@@ -95,14 +89,14 @@ impl RequestExt for HttpRequest {
         JwtToken::from_request(self, &mut Payload::None).await
     }
 
-    async fn html_render(&self) -> OkHttp<HttpResponse> {
+    async fn html_render(&self) -> Http<HttpResponse> {
         HtmlRender::from_request(self, &mut Payload::None)
             .await?
             .render_request(self)
             .await
     }
 
-    async fn html_render_context(&self) -> Result<HtmlRenderContext, actix_web::Error> {
+    async fn html_render_context(&self) -> Http<HtmlRenderContext> {
         HtmlRenderContext::from_request(self, &mut Payload::None).await
     }
 }

@@ -1,5 +1,9 @@
 use {
-    crate::http_server::ext::{RequestExt, RequestHeadExt},
+    crate::{
+        WebConfig,
+        ext::ErrHttp,
+        http_server::ext::{RequestExt, RequestHeadExt}
+    },
     actix_web::{FromRequest, HttpMessage, HttpRequest, dev::Payload, web},
     app_base::prelude::*,
     serde::Serialize,
@@ -26,14 +30,14 @@ impl Deref for HtmlRenderContext {
 }
 
 impl FromRequest for HtmlRenderContext {
-    type Error = actix_web::Error;
+    type Error = ErrHttp;
     type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         if req.extensions().contains::<Self>() == false {
             let context = Self::default();
-            let base_config = req.base_config();
-            let web_config = req.web_config();
+            let base_config = req.config::<BaseConfig>();
+            let web_config = req.config::<WebConfig>();
             let mut app = Value::Object(Default::default());
 
             app.as_object_mut().unwrap().extend([

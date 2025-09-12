@@ -1,5 +1,5 @@
 use {
-    crate::http_server::ext::RequestExt,
+    crate::{WebConfig, http_server::ext::RequestExt},
     actix_http::header,
     actix_web::{
         Error, HttpResponse,
@@ -61,7 +61,7 @@ where
 
             let current_user = request.current_user().await;
             let path = [request.path(), "/"].concat();
-            let auth = &request.web_config().auth;
+            let auth = &request.config::<WebConfig>().auth;
 
             for (_name, item) in auth.modules.iter() {
                 if path.starts_with(&item.url)

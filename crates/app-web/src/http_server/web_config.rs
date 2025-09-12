@@ -26,6 +26,8 @@ pub struct WebConfig {
     pub html_render: HtmlRenderConfig
 }
 
+impl AppConfigExt for WebConfig {}
+
 impl Default for WebConfig {
     fn default() -> Self {
         Self {

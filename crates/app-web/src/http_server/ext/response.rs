@@ -12,7 +12,7 @@ use {
 #[derive(Debug)]
 pub struct ErrHttp(pub Box<dyn Error>);
 
-pub type OkHttp<T> = Result<T, ErrHttp>;
+pub type Http<T> = Result<T, ErrHttp>;
 
 pub type VoidHttp = Result<(), ErrHttp>;
 

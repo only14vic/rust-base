@@ -20,6 +20,8 @@ pub struct BaseConfig {
     pub log: LogConfig
 }
 
+impl AppConfigExt for BaseConfig {}
+
 impl Default for BaseConfig {
     fn default() -> Self {
         Self {
