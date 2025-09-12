@@ -38,7 +38,7 @@ impl AppModuleExt for HttpServerModule<Config> {
 
         println!(
             r#"
-Usage: {bin} [{cmd}] [options]
+Usage: {bin} [command] [options]
 
 Commands:
     {cmd:<len$} - {desc}
