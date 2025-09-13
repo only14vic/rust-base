@@ -91,9 +91,9 @@ impl Iter<'_, (&'static str, String)> for BaseConfig {
 impl LoadArgs for BaseConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("language", &[][..], None),
-            ("timezone", &[], None),
-            ("locales", &[], None)
+            ("language", None, None),
+            ("timezone", None, None),
+            ("locales", None, None)
         ])
         .unwrap();
 

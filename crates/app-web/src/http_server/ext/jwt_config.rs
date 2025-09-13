@@ -45,11 +45,11 @@ impl Iter<'_, (&'static str, String)> for JwtConfig {
 impl LoadArgs for JwtConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("web-jwt-secret", &[][..], None),
-            ("web-jwt-issuer", &[], None),
-            ("web-jwt-audience", &[], None),
-            ("web-jwt-access-token-lifetime", &[], None),
-            ("web-jwt-refresh-token-lifetime", &[], None)
+            ("web-jwt-secret", None, None),
+            ("web-jwt-issuer", None, None),
+            ("web-jwt-audience", None, None),
+            ("web-jwt-access-token-lifetime", None, None),
+            ("web-jwt-refresh-token-lifetime", None, None)
         ])
         .unwrap();
     }

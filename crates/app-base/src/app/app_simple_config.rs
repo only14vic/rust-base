@@ -35,7 +35,7 @@ impl LoadArgs for AppSimpleConfig {
     fn init_args(&mut self, args: &mut Args) {
         #[rustfmt::skip]
         args.add_options([
-            ("custom", &[][..], None)
+            ("custom", None, None)
         ]).unwrap();
     }
 

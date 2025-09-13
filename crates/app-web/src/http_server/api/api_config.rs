@@ -36,9 +36,9 @@ impl Iter<'_, (&'static str, String)> for ApiConfig {
 impl LoadArgs for ApiConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("web-api-url", &[][..], None),
-            ("web-api-path", &[], None),
-            ("web-api-proxy-url", &[], None)
+            ("web-api-url", None, None),
+            ("web-api-path", None, None),
+            ("web-api-proxy-url", None, None)
         ])
         .unwrap();
     }

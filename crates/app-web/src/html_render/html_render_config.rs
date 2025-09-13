@@ -60,12 +60,12 @@ impl Iter<'_, (&'static str, String)> for HtmlRenderConfig {
 impl LoadArgs for HtmlRenderConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("web-html-render-assets-dir", &[][..], None),
-            ("web-html-render-public-dir", &[], None),
-            ("web-html-render-pages-dir", &[], None),
-            ("web-html-render-index-file", &[], None),
-            ("web-html-render-files-glob", &[], None),
-            ("web-html-render-default-module", &[], None)
+            ("web-html-render-assets-dir", None, None),
+            ("web-html-render-public-dir", None, None),
+            ("web-html-render-pages-dir", None, None),
+            ("web-html-render-index-file", None, None),
+            ("web-html-render-files-glob", None, None),
+            ("web-html-render-default-module", None, None)
         ])
         .unwrap();
     }

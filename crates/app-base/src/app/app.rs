@@ -125,10 +125,10 @@ where
         set_panic_handler(Box::new(Self::panic_handler));
 
         let mut args = Args::new([
-            ("exe", &["0"][..], None),
-            ("command", &["1"], Some(AppConfig::<C>::DEFAULT_COMMAND)),
-            ("debug", &[], None),
-            ("help", &["-h"], None)
+            ("exe", "0".into(), None),
+            ("command", "1".into(), Some(AppConfig::<C>::DEFAULT_COMMAND)),
+            ("debug", None, None),
+            ("help", "-h".into(), None)
         ])
         .unwrap();
 

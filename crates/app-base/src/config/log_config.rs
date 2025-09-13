@@ -34,10 +34,10 @@ impl Default for LogConfig {
 impl LoadArgs for LogConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("log-level", &[][..], None),
-            ("log-color", &[], None),
-            ("log-file", &[], None),
-            ("log-filter", &[], None)
+            ("log-level", None, None),
+            ("log-color", None, None),
+            ("log-file", None, None),
+            ("log-filter", None, None)
         ])
         .unwrap();
     }

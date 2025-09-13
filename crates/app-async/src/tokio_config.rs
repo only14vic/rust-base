@@ -36,9 +36,9 @@ impl Iter<'_, (&'static str, String)> for TokioConfig {
 impl LoadArgs for TokioConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("tokio-threads", &[][..], None),
-            ("tokio-blocking-threads", &[], None),
-            ("tokio-thread-name", &[], None)
+            ("tokio-threads", None, None),
+            ("tokio-blocking-threads", None, None),
+            ("tokio-thread-name", None, None)
         ])
         .unwrap();
     }

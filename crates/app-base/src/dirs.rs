@@ -280,16 +280,16 @@ impl Iter<'_, (&'static str, String)> for Dirs {
 impl LoadArgs for Dirs {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("home-dir", &[][..], None),
-            ("config-dir", &[], None),
-            ("user-config-dir", &[], None),
-            ("log-dir", &[], None),
-            ("var-dir", &[], None),
-            ("run-dir", &[], None),
-            ("data-dir", &[], None),
-            ("cache-dir", &[], None),
-            ("state-dir", &[], None),
-            ("tmp-dir", &[], None)
+            ("home-dir", None, None),
+            ("config-dir", None, None),
+            ("user-config-dir", None, None),
+            ("log-dir", None, None),
+            ("var-dir", None, None),
+            ("run-dir", None, None),
+            ("data-dir", None, None),
+            ("cache-dir", None, None),
+            ("state-dir", None, None),
+            ("tmp-dir", None, None)
         ])
         .unwrap();
     }

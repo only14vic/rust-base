@@ -18,7 +18,7 @@ pub trait LoadArgs {
     fn load_args(&mut self, args: &Args);
 }
 
-type ArgsOpt = IndexMap<&'static str, &'static [&'static str]>;
+type ArgsOpt = IndexMap<&'static str, Option<&'static str>>;
 type ArgsMap = IndexMap<String, Option<String>>;
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -60,7 +60,7 @@ impl Deref for Args {
 impl Args {
     pub fn new(
         opts: impl IntoIterator<
-            Item = (&'static str, &'static [&'static str], Option<&'static str>)
+            Item = (&'static str, Option<&'static str>, Option<&'static str>)
         >
     ) -> Ok<Self> {
         let mut args = Self::default();
@@ -73,26 +73,27 @@ impl Args {
         self
     }
 
+    /// Add command line options
+    ///
+    /// *opts* is a slice of tuple: (<long name>, <short name>, <default value>)
+    ///
+    /// Use number as short name option to determine argument of command line.
     pub fn add_options(
         &mut self,
         opts: impl IntoIterator<
-            Item = (&'static str, &'static [&'static str], Option<&'static str>)
+            Item = (&'static str, Option<&'static str>, Option<&'static str>)
         >
     ) -> Ok<&mut Self> {
         for (n, o, v) in opts {
             if self.opts.contains_key(n) {
                 Err(format!("Not unique option: {n}"))?;
             }
-            if let Some(o) = self
-                .opts
-                .iter()
-                .find_map(|(.., &ol)| ol.iter().find(|v| o.contains(v)))
-            {
-                Err(format!("Not unique option: {o}"))?;
+            if o.is_some() && self.opts.iter().any(|(_, v)| *v == o) {
+                Err(format!("Not unique option: {}", o.unwrap()))?;
             }
 
             self.opts.insert(n, o);
-            self.args.insert(n.into(), v.map(|s| s.into()));
+            self.args.insert(n.into(), v.map(|v| v.into()));
         }
 
         Ok(self)
@@ -193,7 +194,7 @@ impl Args {
             .iter()
             .find(|(n, v)| {
                 **n == arg
-                    || v.contains(&arg)
+                    || **v == Some(arg)
                     || arg.get(0..2) == Some("--") && arg.get(2..) == Some(n)
             })
             .map(|(&n, _)| n.into_ok())

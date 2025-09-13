@@ -15,12 +15,12 @@ fn test_app_config() -> Void {
     log_init();
 
     let mut args = Args::new([
-        ("exe", &["0"][..], None),
-        ("command", &["1"], Some(MyConfig::DEFAULT_COMMAND)),
-        ("help", &["-h"], None),
-        ("locales", &[], Some(" fr = fr_US ")),
-        ("language", &[], Some("fr")),
-        ("custom", &[], Some("Bar"))
+        ("exe", "0".into(), None),
+        ("command", "1".into(), Some(MyConfig::DEFAULT_COMMAND)),
+        ("help", "-h".into(), None),
+        ("locales", None, Some(" fr = fr_US ")),
+        ("language", None, Some("fr")),
+        ("custom", None, Some("Bar"))
     ])
     .unwrap();
     args.set_undefined(ArgUndefined::Add);

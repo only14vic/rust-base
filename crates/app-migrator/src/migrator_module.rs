@@ -16,7 +16,7 @@ where
         let args = app.get_mut::<Args>().unwrap();
 
         if Some(Self::COMMAND) == args.get("command").unwrap() {
-            args.add_options([("action", &["2"][..], None)]).unwrap();
+            args.add_options([("action", "2".into(), None)]).unwrap();
         }
 
         ok()

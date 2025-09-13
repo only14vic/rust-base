@@ -88,14 +88,14 @@ impl Iter<'_, (&'static str, String)> for WebConfig {
 impl LoadArgs for WebConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("web-host", &[][..], None),
-            ("web-hostname", &[], None),
-            ("web-base-url", &[], None),
-            ("web-trusted-hosts", &[], None),
-            ("web-accept-hosts", &[], None),
-            ("web-static-dir", &[], None),
-            ("web-static-path", &[], None),
-            ("web-static-cache", &[], None)
+            ("web-host", None, None),
+            ("web-hostname", None, None),
+            ("web-base-url", None, None),
+            ("web-trusted-hosts", None, None),
+            ("web-accept-hosts", None, None),
+            ("web-static-dir", None, None),
+            ("web-static-path", None, None),
+            ("web-static-cache", None, None)
         ])
         .unwrap();
 

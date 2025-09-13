@@ -44,10 +44,10 @@ impl Iter<'_, (&'static str, String)> for ActixConfig {
 impl LoadArgs for ActixConfig {
     fn init_args(&mut self, args: &mut Args) {
         args.add_options([
-            ("actix-socket", &[][..], None),
-            ("actix-listen", &[], None),
-            ("actix-port", &[], None),
-            ("actix-threads", &[], None)
+            ("actix-socket", None, None),
+            ("actix-listen", None, None),
+            ("actix-port", None, None),
+            ("actix-threads", None, None)
         ])
         .unwrap();
     }

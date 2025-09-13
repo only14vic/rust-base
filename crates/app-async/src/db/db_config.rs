@@ -50,7 +50,7 @@ impl Iter<'_, (&'static str, String)> for DbConfig {
 
 impl LoadArgs for DbConfig {
     fn init_args(&mut self, args: &mut Args) {
-        args.add_options([("db-url", &[][..], None)]).unwrap();
+        args.add_options([("db-url", None, None)]).unwrap();
     }
 
     fn load_args(&mut self, args: &Args) {

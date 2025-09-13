@@ -33,12 +33,12 @@ fn main(argc: c_int, argv: *const *const c_char) -> c_int {
     log_init();
 
     let mut args = Args::new([
-        ("self", &["0"][..], None),
-        ("command", &["1", "-c"], None),
-        ("subcommand", &["2", "-s"], None),
-        ("foo", &["-f"], "Foo".into_some()),
-        ("bar", &["-b"], "Bar".into_some()),
-        ("zoo", &["-z"], None)
+        ("self", "0".into(), None),
+        ("command", "1".into(), None),
+        ("subcommand", "2".into(), None),
+        ("foo", "-f".into(), "Foo".into_some()),
+        ("bar", "-b".into(), "Bar".into_some()),
+        ("zoo", "-z".into(), None)
     ])
     .unwrap();
     unsafe { args.parse_argc(argc, argv).unwrap() };
