@@ -41,8 +41,8 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
                 type_name_simple!(Self),
                 match event {
                     AppEvent::APP_INIT => "init()",
-                    AppEvent::APP_SETUP => "setup()",
                     AppEvent::APP_BOOT => "boot()",
+                    AppEvent::APP_SETUP => "setup()",
                     AppEvent::APP_RUN =>
                         if show_help {
                             "help()"
@@ -58,8 +58,8 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
 
         match event {
             AppEvent::APP_INIT => module.init(app),
-            AppEvent::APP_SETUP => module.setup(app),
             AppEvent::APP_BOOT => module.boot(app),
+            AppEvent::APP_SETUP => module.setup(app),
             AppEvent::APP_RUN => {
                 if show_help {
                     module.help(app)

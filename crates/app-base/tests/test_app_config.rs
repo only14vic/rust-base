@@ -18,8 +18,8 @@ fn test_app_config() -> Void {
         ("exe", "0".into(), None),
         ("command", "1".into(), Some(MyConfig::DEFAULT_COMMAND)),
         ("help", "-h".into(), None),
-        ("locales", None, Some(" fr = fr_US ")),
-        ("language", None, Some("fr")),
+        ("base-locales", None, Some(" fr = fr_US ")),
+        ("base-language", None, Some("fr")),
         ("custom", None, Some("Bar"))
     ])
     .unwrap();

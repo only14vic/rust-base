@@ -22,8 +22,8 @@ use {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AppEvent {
     APP_INIT,
-    APP_SETUP,
     APP_BOOT,
+    APP_SETUP,
     APP_RUN,
     APP_END
 }
@@ -228,11 +228,8 @@ where
 
         Env::is_debug().then(|| log::debug!("Loaded {:#?}", &self.config));
 
+        self.trigger_event(AppEvent::APP_BOOT)?;
         self.trigger_event(AppEvent::APP_SETUP)?;
-
-        if self.commands.is_empty() == false {
-            self.trigger_module_event(self.get_command_module()?, AppEvent::APP_BOOT)?;
-        }
 
         Ok(self)
     }

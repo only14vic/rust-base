@@ -13,8 +13,8 @@
 
 typedef enum AppEvent {
   APP_INIT,
-  APP_SETUP,
   APP_BOOT,
+  APP_SETUP,
   APP_RUN,
   APP_END,
 } AppEvent;

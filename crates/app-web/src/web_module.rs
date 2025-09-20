@@ -22,7 +22,7 @@ where
     const COMMAND: &str = "serve";
     const DESCRIPTION: &str = "starts http server";
 
-    fn setup(&mut self, app: &mut App<Self::Config>) -> Void {
+    fn boot(&mut self, app: &mut App<Self::Config>) -> Void {
         let server = HttpServer::new(app.config());
         app.add(server);
         ok()
