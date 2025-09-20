@@ -196,8 +196,10 @@ where
 
     pub fn with_app(&mut self, app: &mut App<C>) -> &mut Self {
         let app = unsafe { &*(app as *const App<C>) };
+        let di = unsafe { &*(&**app as *const Di) };
         self.add_service(|srv, _server| {
             srv.app_data::<&'static App<C>>(app);
+            srv.app_data::<&'static Di>(di);
         })
     }
 
