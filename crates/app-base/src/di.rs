@@ -103,7 +103,7 @@ impl Di {
     pub fn take<T: Send + Sync + 'static>(&mut self) -> Option<T> {
         self.container
             .swap_remove(&TypeId::of::<T>())
-            .map(|v| Arc::into_inner(v.downcast::<T>().unwrap()).unwrap())
+            .and_then(|v| Arc::into_inner(v.downcast::<T>().unwrap()))
     }
 
     pub fn has<T: Send + Sync + 'static>(&self) -> bool {
