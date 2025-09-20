@@ -169,7 +169,7 @@ impl Ini {
 pub extern "C" fn dotenv(overwrite: bool) -> c_int {
     let res = match Ini::dotenv(&".env", overwrite) {
         Ok(..) => {
-            Env::reset();
+            unsafe { Env::reset() };
             0
         },
         Err(e) => {
@@ -181,13 +181,16 @@ pub extern "C" fn dotenv(overwrite: bool) -> c_int {
         }
     };
 
-    if Env::is_test()
-        && let Err(e) = Ini::dotenv(&".env.test", true)
-    {
-        match e.downcast_ref::<IniError>() {
-            // don't panic if file not exists
-            Some(IniError::FileNotFound(..)) => (),
-            _ => panic!("dotenv.test error: {e}")
+    if Env::is_test() {
+        match Ini::dotenv(&".env.test", true) {
+            Ok(..) => unsafe { Env::reset() },
+            Err(e) => {
+                match e.downcast_ref::<IniError>() {
+                    // don't panic if file not exists
+                    Some(IniError::FileNotFound(..)) => (),
+                    _ => panic!("dotenv.test error: {e}")
+                }
+            }
         }
     }
 

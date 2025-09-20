@@ -6,11 +6,11 @@ use {
     alloc::{boxed::Box, format, string::String},
     core::{
         ffi::{CStr, c_char},
-        mem::{forget, transmute, zeroed},
+        mem::{transmute, zeroed},
         ops::{Deref, DerefMut},
         ptr::null_mut,
         str::FromStr,
-        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
+        sync::atomic::{AtomicBool, Ordering}
     },
     log::{Level, LevelFilter, Log},
     yansi::Paint
@@ -43,22 +43,10 @@ impl Into<LevelFilter> for LogLevel {
     }
 }
 
-static LOGGER: AtomicPtr<Logger> = AtomicPtr::new(null_mut());
-static LOCK: AtomicBool = AtomicBool::new(false);
-
 /// Initializes logging
-///
-/// Returns non-zero pointer if initialization is successfull.
-/// Otherwise returns zero.
 #[unsafe(no_mangle)]
 pub extern "C" fn log_init() -> *mut Logger {
-    match Logger::from_static() {
-        Ok(logger) => logger,
-        Err(e) => {
-            eprintln!("ERROR: log_init() - {e}");
-            null_mut()
-        }
-    }
+    unsafe { Logger::from_static_mut() }
 }
 
 /// Logs messages in C
@@ -80,11 +68,35 @@ extern "C" fn log_max_level(level: LogLevel) {
 }
 
 /// Logger
-#[derive(Default)]
+#[derive(FromStatic)]
 pub struct Logger {
     config: LogConfig,
     file: Option<Box<libc::FILE>>,
     lock: AtomicBool
+}
+
+impl Default for Logger {
+    fn default() -> Self {
+        static INIT: AtomicBool = AtomicBool::new(false);
+
+        let mut logger = Box::new(Logger {
+            config: Default::default(),
+            file: Default::default(),
+            lock: Default::default()
+        });
+
+        let mut config = LogConfig::default();
+        config.load_env();
+
+        logger.configure(&config).unwrap();
+
+        if INIT.swap(true, Ordering::SeqCst) == false {
+            let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const Self) };
+            log::set_logger(logger_ref).unwrap();
+        }
+
+        *logger
+    }
 }
 
 impl Deref for Logger {
@@ -102,36 +114,6 @@ impl DerefMut for Logger {
 }
 
 impl Logger {
-    pub fn from_static() -> Ok<&'static mut Self> {
-        let mut logger_ptr = LOGGER.load(Ordering::Relaxed);
-
-        if logger_ptr.is_null() {
-            if LOCK.swap(true, Ordering::SeqCst) == false {
-                let mut logger = Box::new(Self::default());
-                logger_ptr = logger.as_mut() as *mut _;
-
-                let logger_ref: &'static mut Self = unsafe { &mut *logger_ptr };
-                log::set_logger(logger_ref).map_err(|e| e.to_string())?;
-
-                logger.load_env();
-                logger.configure(&logger_ref.config)?;
-
-                forget(logger);
-
-                LOGGER.store(logger_ptr, Ordering::Release);
-            } else {
-                loop {
-                    logger_ptr = LOGGER.load(Ordering::Acquire);
-                    if logger_ptr.is_null() == false {
-                        break;
-                    }
-                }
-            }
-        }
-
-        Ok(unsafe { &mut *logger_ptr })
-    }
-
     pub fn configure(&mut self, config: &LogConfig) -> Void {
         self.log_close();
         self.config.clone_from(config);

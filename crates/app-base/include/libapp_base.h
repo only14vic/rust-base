@@ -72,9 +72,6 @@ int dotenv(bool overwrite);
 
 /**
  * Initializes logging
- *
- * Returns non-zero pointer if initialization is successfull.
- * Otherwise returns zero.
  */
 struct Logger *log_init(void);
 

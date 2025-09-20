@@ -246,3 +246,12 @@ pub trait Iter<'a, I: 'a> {
 pub trait IterMut<'a, I: 'a> {
     fn iter_mut(&'a mut self) -> impl Iterator<Item = I>;
 }
+
+pub trait FromStatic
+where
+    Self: Default
+{
+    fn from_static() -> &'static Self;
+
+    unsafe fn from_static_mut() -> &'static mut Self;
+}

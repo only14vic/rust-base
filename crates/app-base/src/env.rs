@@ -1,10 +1,4 @@
-use {
-    alloc::{boxed::Box, string::String},
-    core::{
-        ptr::null_mut,
-        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
-    }
-};
+use {crate::prelude::*, alloc::string::String};
 #[cfg(not(feature = "std"))]
 use {alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr, core::str::FromStr};
 
@@ -48,10 +42,7 @@ pub trait LoadEnv {
     fn load_env(&mut self);
 }
 
-static ENV: AtomicPtr<Env> = AtomicPtr::new(null_mut());
-static LOCK: AtomicBool = AtomicBool::new(false);
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, FromStatic)]
 pub struct Env {
     pub is_test: bool,
     pub is_prod: bool,
@@ -89,30 +80,8 @@ impl Default for Env {
 }
 
 impl Env {
-    #[inline]
-    pub fn from_static() -> &'static mut Self {
-        let mut env = ENV.load(Ordering::Acquire);
-
-        if env.is_null() {
-            if LOCK.swap(true, Ordering::SeqCst) == false {
-                env = Box::leak(Box::new(Self::default()));
-                ENV.store(env, Ordering::Release);
-            } else {
-                loop {
-                    env = ENV.load(Ordering::Acquire);
-                    if env.is_null() == false {
-                        break;
-                    }
-                }
-            }
-        }
-
-        unsafe { &mut *env }
-    }
-
-    #[inline]
-    pub fn reset() {
-        Self::from_static().clone_from(&Self::default());
+    pub unsafe fn reset() {
+        unsafe { Self::from_static_mut().clone_from(&Self::default()) };
     }
 
     #[inline]

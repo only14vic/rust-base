@@ -83,7 +83,7 @@ where
         core::mem::take(&mut self.commands);
         core::mem::take(&mut self.modules);
 
-        let global_di = Di::from_static();
+        let global_di = unsafe { Di::from_static_mut() };
 
         if global_di
             .get_ref::<Box<Self>>()
@@ -99,7 +99,7 @@ where
 
         Env::is_debug().then(|| log::debug!("App finished"));
 
-        Logger::from_static().unwrap().log_close();
+        unsafe { Logger::from_static_mut().log_close() };
     }
 }
 
@@ -135,7 +135,7 @@ where
     ) -> Ok<&mut Self> {
         dotenv(false);
 
-        let log = Logger::from_static().unwrap();
+        let log = unsafe { Logger::from_static_mut() };
 
         #[cfg(feature = "std")]
         std::panic::set_hook(Box::new(Self::panic_handler));
@@ -168,14 +168,14 @@ where
 
         if let Some(env_file) = args.get("env-file").unwrap() {
             Ini::setenv_from_file(&env_file, true)?;
-            Env::reset();
+            unsafe { Env::reset() };
         }
 
         if args.get("debug").unwrap() == Some("1") {
-            Env::from_static().is_debug = true;
             if log::max_level() < log::LevelFilter::Debug {
                 set_max_level(log::LevelFilter::Debug);
             }
+            unsafe { Env::from_static_mut().is_debug = true };
         }
 
         Env::is_debug().then(|| {
@@ -317,7 +317,9 @@ where
     ) {
         eprintln!("PANIC: {info}");
         log::error!("{info}");
-        Di::from_static().clear();
-        Logger::from_static().unwrap().log_close();
+        unsafe {
+            Di::from_static_mut().clear();
+            Logger::from_static_mut().log_close();
+        }
     }
 }

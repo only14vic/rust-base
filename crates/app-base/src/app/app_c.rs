@@ -25,7 +25,7 @@ unsafe extern "C" fn app_new(modules: *mut AppModuleC, count: c_uint) -> *mut Ap
 #[unsafe(no_mangle)]
 #[allow(unused_variables)]
 unsafe extern "C" fn app_boot(app: *mut App, argc: c_int, argv: *const *const c_char) {
-    Di::from_static().add(unsafe { Box::from_raw(app) });
+    unsafe { Di::from_static_mut().add(Box::from_raw(app)) };
 
     let app = unsafe { &mut *app };
 

@@ -8,9 +8,10 @@ extern crate proc_macro2;
 
 mod extend;
 mod struct_fields;
+mod from_static;
 
 use {
-    crate::{extend::ExtendMacros, struct_fields::StructFields},
+    crate::{extend::ExtendMacros, from_static::FromStatic, struct_fields::StructFields},
     proc_macro::TokenStream
 };
 
@@ -27,4 +28,9 @@ pub fn extend_from_iter(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(StructFields)]
 pub fn struct_fields(input: TokenStream) -> TokenStream {
     StructFields.derive(input)
+}
+
+#[proc_macro_derive(FromStatic)]
+pub fn from_static(input: TokenStream) -> TokenStream {
+    FromStatic.derive(input)
 }

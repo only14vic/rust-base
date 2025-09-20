@@ -1,17 +1,13 @@
 use {
     crate::prelude::*,
-    alloc::{boxed::Box, format, sync::Arc},
+    alloc::{format, sync::Arc},
     core::{
         any::{Any, TypeId, type_name},
-        ptr::{addr_eq, null_mut},
-        sync::atomic::{AtomicBool, AtomicPtr, Ordering}
+        ptr::addr_eq
     }
 };
 
-static DI: AtomicPtr<Di> = AtomicPtr::new(null_mut());
-static LOCK: AtomicBool = AtomicBool::new(false);
-
-#[derive(Default)]
+#[derive(Default, FromStatic)]
 pub struct Di {
     container: IndexMap<TypeId, Arc<dyn Any + Send + Sync>>
 }
@@ -25,26 +21,6 @@ impl Drop for Di {
 }
 
 impl Di {
-    pub fn from_static() -> &'static mut Self {
-        let mut di = DI.load(Ordering::Acquire);
-
-        if di.is_null() {
-            if LOCK.swap(true, Ordering::SeqCst) == false {
-                di = Box::leak(Box::new(Self::default()));
-                DI.store(di, Ordering::Release);
-            } else {
-                loop {
-                    di = DI.load(Ordering::Acquire);
-                    if di.is_null() == false {
-                        break;
-                    }
-                }
-            }
-        }
-
-        unsafe { &mut *di }
-    }
-
     pub fn get<T: Send + Sync + 'static>(&self) -> Option<Arc<T>> {
         self.container
             .get(&TypeId::of::<T>())
@@ -121,7 +97,7 @@ impl Di {
     pub fn clear(&mut self) {
         core::mem::take(&mut self.container);
 
-        if addr_eq(self, DI.load(Ordering::Relaxed)) {
+        if addr_eq(self, Self::from_static()) {
             Env::is_debug().then(|| log::trace!("Global Di cleared"));
         } else {
             Env::is_debug().then(|| log::trace!("Di cleared"));
