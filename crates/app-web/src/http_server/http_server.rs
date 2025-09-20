@@ -147,15 +147,17 @@ where
             let db_config = server.config.get::<DbConfig>();
             let db_pool =
                 block_on(async { db_pool::<Postgres>(Some(db_config)).await.unwrap() });
-            srv.app_data(Arc::new(DbWeb::new(&db_pool)));
+            srv.app_data(DbWeb::new(&db_pool));
             srv.app_data(db_pool);
         })
     }
 
     pub fn with_jwt(&mut self) -> &mut Self {
-        self.add_service(|srv, server| {
-            let web_config = server.config.get::<WebConfig>();
-            srv.app_data(JwtEncoder::new(&web_config.jwt));
+        let web_config = self.config.get::<WebConfig>();
+        let jwt_encoder: Arc<_> = JwtEncoder::new(&web_config.jwt).into();
+
+        self.add_service(move |srv, _server| {
+            srv.app_data(jwt_encoder.clone());
         })
     }
 

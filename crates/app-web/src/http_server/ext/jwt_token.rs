@@ -10,7 +10,7 @@ use {
     },
     app_base::prelude::*,
     serde::{Deserialize, Serialize},
-    std::{borrow::BorrowMut, future::Future, pin::Pin},
+    std::{borrow::BorrowMut, future::Future, pin::Pin, sync::Arc},
     uuid::Uuid
 };
 
@@ -70,7 +70,7 @@ impl FromRequest for JwtToken {
                     .unwrap();
 
                 let encoder = req
-                    .app_data::<JwtEncoder>()
+                    .app_data::<Arc<JwtEncoder>>()
                     .expect("JwtEncoder does not exist in request.app_data()");
 
                 let token = encoder

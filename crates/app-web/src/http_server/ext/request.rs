@@ -27,7 +27,7 @@ pub trait RequestExt {
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>>;
 
-    fn db_web(&self) -> &Arc<DbWeb>;
+    fn db_web(&self) -> &DbWeb;
 
     fn language(&self) -> Cow<'_, str>;
 
@@ -77,9 +77,9 @@ impl RequestExt for HttpRequest {
             .unwrap()
     }
 
-    fn db_web(&self) -> &Arc<DbWeb> {
-        self.app_data::<Arc<DbWeb>>()
-            .ok_or("There is no item HttpRequest::app_data::<Arc<DbWeb>>()")
+    fn db_web(&self) -> &DbWeb {
+        self.app_data::<DbWeb>()
+            .ok_or("There is no item HttpRequest::app_data::<DbWeb>()")
             .unwrap()
     }
 
