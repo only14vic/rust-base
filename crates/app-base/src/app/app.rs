@@ -8,7 +8,7 @@ use {core::ffi::c_char, core::ffi::c_int};
 use {
     super::AppConfig,
     crate::{app::AppConfigExt, prelude::*},
-    alloc::{boxed::Box, format, sync::Arc, vec::Vec},
+    alloc::{boxed::Box, format, string::ToString, sync::Arc, vec::Vec},
     core::{
         mem::forget,
         ops::{Deref, DerefMut},
@@ -34,6 +34,7 @@ where
     C: AppConfigExt
 {
     di: Di,
+    args: Args,
     config: Arc<AppConfig<C>>,
     modules: IndexSet<AppModule<C>>,
     commands: IndexMap<&'static str, AppModule<C>>,
@@ -109,7 +110,16 @@ where
 {
     pub fn new(modules: impl IntoIterator<Item = AppModule<C>>) -> Self {
         let mut app = Self {
-            di: Di::default(),
+            di: Default::default(),
+            args: Args::new([
+                ("exe", "0".into(), None),
+                ("command", "1".into(), Some(C::DEFAULT_COMMAND)),
+                ("env-file", None, None),
+                ("debug:b", None, None),
+                ("version:b", None, None),
+                ("help:b", "-h".into(), None)
+            ])
+            .unwrap(),
             config: Arc::new(AppConfig::<C>::default()),
             modules: Default::default(),
             commands: Default::default(),
@@ -128,6 +138,27 @@ where
         &self.config
     }
 
+    #[inline]
+    pub fn args(&self) -> &Args {
+        &self.args
+    }
+
+    #[inline]
+    pub fn args_mut(&mut self) -> &mut Args {
+        &mut self.args
+    }
+
+    pub fn with_args<'a>(
+        &mut self,
+        args: impl IntoIterator<Item = (&'a str, &'a str)>
+    ) -> &mut Self {
+        self.args.extend(
+            args.into_iter()
+                .map(|(n, v)| (n.into(), v.to_string().into()))
+        );
+        self
+    }
+
     pub fn boot(
         &mut self,
         #[cfg(not(feature = "std"))] argc: c_int,
@@ -135,21 +166,12 @@ where
     ) -> Ok<&mut Self> {
         dotenv(false);
         let log = log_init();
+        let args = &mut self.args;
 
         #[cfg(feature = "std")]
         std::panic::set_hook(Box::new(Self::panic_handler));
         #[cfg(not(feature = "std"))]
         set_panic_handler(Box::new(Self::panic_handler));
-
-        let mut args = Args::new([
-            ("exe", "0".into(), None),
-            ("command", "1".into(), Some(C::DEFAULT_COMMAND)),
-            ("env-file", None, None),
-            ("debug:b", None, None),
-            ("version:b", None, None),
-            ("help:b", "-h".into(), None)
-        ])
-        .unwrap();
 
         //
         // Preloading of command line arguments.
@@ -190,8 +212,7 @@ where
             )
         });
 
-        self.config.try_mut().unwrap().init_args(&mut args);
-        self.add(args);
+        self.config.try_mut().unwrap().init_args(args);
 
         self.trigger_event(AppEvent::APP_INIT)?;
 
@@ -199,7 +220,7 @@ where
         // Full loading of command line arguments after initializing modules.
         // Modules can add arguments depending on the command.
         //
-        let args = self.get_mut::<Args>().unwrap();
+        let args = &mut self.args;
         // Skips undefined arguments on tests.
         if Env::is_test() {
             args.set_undefined(ArgUndef::Skip);
@@ -222,8 +243,7 @@ where
             )
         });
 
-        let args = self.get::<Args>().unwrap();
-        self.config.try_mut().unwrap().load(Some(&args))?;
+        self.config.try_mut().unwrap().load(Some(args))?;
 
         log.configure(&self.config.base.log)?;
 
@@ -236,12 +256,14 @@ where
     }
 
     pub fn run(&mut self) -> Void {
-        self.trigger_module_event(self.get_command_module()?, AppEvent::APP_RUN)
+        let command = self.command()?;
+        let module = self.get_module_by_command(command)?;
+        self.trigger_module_event(module, AppEvent::APP_RUN)
     }
 
     pub fn command(&self) -> Ok<&str> {
-        let args = self.get_ref::<Args>().unwrap();
-        args.get("command")
+        self.args
+            .get("command")
             .unwrap()
             .ok_or("Argument 'command' not specified")?
             .into_ok()
@@ -301,9 +323,7 @@ where
         module(self, event)
     }
 
-    fn get_command_module(&self) -> Ok<AppModule<C>> {
-        let command = self.command()?;
-
+    pub fn get_module_by_command(&self, command: &str) -> Ok<AppModule<C>> {
         if let Some(module) = self.commands.get(command) {
             Ok(*module)
         } else if C::DEFAULT_COMMAND == command

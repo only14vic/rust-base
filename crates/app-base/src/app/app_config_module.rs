@@ -26,8 +26,9 @@ where
 
     fn init(&mut self, app: &mut App<Self::Config>) -> Void {
         if Self::COMMAND == app.command()? {
-            let args = app.get_mut::<Args>().unwrap();
-            args.add_options([("name", "2".into(), None)]).unwrap();
+            app.args_mut()
+                .add_options([("name", "2".into(), None)])
+                .unwrap();
         }
 
         ok()
@@ -35,7 +36,7 @@ where
 
     fn run(&mut self, app: &mut App<Self::Config>) -> Void {
         let config = app.config().as_ref();
-        let args = app.get_ref::<Args>().unwrap();
+        let args = app.args();
         let name = args.get("name").unwrap();
         let iter = config.iter();
 

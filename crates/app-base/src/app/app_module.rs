@@ -30,7 +30,7 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
             ))?;
         }
 
-        let args = app.get_ref::<Args>().unwrap();
+        let args = app.args();
         let show_help = args.get_flag("help").unwrap();
         let show_version = args.get_flag("version").unwrap();
         let module = unsafe { &mut *(app.get_mut::<Self>().unwrap() as *mut Self) };

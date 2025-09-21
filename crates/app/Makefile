@@ -2,6 +2,7 @@ ALL += build-app, \
 		build-app no_std=1, \
 
 TESTS += tests-app, \
+		examples-app, \
 		build-app, \
 		run-app args=config, \
 		build-app no_std=1, \

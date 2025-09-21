@@ -7,7 +7,7 @@ use {
     },
     core::{
         ffi::{CStr, c_char, c_int},
-        ops::Deref,
+        ops::{Deref, DerefMut},
         str::{self, FromStr}
     }
 };
@@ -18,8 +18,8 @@ pub trait LoadArgs {
     fn load_args(&mut self, args: &Args);
 }
 
-type ArgsOpt = IndexMap<&'static str, Option<&'static str>>;
-type ArgsMap = IndexMap<String, Option<String>>;
+type ArgsOptions = IndexMap<&'static str, Option<&'static str>>;
+type ArgsArguments = IndexMap<String, Option<String>>;
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub enum ArgUndef {
@@ -44,16 +44,22 @@ impl FromStr for ArgUndef {
 
 #[derive(Debug, Default)]
 pub struct Args {
-    pub opts: ArgsOpt,
-    pub args: ArgsMap,
+    arguments: ArgsArguments,
+    pub options: ArgsOptions,
     pub undefined: ArgUndef
 }
 
 impl Deref for Args {
-    type Target = ArgsMap;
+    type Target = ArgsArguments;
 
     fn deref(&self) -> &Self::Target {
-        &self.args
+        &self.arguments
+    }
+}
+
+impl DerefMut for Args {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.arguments
     }
 }
 
@@ -87,16 +93,16 @@ impl Args {
         >
     ) -> Ok<&mut Self> {
         for (n, o, v) in opts {
-            if self.opts.contains_key(n) {
+            if self.options.contains_key(n) {
                 Err(format!("Not unique option: {n}"))?;
             }
-            if o.is_some() && self.opts.iter().any(|(_, v)| *v == o) {
+            if o.is_some() && self.options.iter().any(|(_, v)| *v == o) {
                 Err(format!("Not unique option: {}", o.unwrap()))?;
             }
 
-            self.opts.insert(n, o);
+            self.options.insert(n, o);
             let n = n.split(':').next().unwrap();
-            self.args.insert(n.into(), v.map(|v| v.into()));
+            self.arguments.insert(n.into(), v.map(|v| v.into()));
         }
 
         Ok(self)
@@ -132,7 +138,7 @@ impl Args {
                     && arg.starts_with("-")
                     && arg.contains("=") == false
                     && self.arg_name(arg).map(|a| {
-                        self.opts
+                        self.options
                             .contains_key([a, Self::TYPE_BOOL].concat().as_str())
                     }) != Ok(true)
                 {
@@ -147,32 +153,32 @@ impl Args {
 
             if arg == "-" || arg.starts_with("--") {
                 if let Some((arg, val)) = arg.split_once("=") {
-                    self.args
+                    self.arguments
                         .insert(self.arg_name(arg)?.into(), val.into_some());
                 } else if let Some(val) = next_val {
-                    self.args
+                    self.arguments
                         .insert(self.arg_name(arg)?.into(), val.into_some());
                 } else {
-                    self.args
+                    self.arguments
                         .insert(self.arg_name(arg)?.into(), "1".into_some());
                 }
             } else if arg.starts_with("-") {
                 let last = arg.chars().last().unwrap();
                 for ch in arg.chars().skip(1) {
                     if ch == last && next_val.is_some() {
-                        self.args.insert(
+                        self.arguments.insert(
                             self.arg_name(&['-', ch].iter().collect::<String>())?.into(),
                             next_val.map(|s| s.to_string())
                         );
                     } else {
-                        self.args.insert(
+                        self.arguments.insert(
                             self.arg_name(&['-', ch].iter().collect::<String>())?.into(),
                             "1".into_some()
                         );
                     }
                 }
             } else {
-                self.args.insert(
+                self.arguments.insert(
                     self.arg_name(&n.to_string())
                         .map_err(|e| e.replace(&format!("'{n}'"), &format!("'{arg}'")))?
                         .into(),
@@ -183,14 +189,14 @@ impl Args {
         }
 
         if self.undefined == ArgUndef::Skip {
-            self.args.shift_remove("");
+            self.arguments.shift_remove("");
         }
 
         self.into_ok()
     }
 
     pub fn get(&self, name: &str) -> Ok<Option<&str>> {
-        self.args
+        self.arguments
             .iter()
             .find_map(|(n, v)| n.eq(name).then_some(v.as_ref().map(String::as_str)))
             .ok_or_else(|| {
@@ -205,7 +211,7 @@ impl Args {
 
     fn arg_name<'a>(&'a self, arg: &'a str) -> Result<&'a str, String> {
         let arg_name = arg.trim_start_matches("-");
-        self.opts
+        self.options
             .iter()
             .find_map(|(n, o)| {
                 let n = n.split(':').next().unwrap();

@@ -15,6 +15,10 @@ impl AppModuleExt for MainModule {
 
     fn setup(&mut self, app: &mut App) -> Void {
         app.unregister_command(WebModule::<Self::Config>::COMMAND);
+
+        let server = app.get_mut::<HttpServer<Self::Config>>().unwrap();
+        server.with_defaults();
+
         ok()
     }
 
@@ -29,8 +33,7 @@ impl AppModuleExt for MainModule {
         Dirs::mkdir(&config.dirs.state)?;
         Dirs::mkdir(&config.dirs.user_config)?;
 
-        let mut server = app.take::<HttpServer<Self::Config>>().unwrap();
-        server.with_defaults(app);
+        let server = app.take::<HttpServer<Self::Config>>().unwrap();
         server.run_with_runtime()
     }
 

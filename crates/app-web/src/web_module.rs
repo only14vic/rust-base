@@ -23,14 +23,15 @@ where
     const DESCRIPTION: &str = "starts http server";
 
     fn boot(&mut self, app: &mut App<Self::Config>) -> Void {
-        let server = HttpServer::new(app.config());
+        let mut server = HttpServer::new(app.config());
+        server.with_app(app);
         app.add(server);
         ok()
     }
 
     fn run(&mut self, app: &mut App<Self::Config>) -> Void {
         let mut server = app.take::<HttpServer<Self::Config>>().unwrap();
-        server.with_defaults(app);
+        server.with_defaults();
         server.run_with_runtime()
     }
 }

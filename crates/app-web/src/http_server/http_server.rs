@@ -113,12 +113,11 @@ where
         }
     }
 
-    pub fn with_defaults(&mut self, app: &mut App<C>) -> &mut Self
+    pub fn with_defaults(&mut self) -> &mut Self
     where
         C: AsRef<Arc<DbConfig>>
     {
-        self.with_app(app)
-            .with_configs()
+        self.with_configs()
             .with_jwt()
             .with_db()
             .with_multipart()
@@ -196,9 +195,10 @@ where
         })
     }
 
-    pub fn with_app(&mut self, app: &mut App<C>) -> &mut Self {
+    pub fn with_app(&mut self, app: &App<C>) -> &mut Self {
         let app = unsafe { &*(app as *const App<C>) };
         let di = unsafe { &*(&**app as *const Di) };
+
         self.add_service(|srv, _server| {
             srv.app_data::<&'static App<C>>(app);
             srv.app_data::<&'static Di>(di);

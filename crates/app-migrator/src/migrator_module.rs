@@ -21,9 +21,8 @@ where
 
     fn init(&mut self, app: &mut App<Self::Config>) -> Void {
         if Self::COMMAND == app.command()? {
-            let args = app.get_mut::<Args>().unwrap();
             #[rustfmt::skip]
-            args.add_options([
+            app.args_mut().add_options([
                 ("action", "2".into(), None),
                 ("count", "3".into(), None)
             ]).unwrap();
@@ -33,7 +32,7 @@ where
     }
 
     fn run(&mut self, app: &mut App<Self::Config>) -> Void {
-        let args = app.get::<Args>().unwrap();
+        let args = app.args();
         let action = args.get("action").unwrap().unwrap_or(Self::STATUS);
         let count = args
             .get("count")
@@ -63,7 +62,7 @@ where
     }
 
     fn help(&self, app: &mut App<Self::Config>) -> Void {
-        let args = app.get_ref::<Args>().unwrap();
+        let args = app.args();
         let action = args.get("action").unwrap().unwrap_or_default();
 
         match action {
