@@ -15,6 +15,7 @@ async fn test_config() -> Void {
             .boot()?
             .run()?;
 
+        assert!(Env::is_test());
         assert!(app.config().db.url.contains("dbname=app-test"));
 
         ok()
