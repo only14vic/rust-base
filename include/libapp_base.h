@@ -40,9 +40,9 @@ typedef struct Logger Logger;
 
 typedef struct App_app_simple_config App;
 
-typedef const void *(*AppModuleC)(App*, enum AppEvent);
+typedef const void *(*AppModule)(App*, enum AppEvent);
 
-App *app_new(AppModuleC *modules, unsigned int count);
+App *app_new(AppModule *modules, unsigned int count);
 
 void app_boot(App *app, int argc, const char *const *argv);
 
@@ -50,13 +50,13 @@ void app_run(App *app);
 
 void app_free(App *app);
 
-void app_register_command(App *app, const char *command, AppModuleC module);
+void app_register_command(App *app, const char *command, AppModule module);
 
 void app_unregister_command(App *app, const char *command);
 
-void app_register_module(App *app, AppModuleC module);
+void app_register_module(App *app, AppModule module);
 
-void app_unregister_module(App *app, AppModuleC module);
+void app_unregister_module(App *app, AppModule module);
 
 const void *app_error(const char *err);
 

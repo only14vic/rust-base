@@ -12,10 +12,10 @@ use {
 
 pub type App = super::App<AppSimpleConfig>;
 
-pub type AppModuleC = extern "C" fn(*mut App, AppEvent) -> *const c_void;
+type AppModule = extern "C" fn(*mut App, AppEvent) -> *const c_void;
 
 #[unsafe(no_mangle)]
-unsafe extern "C" fn app_new(modules: *mut AppModuleC, count: c_uint) -> *mut App {
+unsafe extern "C" fn app_new(modules: *mut AppModule, count: c_uint) -> *mut App {
     let modules = unsafe { from_raw_parts(modules, count as usize) };
     let modules = modules.iter().map(|m| unsafe { transmute(*m) });
     let app = App::new(modules);
@@ -51,7 +51,7 @@ unsafe extern "C" fn app_free(app: *mut App) {
 unsafe extern "C" fn app_register_command(
     app: *mut App,
     command: *const c_char,
-    module: AppModuleC
+    module: AppModule
 ) {
     unsafe {
         let app = &mut *app;
@@ -71,7 +71,7 @@ unsafe extern "C" fn app_unregister_command(app: *mut App, command: *const c_cha
 }
 
 #[unsafe(no_mangle)]
-unsafe extern "C" fn app_register_module(app: *mut App, module: AppModuleC) {
+unsafe extern "C" fn app_register_module(app: *mut App, module: AppModule) {
     unsafe {
         let app = &mut *app;
         #[allow(clippy::missing_transmute_annotations)]
@@ -80,7 +80,7 @@ unsafe extern "C" fn app_register_module(app: *mut App, module: AppModuleC) {
 }
 
 #[unsafe(no_mangle)]
-unsafe extern "C" fn app_unregister_module(app: *mut App, module: AppModuleC) {
+unsafe extern "C" fn app_unregister_module(app: *mut App, module: AppModule) {
     unsafe {
         let app = &mut *app;
         #[allow(clippy::missing_transmute_annotations)]

@@ -9,17 +9,17 @@ fn main() {
     //
     // Configuration
     //
-    let src_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let inc_dir = PathBuf::from_iter([&src_dir, "include"]);
+    let pkg_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let inc_dir = PathBuf::from_iter([env!("PWD"), "include"]);
     let target_dir = format!(
         "{}/../../{}",
         env::var("OUT_DIR").unwrap(),
         env::var("PROFILE").unwrap()
     );
 
-    println!("cargo:rerun-if-changed={src_dir}/build.rs");
-    println!("cargo:rerun-if-changed={src_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={src_dir}/cbindgen.toml");
+    println!("cargo:rerun-if-changed={pkg_dir}/build.rs");
+    println!("cargo:rerun-if-changed={pkg_dir}/src/lib.rs");
+    println!("cargo:rerun-if-changed={pkg_dir}/cbindgen.toml");
 
     //
     // Linking libraries

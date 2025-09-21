@@ -9,22 +9,31 @@ fn main() {
 
     let now: DateTime<Local> = Local::now();
     println!("cargo:rustc-env=BUILD_TIME={now}");
+    println!(
+        "cargo:rustc-env=BUILD_PROFILE={}",
+        env::var("PROFILE").unwrap()
+    );
+    println!(
+        "cargo:rustc-env=BUILD_FEATURES={}",
+        env::var("CARGO_CFG_FEATURE").unwrap()
+    );
 
     //
     // Configuration
     //
-    let src_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let inc_dir = PathBuf::from_iter([&src_dir, "include"]);
+    let pkg_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let src_dir = PathBuf::from_iter([&pkg_dir, "src"]);
+    let inc_dir = PathBuf::from_iter([env!("PWD"), "include"]);
     let target_dir = format!(
         "{}/../../{}",
         env::var("OUT_DIR").unwrap(),
         env::var("PROFILE").unwrap()
     );
 
-    println!("cargo:rerun-if-changed={src_dir}/build.rs");
-    println!("cargo:rerun-if-changed={src_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={src_dir}/vendor/inih");
-    println!("cargo:rerun-if-changed={src_dir}/cbindgen.toml");
+    println!("cargo:rerun-if-changed={pkg_dir}/build.rs");
+    println!("cargo:rerun-if-changed={pkg_dir}/src/lib.rs");
+    println!("cargo:rerun-if-changed={pkg_dir}/vendor/inih");
+    println!("cargo:rerun-if-changed={pkg_dir}/cbindgen.toml");
 
     //
     // Linking libraries
@@ -46,7 +55,7 @@ fn main() {
         .clone();
 
     builder.clone()
-        .file(src_dir + "/vendor/inih/ini.c")
+        .file(pkg_dir + "/vendor/inih/ini.c")
         .define("INI_USE_STACK", "0")
         .define("INI_ALLOW_REALLOC", "1")
         .define("INI_MAX_LINE", "1000")
@@ -79,7 +88,7 @@ fn main() {
         .expect(&format!("Couldn't create directory: {inc_dir:?}"));
 
     let bindings_file =
-        PathBuf::from_iter([inc_dir.as_os_str(), OsStr::new("bindings.rs")]);
+        PathBuf::from_iter([src_dir.as_os_str(), OsStr::new("bindings.rs")]);
 
     bindings
         .write_to_file(&bindings_file)

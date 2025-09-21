@@ -25,6 +25,7 @@ app-base%example: flags
 
 app-base%example.c:
 	$(MAKE_CC) $(MAKE_CFLAGS) -lapp_base \
+	-I./include \
 	-o $(TARGET_DIR)/app-base$*example-c \
 	crates/app-base/examples/$@
 	$(TARGET_DIR)/app-base$*example-c

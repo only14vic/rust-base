@@ -1,4 +1,4 @@
-#include "../include/libapp.h"
+#include "libapp.h"
 #include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>
@@ -8,7 +8,7 @@
 
 const void *main_module(App *app, AppEvent event);
 
-const AppModuleC MAIN_MODULE = main_module;
+const AppModule MAIN_MODULE = main_module;
 
 int main(int argc, const char *argv[]) {
     const void *(*modules[])(App *, AppEvent) = {

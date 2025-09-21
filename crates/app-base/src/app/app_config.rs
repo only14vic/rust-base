@@ -129,6 +129,8 @@ where
                 ),
                 ("app.config_file_name", &Self::CONFIG_FILE_NAME),
                 ("app.no_std", &cfg!(not(feature = "std"))),
+                ("app.features", &env!("BUILD_FEATURES")),
+                ("app.profile", &env!("BUILD_PROFILE")),
                 ("app.default_command", &C::DEFAULT_COMMAND),
                 // env
                 ("env.env", &Env::env() as &dyn Display),
