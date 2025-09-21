@@ -131,16 +131,19 @@ impl Args {
 
         while i < args.len() {
             let arg: &str = args[i].as_ref();
+
             i += 1;
+
+            let is_flag = self.arg_name(arg).map(|a| {
+                self.options
+                    .contains_key([a, Self::TYPE_BOOL].concat().as_str())
+            }) == Ok(true);
 
             let next_val = if let Some(val) = args.get(i) {
                 if val.starts_with("-") == false
                     && arg.starts_with("-")
                     && arg.contains("=") == false
-                    && self.arg_name(arg).map(|a| {
-                        self.options
-                            .contains_key([a, Self::TYPE_BOOL].concat().as_str())
-                    }) != Ok(true)
+                    && is_flag == false
                 {
                     i += 1;
                     Some(val)
@@ -158,23 +161,27 @@ impl Args {
                 } else if let Some(val) = next_val {
                     self.arguments
                         .insert(self.arg_name(arg)?.into(), val.into_some());
-                } else {
+                } else if is_flag {
                     self.arguments
                         .insert(self.arg_name(arg)?.into(), "1".into_some());
+                } else {
+                    self.arguments
+                        .insert(self.arg_name(arg)?.into(), "".into_some());
                 }
             } else if arg.starts_with("-") {
                 let last = arg.chars().last().unwrap();
                 for ch in arg.chars().skip(1) {
-                    if ch == last && next_val.is_some() {
-                        self.arguments.insert(
-                            self.arg_name(&['-', ch].iter().collect::<String>())?.into(),
-                            next_val.map(|s| s.to_string())
-                        );
+                    let arg_name = self
+                        .arg_name(&['-', ch].iter().collect::<String>())?
+                        .to_string();
+                    if ch == last
+                        && let Some(val) = next_val
+                    {
+                        self.arguments.insert(arg_name, val.into_some());
+                    } else if is_flag {
+                        self.arguments.insert(arg_name, "1".into_some());
                     } else {
-                        self.arguments.insert(
-                            self.arg_name(&['-', ch].iter().collect::<String>())?.into(),
-                            "1".into_some()
-                        );
+                        self.arguments.insert(arg_name, "".into_some());
                     }
                 }
             } else {
