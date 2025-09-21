@@ -20,15 +20,13 @@ where
     type Config = C;
 
     fn init(&mut self, app: &mut App<Self::Config>) -> Void {
-        let args = app.get_mut::<Args>().unwrap();
-
-        if Some(Self::COMMAND) == args.get("command").unwrap() {
+        if Self::COMMAND == app.command()? {
+            let args = app.get_mut::<Args>().unwrap();
             #[rustfmt::skip]
             args.add_options([
                 ("action", "2".into(), None),
                 ("count", "3".into(), None)
-            ])
-                .unwrap();
+            ]).unwrap();
         }
 
         ok()

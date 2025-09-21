@@ -9,8 +9,7 @@ const MAX_ITERS: usize = 1_000_000;
 
 #[test]
 fn test_env() {
-    let env = Env::default();
-    dbg!(&env);
+    dbg!(MAX_ITERS, Env::from_static());
 
     let barrier = Barrier::new(THREADS_COUNT);
     let ta = Instant::now();
@@ -21,7 +20,10 @@ fn test_env() {
                 let t = Instant::now();
                 for _ in 0..MAX_ITERS {
                     black_box({
-                        assert_eq!(env.env, std::env::var("APP_ENV").unwrap_or_default());
+                        assert_eq!(
+                            Env::env(),
+                            std::env::var("APP_ENV").unwrap_or_default()
+                        );
                     });
                 }
                 dbg!(t.elapsed());
@@ -39,12 +41,12 @@ fn test_env() {
                 let t = Instant::now();
                 for _ in 0..MAX_ITERS {
                     black_box({
-                        assert_eq!(env.env, Env::env());
-                        assert_eq!(env.is_test, Env::is_test());
-                        assert_eq!(env.is_dev, Env::is_dev());
-                        assert_eq!(env.is_prod, Env::is_prod());
-                        assert_eq!(env.is_debug, Env::is_debug());
-                        assert_eq!(env.is_release, Env::is_release());
+                        assert_eq!(Env::env(), Env::env());
+                        assert_eq!(Env::is_test(), Env::is_test());
+                        assert_eq!(Env::is_dev(), Env::is_dev());
+                        assert_eq!(Env::is_prod(), Env::is_prod());
+                        assert_eq!(Env::is_debug(), Env::is_debug());
+                        assert_eq!(Env::is_release(), Env::is_release());
                     });
                 }
                 dbg!(t.elapsed());

@@ -167,15 +167,17 @@ where
 
         if let Some(env_file) = args.get("env-file").unwrap() {
             Ini::setenv_from_file(&env_file, true)?;
-            unsafe { Env::reset() };
         }
 
         if args.get("debug").unwrap() == Some("1") {
+            setenv("APP_DEBUG", "1");
             if log::max_level() < log::LevelFilter::Debug {
                 set_max_level(log::LevelFilter::Debug);
             }
-            unsafe { Env::from_static_mut().is_debug = true };
         }
+
+        // Enables new env variables
+        unsafe { Env::reset() };
 
         Env::is_debug().then(|| {
             log::debug!(
@@ -237,6 +239,14 @@ where
         self.trigger_module_event(self.get_command_module()?, AppEvent::APP_RUN)
     }
 
+    pub fn command(&self) -> Ok<&str> {
+        let args = self.get_ref::<Args>().unwrap();
+        args.get("command")
+            .unwrap()
+            .ok_or("Argument 'command' not specified")?
+            .into_ok()
+    }
+
     pub fn register_command(
         &mut self,
         command: &'static str,
@@ -292,15 +302,11 @@ where
     }
 
     fn get_command_module(&self) -> Ok<AppModule<C>> {
-        let args = self.get_ref::<Args>().unwrap();
-        let command = args
-            .get("command")
-            .unwrap()
-            .ok_or("Argument 'command' not specified")?;
+        let command = self.command()?;
 
         if let Some(module) = self.commands.get(command) {
             Ok(*module)
-        } else if command == C::DEFAULT_COMMAND
+        } else if C::DEFAULT_COMMAND == command
             && self.commands.is_empty()
             && let Some(module) = self.modules.first()
         {

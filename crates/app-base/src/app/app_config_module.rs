@@ -25,9 +25,8 @@ where
     type Config = C;
 
     fn init(&mut self, app: &mut App<Self::Config>) -> Void {
-        let args = app.get_mut::<Args>().unwrap();
-
-        if Some(Self::COMMAND) == args.get("command").unwrap() {
+        if Self::COMMAND == app.command()? {
+            let args = app.get_mut::<Args>().unwrap();
             args.add_options([("name", "2".into(), None)]).unwrap();
         }
 

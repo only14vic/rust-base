@@ -115,7 +115,6 @@ where
     C: AppConfigExt
 {
     fn iter(&self) -> impl Iterator<Item = (&'static str, String)> {
-        let env = Env::from_static();
         let mut res = Vec::new();
 
         res.extend(
@@ -124,7 +123,6 @@ where
                 ("app.name", &self.name as &dyn Display),
                 ("app.bin", &self.bin),
                 ("app.version", &self.version),
-                ("app.debug", &Env::is_debug()),
                 (
                     "app.env_file",
                     &self.env_file.as_ref().map(|v| v.as_ref()).unwrap_or("")
@@ -133,12 +131,12 @@ where
                 ("app.no_std", &cfg!(not(feature = "std"))),
                 ("app.default_command", &C::DEFAULT_COMMAND),
                 // env
-                ("env.env", &env.env as &dyn Display),
-                ("env.is_prod", &env.is_prod),
-                ("env.is_dev", &env.is_dev),
-                ("env.is_test", &env.is_test),
-                ("env.is_debug", &env.is_debug),
-                ("env.is_release", &env.is_release)
+                ("env.env", &Env::env() as &dyn Display),
+                ("env.is_prod", &Env::is_prod()),
+                ("env.is_dev", &Env::is_dev()),
+                ("env.is_test", &Env::is_test()),
+                ("env.is_debug", &Env::is_debug()),
+                ("env.is_release", &Env::is_release())
             ]
             .into_iter()
             .map(|(k, v)| (k, v.to_string()))
@@ -171,7 +169,8 @@ where
         self.extend(
             [
                 ("debug", args.get("debug")),
-                ("env_file", args.get("env-file"))
+                ("env_file", args.get("env-file")),
+                ("command", args.get("command"))
             ]
             .iter()
             .map(convert::tuple_result_option_str)

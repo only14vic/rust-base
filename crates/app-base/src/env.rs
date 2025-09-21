@@ -1,6 +1,9 @@
 use {crate::prelude::*, alloc::string::String};
 #[cfg(not(feature = "std"))]
-use {alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr, core::str::FromStr};
+use {
+    alloc::boxed::Box, alloc::ffi::CString, alloc::string::ToString, core::ffi::CStr,
+    core::str::FromStr
+};
 
 pub fn getenv(name: &str) -> Option<String> {
     #[cfg(feature = "std")]
@@ -44,12 +47,12 @@ pub trait LoadEnv {
 
 #[derive(Debug, Clone, FromStatic)]
 pub struct Env {
-    pub is_test: bool,
-    pub is_prod: bool,
-    pub is_dev: bool,
-    pub is_debug: bool,
-    pub is_release: bool,
-    pub env: String
+    is_test: bool,
+    is_prod: bool,
+    is_dev: bool,
+    is_debug: bool,
+    is_release: bool,
+    env: Box<str>
 }
 
 impl Default for Env {
@@ -74,7 +77,7 @@ impl Default for Env {
             is_dev: &env != "prod",
             is_debug,
             is_release: cfg!(debug_assertions) == false,
-            env
+            env: env.into_boxed_str()
         }
     }
 }
@@ -86,7 +89,7 @@ impl Env {
 
     #[inline]
     pub fn env() -> &'static str {
-        Self::from_static().env.as_str()
+        &Self::from_static().env
     }
 
     #[inline]
