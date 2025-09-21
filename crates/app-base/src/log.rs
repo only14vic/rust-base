@@ -45,7 +45,13 @@ impl Into<LevelFilter> for LogLevel {
 
 /// Initializes logging
 #[unsafe(no_mangle)]
-pub extern "C" fn log_init() -> *mut Logger {
+pub extern "C" fn log_init() -> &'static mut Logger {
+    static INIT: AtomicBool = AtomicBool::new(false);
+
+    if INIT.swap(true, Ordering::SeqCst) == false {
+        log::set_logger(Logger::from_static()).unwrap();
+    }
+
     unsafe { Logger::from_static_mut() }
 }
 
@@ -77,25 +83,23 @@ pub struct Logger {
 
 impl Default for Logger {
     fn default() -> Self {
-        static INIT: AtomicBool = AtomicBool::new(false);
-
-        let mut logger = Box::new(Logger {
+        let mut log = Logger {
             config: Default::default(),
             file: Default::default(),
             lock: Default::default()
-        });
+        };
 
         let mut config = LogConfig::default();
         config.load_env();
+        log.configure(&config).unwrap();
 
-        logger.configure(&config).unwrap();
+        log
+    }
+}
 
-        if INIT.swap(true, Ordering::SeqCst) == false {
-            let logger_ref: &'static Self = unsafe { &*(logger.as_ref() as *const Self) };
-            log::set_logger(logger_ref).unwrap();
-        }
-
-        *logger
+impl Drop for Logger {
+    fn drop(&mut self) {
+        self.log_close();
     }
 }
 
@@ -186,12 +190,6 @@ impl Logger {
 
             CStr::from_ptr(buff).to_string_lossy().to_string()
         }
-    }
-}
-
-impl Drop for Logger {
-    fn drop(&mut self) {
-        self.log_close();
     }
 }
 

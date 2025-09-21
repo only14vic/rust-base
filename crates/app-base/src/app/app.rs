@@ -134,8 +134,7 @@ where
         #[cfg(not(feature = "std"))] argv: *const *const c_char
     ) -> Ok<&mut Self> {
         dotenv(false);
-
-        let log = unsafe { Logger::from_static_mut() };
+        let log = log_init();
 
         #[cfg(feature = "std")]
         std::panic::set_hook(Box::new(Self::panic_handler));

@@ -11,12 +11,7 @@ use {
     proc_macro::TokenStream,
     proc_macro2::{Span, TokenStream as TokenStream2, TokenTree},
     quote::{ToTokens, quote},
-    syn::{
-        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed,
-        GenericParam, Generics, Ident, ImplGenerics, Lifetime, LifetimeParam, Path,
-        TypePath, WhereClause, parse_macro_input, parse_str, punctuated::Punctuated,
-        token::Comma
-    }
+    syn::{Data, DataStruct, DeriveInput, parse_macro_input}
 };
 #[cfg(not(feature = "std"))]
 #[allow(unused_imports)]
