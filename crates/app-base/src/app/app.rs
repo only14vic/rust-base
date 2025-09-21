@@ -187,15 +187,15 @@ where
         // Throws error if undefined arguments are detected for next load.
         args.set_undefined(ArgUndef::Error);
 
+        if let Some(env_file) = args.get("env-file").unwrap() {
+            Ini::setenv_from_file(&env_file, true)?;
+        }
+
         if args.get("debug").unwrap() == Some("1") {
             setenv("APP_DEBUG", "1");
             if log::max_level() < log::LevelFilter::Debug {
                 set_max_level(log::LevelFilter::Debug);
             }
-        }
-
-        if let Some(env_file) = args.get("env-file").unwrap() {
-            Ini::setenv_from_file(&env_file, true)?;
         }
 
         // Enables new env variables
