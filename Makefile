@@ -22,6 +22,8 @@ endif
 
 make = make --no-print-directory
 CARGO_ARGS =
+RUSTFLAGS =
+DESTDIR = $(PWD)
 
 ifdef env
 ifneq ($(env),)
@@ -35,9 +37,6 @@ endif
 ifeq ($(debug),)
 	CARGO_ARGS += --release
 endif
-
-DESTDIR = $(PWD)
-RUSTFLAGS =
 
 ifneq ($(static),)
 	CARGO_BUILD_TARGET = x86_64-unknown-linux-musl
