@@ -19,7 +19,7 @@ impl<C> AppModuleExt for AppConfigModule<C>
 where
     C: AppConfigExt
 {
-    const COMMAND: &str = AppConfig::<C>::DEFAULT_COMMAND;
+    const COMMAND: &str = AppConfig::<C>::COMMAND;
     const DESCRIPTION: &str = "displays config options";
 
     type Config = C;

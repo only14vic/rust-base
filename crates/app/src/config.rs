@@ -3,10 +3,13 @@ use {
     alloc::{fmt::Debug, format, string::String, sync::Arc, vec::Vec},
     app_async::{TokioConfig, db::DbConfig},
     app_base::prelude::*,
-    app_migrator::{MigratorConfig, MigratorConfigExt},
     app_web::{ActixConfig, WebConfig},
     serde::{Deserialize, Serialize}
 };
+#[cfg(feature = "migrator")]
+use app_migrator::{MigratorConfig, MigratorConfigExt};
+#[cfg(feature = "desktop")]
+use app_desktop::{DesktopConfig, DesktopConfigExt};
 
 #[derive(Debug, Default, ExtendFromIter, Serialize, Deserialize)]
 pub struct Config {
@@ -14,12 +17,23 @@ pub struct Config {
     pub actix: Arc<ActixConfig>,
     pub web: Arc<WebConfig>,
     pub db: Arc<DbConfig>,
-    pub migrator: Arc<MigratorConfig>
+    #[cfg(feature = "migrator")]
+    pub migrator: Arc<MigratorConfig>,
+    #[cfg(feature = "desktop")]
+    pub desktop: Arc<DesktopConfig>
 }
 
 impl AppConfigExt for Config {
-    const DEFAULT_COMMAND: &str = MainModule::COMMAND;
+    const COMMAND: &str = MainModule::COMMAND;
+    const CONFIG_FILE_NAME: &str = concat!(env!("APP_BIN"), ".ini");
+    const FEATURES: &str = env!("BUILD_FEATURES");
 }
+
+#[cfg(feature = "migrator")]
+impl MigratorConfigExt for Config {}
+
+#[cfg(feature = "desktop")]
+impl DesktopConfigExt for Config {}
 
 impl Iter<'_, (&'static str, String)> for Config {
     fn iter(&'_ self) -> impl Iterator<Item = (&'static str, String)> {
@@ -28,7 +42,10 @@ impl Iter<'_, (&'static str, String)> for Config {
         res.extend(self.tokio.iter());
         res.extend(self.actix.iter());
         res.extend(self.web.iter());
+        #[cfg(feature = "migrator")]
         res.extend(self.migrator.iter());
+        #[cfg(feature = "desktop")]
+        res.extend(self.desktop.iter());
         res.into_iter()
     }
 }
@@ -40,7 +57,10 @@ impl LoadArgs for Config {
             self.actix.try_mut().unwrap(),
             self.web.try_mut().unwrap(),
             self.db.try_mut().unwrap(),
-            self.migrator.try_mut().unwrap()
+            #[cfg(feature = "migrator")]
+            self.migrator.try_mut().unwrap(),
+            #[cfg(feature = "desktop")]
+            self.desktop.try_mut().unwrap()
         ];
 
         for item in list {
@@ -54,7 +74,10 @@ impl LoadArgs for Config {
             self.actix.try_mut().unwrap(),
             self.web.try_mut().unwrap(),
             self.db.try_mut().unwrap(),
-            self.migrator.try_mut().unwrap()
+            #[cfg(feature = "migrator")]
+            self.migrator.try_mut().unwrap(),
+            #[cfg(feature = "desktop")]
+            self.desktop.try_mut().unwrap()
         ];
 
         for item in list {
@@ -70,7 +93,10 @@ impl LoadDirs for Config {
             self.actix.try_mut().unwrap(),
             self.web.try_mut().unwrap(),
             self.db.try_mut().unwrap(),
-            self.migrator.try_mut().unwrap()
+            #[cfg(feature = "migrator")]
+            self.migrator.try_mut().unwrap(),
+            #[cfg(feature = "desktop")]
+            self.desktop.try_mut().unwrap()
         ];
 
         for item in list {
@@ -86,7 +112,10 @@ impl LoadEnv for Config {
             self.actix.try_mut().unwrap(),
             self.web.try_mut().unwrap(),
             self.db.try_mut().unwrap(),
-            self.migrator.try_mut().unwrap()
+            #[cfg(feature = "migrator")]
+            self.migrator.try_mut().unwrap(),
+            #[cfg(feature = "desktop")]
+            self.desktop.try_mut().unwrap()
         ];
 
         for item in list {
@@ -94,8 +123,6 @@ impl LoadEnv for Config {
         }
     }
 }
-
-impl MigratorConfigExt for Config {}
 
 impl AsRef<Arc<TokioConfig>> for Config {
     #[inline]
@@ -125,9 +152,18 @@ impl AsRef<Arc<WebConfig>> for Config {
     }
 }
 
+#[cfg(feature = "migrator")]
 impl AsRef<Arc<MigratorConfig>> for Config {
     #[inline]
     fn as_ref(&self) -> &Arc<MigratorConfig> {
         &self.migrator
+    }
+}
+
+#[cfg(feature = "desktop")]
+impl AsRef<Arc<DesktopConfig>> for Config {
+    #[inline]
+    fn as_ref(&self) -> &Arc<DesktopConfig> {
+        &self.desktop
     }
 }

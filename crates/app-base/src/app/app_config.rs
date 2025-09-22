@@ -28,18 +28,27 @@ pub trait AppConfigExt:
     + LoadDirs
 {
     const CONFIG_FILE_NAME: &str = concat!(env!("APP_BIN"), ".ini");
-    const DEFAULT_COMMAND: &str = "run";
+    const COMMAND: &str = "run";
+    const FEATURES: &str = env!("BUILD_FEATURES");
 }
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct AppConfig<C: AppConfigExt> {
     pub name: Box<str>,
-    pub bin: Box<str>,
     pub version: Box<str>,
     pub env_file: Option<Box<str>>,
     pub base: Arc<BaseConfig>,
     pub dirs: Arc<Dirs>,
     pub external: Arc<C>
+}
+
+impl<C> AppConfigExt for AppConfig<C>
+where
+    C: AppConfigExt
+{
+    const COMMAND: &str = "config";
+    const CONFIG_FILE_NAME: &str = C::CONFIG_FILE_NAME;
+    const FEATURES: &str = C::FEATURES;
 }
 
 impl<C> Default for AppConfig<C>
@@ -49,7 +58,6 @@ where
     fn default() -> Self {
         Self {
             name: env!("APP_NAME").trim_matches(['\'', '"']).into(),
-            bin: env!("APP_BIN").into(),
             version: concat!("v", env!("APP_VERSION"), " (", env!("BUILD_TIME"), ")")
                 .into(),
             env_file: None,
@@ -58,14 +66,6 @@ where
             external: Default::default()
         }
     }
-}
-
-impl<C> AppConfigExt for AppConfig<C>
-where
-    C: AppConfigExt
-{
-    const DEFAULT_COMMAND: &str = "config";
-    const CONFIG_FILE_NAME: &str = C::CONFIG_FILE_NAME;
 }
 
 impl<C> Deref for AppConfig<C>
@@ -121,7 +121,6 @@ where
             [
                 // app
                 ("app.name", &self.name as &dyn Display),
-                ("app.bin", &self.bin),
                 ("app.version", &self.version),
                 (
                     "app.env_file",
@@ -129,9 +128,9 @@ where
                 ),
                 ("app.config_file_name", &Self::CONFIG_FILE_NAME),
                 ("app.no_std", &cfg!(not(feature = "std"))),
-                ("app.features", &env!("BUILD_FEATURES")),
+                ("app.features", &Self::FEATURES),
                 ("app.profile", &env!("BUILD_PROFILE")),
-                ("app.default_command", &C::DEFAULT_COMMAND),
+                ("app.default_command", &C::COMMAND),
                 // env
                 ("env.env", &Env::env() as &dyn Display),
                 ("env.is_prod", &Env::is_prod()),

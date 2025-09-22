@@ -17,7 +17,7 @@ pub struct AppSimpleConfig {
 }
 
 impl AppConfigExt for AppSimpleConfig {
-    const DEFAULT_COMMAND: &str = "run";
+    const COMMAND: &str = "run";
 }
 
 impl Iter<'_, (&'static str, String)> for AppSimpleConfig {

@@ -36,6 +36,7 @@ impl AppModuleExt for MainModule {
 
     fn help(&self, app: &mut App) -> Void {
         let config = app.config();
+        const LEN: usize = 10;
 
         println!(
             r#"
@@ -44,26 +45,40 @@ Usage: {bin} [command] [options]
 Version: {name} {version}
 
 Commands:
-    {:<len$} - {} (default)
-    {:<len$} - {}
-    {:<len$} - {}
+    {:<LEN$} - {} (default)
+    {:<LEN$} - {}"#,
+            Self::COMMAND,
+            Self::DESCRIPTION,
+            AppConfigModule::<Self::Config>::COMMAND,
+            AppConfigModule::<Self::Config>::DESCRIPTION,
+            bin = config.dirs.exe_file(),
+            version = config.version,
+            name = config.name,
+        );
+
+        #[cfg(feature = "migrator")]
+        println!(
+            "    {:<LEN$} - {}",
+            MigratorModule::<Self::Config>::COMMAND,
+            MigratorModule::<Self::Config>::DESCRIPTION,
+        );
+
+        #[cfg(feature = "desktop")]
+        println!(
+            "    {:<LEN$} - {}",
+            DesktopModule::<Self::Config>::COMMAND,
+            DesktopModule::<Self::Config>::DESCRIPTION,
+        );
+
+        println!(
+            r#"
 
 Options:
     -h, --help      - show usage help
     --env-file file - loads env vars from file
     --debug         - enable debuging
     --version       - show current version
-"#,
-            Self::COMMAND,
-            Self::DESCRIPTION,
-            AppConfigModule::<Self::Config>::COMMAND,
-            AppConfigModule::<Self::Config>::DESCRIPTION,
-            MigratorModule::<Self::Config>::COMMAND,
-            MigratorModule::<Self::Config>::DESCRIPTION,
-            len = 10,
-            bin = config.dirs.exe_file(),
-            version = config.version,
-            name = config.name,
+"#
         );
 
         ok()

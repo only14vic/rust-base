@@ -85,6 +85,9 @@ ifneq ($(no_std),)
 	RUSTFLAGS += -Cpanic=abort
 	CARGO_ARGS += --no-default-features
 endif
+ifneq ($(features),)
+	CARGO_ARGS += --no-default-features --features "$(features)"
+endif
 ifdef args
 	CARGO_ARGS += -- $(args)
 endif
@@ -134,7 +137,7 @@ clean:
 
 check:
 	cargo check --workspace --no-default-features --exclude app
-	cargo check --workspace
+	cargo check --workspace --all-features
 	cargo clippy --workspace --no-deps --fix --allow-dirty --allow-staged
 	find crates -type f -name "*.rs" | xargs rustup run nightly rustfmt --check
 

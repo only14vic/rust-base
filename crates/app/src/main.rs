@@ -19,7 +19,10 @@ fn main() -> Void {
             MODULE_MAIN,
             MODULE_WEB,
             MODULE_CONFIG,
-            MODULE_MIGRATOR
+            #[cfg(feature="migrator")]
+            MODULE_MIGRATOR,
+            #[cfg(feature="desktop")]
+            MODULE_DESKTOP,
         ])
         .boot()
         .inspect_err(|e| log::error!("{e}"))?

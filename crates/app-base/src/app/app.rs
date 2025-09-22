@@ -113,7 +113,7 @@ where
             di: Default::default(),
             args: Args::new([
                 ("exe", "0".into(), None),
-                ("command", "1".into(), Some(C::DEFAULT_COMMAND)),
+                ("command", "1".into(), Some(C::COMMAND)),
                 ("env-file", None, None),
                 ("debug:b", None, None),
                 ("version:b", None, None),
@@ -326,7 +326,7 @@ where
     pub fn get_module_by_command(&self, command: &str) -> Ok<AppModule<C>> {
         if let Some(module) = self.commands.get(command) {
             Ok(*module)
-        } else if C::DEFAULT_COMMAND == command
+        } else if C::COMMAND == command
             && self.commands.is_empty()
             && let Some(module) = self.modules.first()
         {

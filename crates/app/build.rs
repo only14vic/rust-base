@@ -6,6 +6,11 @@ use {
 fn main() {
     dotenv().ok();
 
+    println!(
+        "cargo:rustc-env=BUILD_FEATURES={}",
+        env::var("CARGO_CFG_FEATURE").unwrap()
+    );
+
     //
     // Configuration
     //

@@ -16,22 +16,20 @@ path = "src/main.rs"
 name = "app"
 
 [features]
-default = ["std"]
+default = ["std", "migrator", "desktop"]
 std = [
   "app-base/std",
-  "app-macros/std",
-  "app-async/db",
   "dep:app-async",
   "dep:app-web",
-  "dep:app-migrator",
   "dep:tokio",
   "dep:actix",
   "dep:actix-web",
   "dep:actix-http",
   "dep:futures",
   "dep:sqlx",
-
 ]
+migrator = ["std", "dep:app-migrator"]
+desktop = ["std", "dep:app-desktop"]
 
 [build-dependencies]
 cc = { workspace = true }
@@ -42,10 +40,10 @@ dotenv = { workspace = true }
 
 [dependencies]
 app-base = { workspace = true }
-app-macros = { workspace = true }
 app-async = { workspace = true, optional = true }
 app-web = { workspace = true, optional = true }
 app-migrator = { workspace = true, optional = true }
+app-desktop = { workspace = true, optional = true }
 libc = { workspace = true }
 log = { workspace = true }
 ahash = { workspace = true }

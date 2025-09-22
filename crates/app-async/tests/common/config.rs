@@ -16,7 +16,7 @@ pub struct Config {
 }
 
 impl AppConfigExt for Config {
-    const DEFAULT_COMMAND: &str = "run";
+    const COMMAND: &str = "run";
 }
 
 impl Iter<'_, (&'static str, String)> for Config {

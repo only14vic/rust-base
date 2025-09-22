@@ -8,7 +8,7 @@ use {
 pub struct Config {}
 
 impl AppConfigExt for Config {
-    const DEFAULT_COMMAND: &str = AppSimpleModule::<Config>::COMMAND;
+    const COMMAND: &str = AppSimpleModule::<Config>::COMMAND;
 }
 
 impl Iter<'_, (&'static str, String)> for Config {

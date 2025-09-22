@@ -14,7 +14,7 @@ impl<C> AppModuleExt for MigratorModule<C>
 where
     C: MigratorConfigExt
 {
-    const COMMAND: &str = MigratorConfig::DEFAULT_COMMAND;
+    const COMMAND: &str = MigratorConfig::COMMAND;
     const DESCRIPTION: &str = "migrates SQL files to database";
 
     type Config = C;

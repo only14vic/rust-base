@@ -107,7 +107,6 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
         ok()
     }
 
-    #[allow(unused_variables)]
     fn help(&self, app: &mut App<Self::Config>) -> Void {
         let config = app.config();
 
@@ -120,7 +119,7 @@ Version: {name} {version}
 This command {desc}
 
 Commands:
-    {:<len$} - {desc} (default)
+    {:<len$} - {desc}
 
 Options:
     -h, --help      - show usage help

@@ -1,0 +1,22 @@
+[package]
+name = "app-desktop"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+name = "app_desktop"
+crate-type = ["lib"]
+
+[dependencies]
+app-base = { workspace = true, features = ["std"] }
+app-web = { workspace = true }
+log = { workspace = true }
+serde = { workspace = true }
+image = { workspace = true }
+thiserror = { workspace = true }
+tao = { workspace = true }
+wry = { workspace = true }

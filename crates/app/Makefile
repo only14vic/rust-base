@@ -3,6 +3,8 @@ ALL += build-app, \
 
 TESTS += tests-app, \
 		examples-app, \
+		build-app features=migrator, \
+		build-app features=desktop, \
 		build-app, \
 		run-app args=config, \
 		build-app no_std=1, \

@@ -21,7 +21,7 @@ pub struct MigratorConfig {
 }
 
 impl AppConfigExt for MigratorConfig {
-    const DEFAULT_COMMAND: &str = "migrator";
+    const COMMAND: &str = "migrator";
 }
 
 impl Default for MigratorConfig {
@@ -51,7 +51,7 @@ impl Iter<'_, (&'static str, String)> for MigratorConfig {
 
 impl LoadArgs for MigratorConfig {
     fn init_args(&mut self, args: &mut Args) {
-        if args.get("command").unwrap() == Some(Self::DEFAULT_COMMAND) {
+        if args.get("command").unwrap() == Some(Self::COMMAND) {
             args.add_options([
                 ("dir", "-d".into(), None),
                 ("dry-run:b", "-n".into(), None),
@@ -64,7 +64,7 @@ impl LoadArgs for MigratorConfig {
     }
 
     fn load_args(&mut self, args: &Args) {
-        if args.get("command").unwrap() == Some(Self::DEFAULT_COMMAND) {
+        if args.get("command").unwrap() == Some(Self::COMMAND) {
             self.extend(
                 [
                     ("dir", args.get("dir")),

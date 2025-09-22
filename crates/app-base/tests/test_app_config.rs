@@ -16,7 +16,7 @@ fn test_app_config() -> Void {
 
     let mut args = Args::new([
         ("exe", "0".into(), None),
-        ("command", "1".into(), Some(MyConfig::DEFAULT_COMMAND)),
+        ("command", "1".into(), Some(MyConfig::COMMAND)),
         ("help", "-h".into(), None),
         ("base-locales", None, Some(" fr = fr_US ")),
         ("base-language", None, Some("fr")),

@@ -172,6 +172,16 @@ sqlx-postgres = { version = "0.8" }
 sqlx-sqlite = { version = "0.8" }
 pg_query = { version = "6.1.1" }
 validator = { version = "0.20", features = ["derive"] }
+anyhow = { version = "1.0.100" }
+thiserror = { version = "2.0.16" }
+image = { version = "0.25.8", default-features = false, features = [
+  "gif",
+  "jpeg",
+  "ico",
+  "png",
+] }
+wry = { version = "0.53.3", features = ["devtools"] }
+tao = { version = "0.34.3" }
 
 app = { path = "crates/app", default-features = false }
 app-base = { path = "crates/app-base", default-features = false }
@@ -180,3 +190,4 @@ app-async = { path = "crates/app-async", default-features = false }
 app-migrator = { path = "crates/app-migrator", default-features = false }
 app-web = { path = "crates/app-web", default-features = false }
 app-testing = { path = "crates/app-testing", default-features = false }
+app-desktop = { path = "crates/app-desktop", default-features = false }
