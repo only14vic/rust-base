@@ -3,7 +3,7 @@ use {
     app_web::WebConfig,
     core::fmt::Display,
     serde::{Deserialize, Serialize},
-    std::{env, sync::Arc}
+    std::sync::Arc
 };
 
 pub trait DesktopConfigExt:
@@ -80,13 +80,12 @@ impl LoadDirs for DesktopConfig {
 
 impl DesktopConfig {
     pub fn load_config<C: DesktopConfigExt>(&mut self, config: &AppConfig<C>) {
-        match env::var("DESKTOP_WEBVIEW_URL").as_ref().map(String::as_str) {
-            Err(..) | Ok("") => {
-                let base_url = config.get::<WebConfig>().base_url.clone();
-                self.webview_url = base_url.clone();
-                self.webview_start_url = base_url;
-            },
-            _ => {}
+        if option_env!("DESKTOP_WEBVIEW_URL").is_none() {
+            let base_url = &config.get::<WebConfig>().base_url;
+            self.webview_url = base_url.clone();
+        }
+        if option_env!("DESKTOP_WEBVIEW_START_URL").is_none() {
+            self.webview_start_url = self.webview_url.clone();
         }
     }
 }
