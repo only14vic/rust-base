@@ -129,7 +129,7 @@ where
 
             match event {
                 Event::NewEvents(StartCause::Init) => {
-                    log::trace!("Started");
+                    Env::is_debug().then(|| log::debug!("Event loop started"));
                 },
                 Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
                     *control_flow = ControlFlow::Exit;
