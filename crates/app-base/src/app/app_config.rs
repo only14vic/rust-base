@@ -235,11 +235,11 @@ where
     }
 
     #[inline]
-    pub fn get_mut<T>(&mut self) -> &mut T
+    pub fn get_mut<T>(&mut self) -> Ok<&mut T>
     where
         C: AsMut<Arc<T>>
     {
-        (**self).as_mut().try_mut().unwrap()
+        (**self).as_mut().try_mut()
     }
 
     pub fn load(&mut self, args: Option<&Args>) -> Ok<&mut Self> {

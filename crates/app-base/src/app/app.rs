@@ -139,8 +139,8 @@ where
     }
 
     #[inline]
-    pub fn config_mut(&mut self) -> &mut AppConfig<C> {
-        self.config.try_mut().unwrap()
+    pub fn config_mut(&mut self) -> Ok<&mut AppConfig<C>> {
+        self.config.try_mut()
     }
 
     #[inline]

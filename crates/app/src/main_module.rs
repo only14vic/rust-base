@@ -72,7 +72,6 @@ Commands:
 
         println!(
             r#"
-
 Options:
     -h, --help      - show usage help
     --env-file file - loads env vars from file
