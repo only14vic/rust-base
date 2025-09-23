@@ -58,6 +58,8 @@ where
         let window: Rc<_> = WindowBuilder::new()
             .with_title(&app_name)
             .with_window_icon(Some(icon))
+            .with_resizable(true)
+            .with_inner_size(LogicalSize { width: 700, height: 500 })
             .build(&event_loop)?
             .into();
 
