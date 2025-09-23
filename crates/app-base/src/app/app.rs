@@ -139,6 +139,16 @@ where
     }
 
     #[inline]
+    pub fn config_mut(&mut self) -> &mut AppConfig<C> {
+        self.config.try_mut().unwrap()
+    }
+
+    #[inline]
+    pub unsafe fn config_static(&self) -> &'static Arc<AppConfig<C>> {
+        unsafe { &*(&self.config as *const _) }
+    }
+
+    #[inline]
     pub fn args(&self) -> &Args {
         &self.args
     }

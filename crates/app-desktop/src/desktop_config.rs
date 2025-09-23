@@ -1,11 +1,18 @@
 use {
     app_base::prelude::*,
+    app_web::WebConfig,
     core::fmt::Display,
     serde::{Deserialize, Serialize},
-    std::sync::Arc
+    std::{env, sync::Arc}
 };
 
-pub trait DesktopConfigExt: AppConfigExt + AsRef<Arc<DesktopConfig>> {}
+pub trait DesktopConfigExt:
+    AppConfigExt
+    + AsRef<Arc<DesktopConfig>>
+    + AsMut<Arc<DesktopConfig>>
+    + AsRef<Arc<WebConfig>>
+{
+}
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct DesktopConfig {
@@ -67,6 +74,19 @@ impl LoadDirs for DesktopConfig {
             self.icon_path.insert(0, '/');
             self.icon_path
                 .insert_str(0, dirs.data.trim_end_matches('/'));
+        }
+    }
+}
+
+impl DesktopConfig {
+    pub fn load_config<C: DesktopConfigExt>(&mut self, config: &AppConfig<C>) {
+        match env::var("DESKTOP_WEBVIEW_URL").as_ref().map(String::as_str) {
+            Err(..) | Ok("") => {
+                let web_config = config.get::<WebConfig>();
+                self.webview_url = web_config.base_url.clone();
+                self.webview_start_url = web_config.base_url.clone();
+            },
+            _ => {}
         }
     }
 }

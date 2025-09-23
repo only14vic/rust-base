@@ -33,7 +33,7 @@ pub struct HttpServer<C>
 where
     C: AppConfigExt + AsRef<Arc<ActixConfig>> + AsRef<Arc<WebConfig>>
 {
-    pub config: Arc<AppConfig<C>>,
+    pub config: &'static Arc<AppConfig<C>>,
     services: Vec<ServiceConfigFn<C>>
 }
 
@@ -42,7 +42,10 @@ where
     C: AppConfigExt + AsRef<Arc<ActixConfig>> + AsRef<Arc<WebConfig>>
 {
     pub fn new(config: &Arc<AppConfig<C>>) -> Self {
-        Self { config: config.clone(), services: Default::default() }
+        Self {
+            config: unsafe { &*(config as *const _) },
+            services: Default::default()
+        }
     }
 
     #[cold]

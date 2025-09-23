@@ -32,6 +32,13 @@ where
 
     type Config = C;
 
+    fn setup(&mut self, app: &mut App<Self::Config>) -> Void {
+        let config = unsafe { app.config_static() };
+        let desktop_config = app.config_mut().get_mut::<DesktopConfig>();
+        desktop_config.load_config(config);
+        ok()
+    }
+
     fn run(&mut self, app: &mut App<Self::Config>) -> Void {
         let config = app.config();
         let desktop_config = app.config().get::<DesktopConfig>().clone();

@@ -167,3 +167,11 @@ impl AsRef<Arc<DesktopConfig>> for Config {
         &self.desktop
     }
 }
+
+#[cfg(feature = "desktop")]
+impl AsMut<Arc<DesktopConfig>> for Config {
+    #[inline]
+    fn as_mut(&mut self) -> &mut Arc<DesktopConfig> {
+        &mut self.desktop
+    }
+}

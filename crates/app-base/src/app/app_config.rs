@@ -234,6 +234,14 @@ where
         (**self).as_ref()
     }
 
+    #[inline]
+    pub fn get_mut<T>(&mut self) -> &mut T
+    where
+        C: AsMut<Arc<T>>
+    {
+        (**self).as_mut().try_mut().unwrap()
+    }
+
     pub fn load(&mut self, args: Option<&Args>) -> Ok<&mut Self> {
         let mut dirs = Dirs::default();
         dirs.load_env();
