@@ -1,15 +1,11 @@
 use {
     app_base::prelude::*,
-    app_web::WebConfig,
     core::fmt::Display,
     serde::{Deserialize, Serialize},
     std::sync::Arc
 };
 
-pub trait DesktopConfigExt:
-    AppConfigExt + AsRef<Arc<DesktopConfig>> + AsRef<Arc<WebConfig>>
-{
-}
+pub trait DesktopConfigExt: AppConfigExt + AsRef<Arc<DesktopConfig>> {}
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct DesktopConfig {
