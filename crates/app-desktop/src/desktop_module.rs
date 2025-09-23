@@ -173,7 +173,6 @@ where
                     .spawn()
                     .map(|mut child| child.wait())
                     .ok();
-                    ()
                 },
                 Event::UserEvent(UserEvent::LoadUrl(url)) => {
                     webview.load_url(&url).ok();
