@@ -82,9 +82,9 @@ impl DesktopConfig {
     pub fn load_config<C: DesktopConfigExt>(&mut self, config: &AppConfig<C>) {
         match env::var("DESKTOP_WEBVIEW_URL").as_ref().map(String::as_str) {
             Err(..) | Ok("") => {
-                let web_config = config.get::<WebConfig>();
-                self.webview_url = web_config.base_url.clone();
-                self.webview_start_url = web_config.base_url.clone();
+                let base_url = config.get::<WebConfig>().base_url.clone();
+                self.webview_url = base_url.clone();
+                self.webview_start_url = base_url;
             },
             _ => {}
         }

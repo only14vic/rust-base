@@ -153,6 +153,7 @@ where
                         .unwrap();
                 },
                 Event::UserEvent(UserEvent::LaunchUrl(url)) => {
+                    Env::is_debug().then(|| log::trace!("Launching: {url}"));
                     Command::new("sh")
                         .args(["-c", &format!("xdg-open \"{url}\" &")])
                         .spawn()
@@ -161,6 +162,7 @@ where
                         .ok();
                 },
                 Event::UserEvent(UserEvent::LoadUrl(url)) => {
+                    Env::is_debug().then(|| log::trace!("Loading: {url}"));
                     webview.load_url(&url).ok();
                 },
                 _ => {}
