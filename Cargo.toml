@@ -182,6 +182,7 @@ image = { version = "0.25.8", default-features = false, features = [
 ] }
 wry = { version = "0.53.3", features = ["devtools"] }
 tao = { version = "0.34.3" }
+gtk = { version = "0.18" }
 
 app = { path = "crates/app", default-features = false }
 app-base = { path = "crates/app-base", default-features = false }

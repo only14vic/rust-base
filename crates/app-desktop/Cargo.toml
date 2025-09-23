@@ -20,3 +20,4 @@ image = { workspace = true }
 thiserror = { workspace = true }
 tao = { workspace = true }
 wry = { workspace = true }
+gtk = { workspace = true }

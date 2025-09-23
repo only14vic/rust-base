@@ -30,6 +30,7 @@ impl Default for DesktopConfig {
                 .unwrap_or("http://localhost")
                 .into(),
             webview_start_url: option_env!("DESKTOP_WEBVIEW_START_URL")
+                .or(option_env!("DESKTOP_WEBVIEW_URL"))
                 .unwrap_or("http://localhost")
                 .into()
         }
