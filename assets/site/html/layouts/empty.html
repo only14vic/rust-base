@@ -23,6 +23,13 @@
     {%- block javascripts -%}
     {#{{ app_context_script(app=app) }}#}
     {#{{ entry_script_tags(entry=['site'], runtime=true) }}#}
+    <script type="text/javascript">
+        if (window.ipc !== undefined) {
+            window.ipc.postMessage(
+                JSON.stringify({message: 'IPS message from JavaScript'})
+            )
+        }
+    </script>
     {%- endblock -%}
 </body>
 </html>

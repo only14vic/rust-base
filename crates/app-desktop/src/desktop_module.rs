@@ -78,7 +78,8 @@ where
                 window.set_title(&format!("{app_name} - {title}"))
             })
             .with_ipc_handler(|message| {
-                log::trace!("Received IPC message: {:#?}", &message);
+                Env::is_debug()
+                    .then(|| log::trace!("Received IPC message: {:#?}", &message));
             })
             .with_navigation_handler(move |url| {
                 if url.starts_with(&desktop_config.webview_url) {
