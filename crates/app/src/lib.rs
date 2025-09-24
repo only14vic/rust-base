@@ -29,21 +29,16 @@ pub type AppConfig = AppBaseConfig<Config>;
 
 pub static MODULE_CONFIG: AppModule<Config> = AppConfigModule::handle;
 
-#[cfg(not(feature = "std"))]
 use app_base::prelude::AppSimpleModule;
-#[cfg(not(feature = "std"))]
 pub static MODULE_SIMPLE: AppModule<Config> = AppSimpleModule::handle;
 
-#[cfg(feature = "std")]
 mod main_module;
-#[cfg(feature = "std")]
 pub use main_module::*;
-#[cfg(feature = "std")]
 pub static MODULE_MAIN: AppModule<Config> = MainModule::handle;
 
-#[cfg(feature = "std")]
+#[cfg(feature = "web")]
 use app_web::WebModule;
-#[cfg(feature = "std")]
+#[cfg(feature = "web")]
 pub static MODULE_WEB: AppModule<Config> = WebModule::handle;
 
 #[cfg(feature = "migrator")]

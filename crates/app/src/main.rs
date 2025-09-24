@@ -17,8 +17,9 @@ fn main() -> Void {
     #[rustfmt::skip]
     App::new([
             MODULE_MAIN,
-            MODULE_WEB,
             MODULE_CONFIG,
+            #[cfg(feature="web")]
+            MODULE_WEB,
             #[cfg(feature="migrator")]
             MODULE_MIGRATOR,
             #[cfg(feature="desktop")]
@@ -37,7 +38,7 @@ fn main() -> Void {
 fn main(argc: c_int, argv: *const *const c_char) -> c_int {
     #[rustfmt::skip]
     let mut app = App::new([
-        MODULE_SIMPLE,
+        MODULE_MAIN,
         MODULE_CONFIG,
     ]);
 

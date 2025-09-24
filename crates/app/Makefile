@@ -4,10 +4,9 @@ ALL += build-app, \
 TESTS += tests-app, \
 		examples-app, \
 		build-app, \
-		run-app args=config, \
+		build-app features=std, \
 		build-app no_std=1, \
 		run-app no_std=1, \
-		run-app no_std=1 args=config, \
 		build-app no_std=1 static=1, \
 		run-app no_std=1 static=1, \
 		app-example.c, \

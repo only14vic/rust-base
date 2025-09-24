@@ -1,14 +1,24 @@
 use {
     crate::{
-        HtmlRenderConfig,
+        ActixConfig, HtmlRenderConfig,
         api::ApiConfig,
         ext::{AuthConfig, FirewallConfig, JwtConfig}
     },
+    app_async::{TokioConfig, db::DbConfig},
     app_base::prelude::*,
     core::{fmt::Display, num::NonZero},
     serde::{Deserialize, Serialize},
     std::sync::Arc
 };
+
+pub trait WebConfigExt:
+    AppConfigExt
+    + AsRef<Arc<TokioConfig>>
+    + AsRef<Arc<ActixConfig>>
+    + AsRef<Arc<WebConfig>>
+    + AsRef<Arc<DbConfig>>
+{
+}
 
 #[derive(Debug, ExtendFromIter, Serialize, Deserialize)]
 pub struct WebConfig {

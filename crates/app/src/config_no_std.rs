@@ -1,4 +1,5 @@
 use {
+    crate::MainModule,
     alloc::{fmt::Debug, string::String},
     app_base::prelude::*,
     serde::{Deserialize, Serialize}
@@ -8,7 +9,7 @@ use {
 pub struct Config {}
 
 impl AppConfigExt for Config {
-    const COMMAND: &str = AppSimpleModule::<Config>::COMMAND;
+    const COMMAND: &str = MainModule::COMMAND;
 }
 
 impl Iter<'_, (&'static str, String)> for Config {
