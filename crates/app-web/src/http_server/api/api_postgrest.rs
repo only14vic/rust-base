@@ -12,19 +12,16 @@ use {
     },
     app_base::prelude::*,
     bytes::Bytes,
+    chrono::{DateTime, Local, Utc},
     reqwest::{
         Client,
         header::{HeaderMap, HeaderName, HeaderValue}
     },
     serde_json::{Value, json},
-    sqlx::{Acquire, Pool, Postgres, types::time::OffsetDateTime},
+    sqlx::Acquire,
     std::{
-        borrow::Cow,
-        collections::HashMap,
-        ops::Not,
-        str::FromStr,
-        sync::{Arc, LazyLock},
-        time::{Duration, SystemTime, UNIX_EPOCH}
+        borrow::Cow, collections::HashMap, ops::Not, str::FromStr, sync::LazyLock,
+        time::Duration
     },
     url::Url
 };
@@ -109,27 +106,21 @@ pub async fn api_postgrest(
             .collect::<HashMap<_, _>>();
 
     if url.path() == "/" && (Env::is_prod() || query_params.contains_key("time")) {
-        let mut time = OffsetDateTime::from_unix_timestamp(
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)?
-                .as_secs()
-                .try_into()?
-        )?;
+        let mut time: DateTime<Utc> = Utc::now();
 
         if query_params.get("time").map(|v| v.as_ref()) == Some("sql") {
-            let mut db = req
-                .app_data::<Arc<Pool<Postgres>>>()
-                .ok_or("There is no Pool<Postgres>")?
-                .acquire()
-                .await
-                .unwrap();
-
-            time = sqlx::query!("select now() as time")
-                .fetch_one(db.acquire().await?)
+            let mut conn = req.db_pool().acquire().await?;
+            let db_time = sqlx::query!("select now() as time")
+                .fetch_one(conn.acquire().await?)
                 .await?
                 .time
                 .unwrap();
+            time =
+                DateTime::from_timestamp(db_time.unix_timestamp(), db_time.nanosecond())
+                    .unwrap();
         }
+
+        let time = time.with_timezone(&Local::now().timezone());
 
         return HttpResponse::Ok()
             .json(json!({"time": time.to_string()}))
