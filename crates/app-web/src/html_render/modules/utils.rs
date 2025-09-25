@@ -19,7 +19,7 @@ pub fn is_debug(_args: &HashMap<String, Value>) -> Result<Value> {
 }
 
 pub fn is_null(value: Option<&Value>, params: &[Value]) -> Result<bool> {
-    number_args_allowed("null", 0, params.len())?;
+    number_args_allowed("is_null", 0, params.len())?;
 
     match value {
         Some(&Value::Null) => Ok(true),
