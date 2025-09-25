@@ -1,5 +1,5 @@
 use {
-    crate::{HttpServer, WebConfigExt},
+    crate::{HttpServer, WebConfig, WebConfigExt},
     app_base::prelude::*,
     core::marker::PhantomData,
     futures::executor::block_on
@@ -30,7 +30,7 @@ where
 {
     type Config = C;
 
-    const COMMAND: &str = "serve";
+    const COMMAND: &str = WebConfig::COMMAND;
     const DESCRIPTION: &str = "starts http server";
 
     fn boot(&mut self, app: &mut App<Self::Config>) -> Void {

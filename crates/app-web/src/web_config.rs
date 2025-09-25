@@ -37,7 +37,9 @@ pub struct WebConfig {
     pub html_render: Arc<HtmlRenderConfig>
 }
 
-impl AppConfigExt for WebConfig {}
+impl AppConfigExt for WebConfig {
+    const COMMAND: &str = "serve";
+}
 
 impl Default for WebConfig {
     fn default() -> Self {
