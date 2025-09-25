@@ -13,8 +13,14 @@ impl AppModuleExt for MainModule {
     type Config = Config;
 
     fn boot(&mut self, app: &mut App) -> Void {
-        let skip_commands = [Self::COMMAND, AppConfigModule::<Self::Config>::COMMAND];
-        if false == skip_commands.contains(&app.command()?) {
+        let mut mkdirs = [Self::COMMAND, AppConfigModule::<Self::Config>::COMMAND]
+            .contains(&app.command()?)
+            == false;
+
+        mkdirs &= app.args().get_flag("help").unwrap() != true;
+        mkdirs &= app.args().get_flag("version").unwrap() != true;
+
+        if mkdirs {
             let config = app.config();
 
             Dirs::mkdir(&config.dirs.var)?;
