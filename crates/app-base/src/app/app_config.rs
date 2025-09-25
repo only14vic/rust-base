@@ -290,7 +290,7 @@ where
         };
 
         self.extend(&ini);
-        self.external.try_mut()?.extend(&ini);
+        self.external.try_mut().unwrap().extend(&ini);
 
         self.load_env();
 
@@ -298,7 +298,7 @@ where
             self.load_args(args);
         }
 
-        self.dirs.try_mut()?.init();
+        self.dirs.try_mut().unwrap().init();
         self.load_dirs(&self.dirs.clone());
 
         Ok(self)
