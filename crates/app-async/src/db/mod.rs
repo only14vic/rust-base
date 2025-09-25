@@ -1,6 +1,6 @@
 #![cfg(feature = "db")]
 
-mod pool;
+mod db_pool;
 mod db_config;
 
-pub use {db_config::*, pool::*};
+pub use {db_config::*, db_pool::*};

@@ -1,5 +1,4 @@
 use {
-    super::LogConfig,
     crate::prelude::*,
     alloc::{
         boxed::Box,
