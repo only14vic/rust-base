@@ -15,6 +15,10 @@ use {
     serde::{Deserialize, Serialize}
 };
 
+pub trait LoadConfig<C> {
+    fn load_config(&mut self, config: &C);
+}
+
 pub trait AppConfigExt:
     Default
     + Send

@@ -78,11 +78,11 @@ impl LoadDirs for DesktopConfig {
     }
 }
 
-impl DesktopConfig {
-    pub fn load_config<C>(&mut self, config: &AppConfig<C>)
-    where
-        C: DesktopConfigExt
-    {
+impl<C> LoadConfig<AppConfig<C>> for DesktopConfig
+where
+    C: DesktopConfigExt
+{
+    fn load_config(&mut self, config: &AppConfig<C>) {
         if option_env!("DESKTOP_WEBVIEW_URL").is_none() {
             let base_url = &config.get::<WebConfig>().base_url;
             self.webview_url = base_url.clone();
