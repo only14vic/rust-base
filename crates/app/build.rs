@@ -7,7 +7,7 @@ fn main() {
     dotenv().ok();
 
     println!(
-        "cargo:rustc-env=BUILD_FEATURES={}",
+        "cargo::rustc-env=BUILD_FEATURES={}",
         env::var("CARGO_CFG_FEATURE").unwrap()
     );
 
@@ -22,9 +22,14 @@ fn main() {
         env::var("PROFILE").unwrap()
     );
 
-    println!("cargo:rerun-if-changed={pkg_dir}/build.rs");
-    println!("cargo:rerun-if-changed={pkg_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={pkg_dir}/cbindgen.toml");
+    if env!("APP_ENV") == "prod" {
+        println!("cargo::rerun-if-changed={}", env!("PWD"));
+    }
+    println!("cargo::rerun-if-env-changed=APP_ENV");
+    println!("cargo::rerun-if-changed={}/.env", env!("PWD"));
+    println!("cargo::rerun-if-changed={pkg_dir}/build.rs");
+    println!("cargo::rerun-if-changed={pkg_dir}/src/lib.rs");
+    println!("cargo::rerun-if-changed={pkg_dir}/cbindgen.toml");
 
     //
     // Linking libraries

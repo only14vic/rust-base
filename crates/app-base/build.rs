@@ -8,14 +8,13 @@ fn main() {
     dotenv().ok();
 
     let now: DateTime<Local> = Local::now();
-    println!("cargo:rustc-env=BUILD_TIME={now}");
-    println!("cargo:rerun-if-changed={}", env!("PWD"));
+    println!("cargo::rustc-env=BUILD_TIME={now}");
     println!(
-        "cargo:rustc-env=BUILD_PROFILE={}",
+        "cargo::rustc-env=BUILD_PROFILE={}",
         env::var("PROFILE").unwrap()
     );
     println!(
-        "cargo:rustc-env=BUILD_FEATURES={}",
+        "cargo::rustc-env=BUILD_FEATURES={}",
         env::var("CARGO_CFG_FEATURE").unwrap()
     );
 
@@ -31,10 +30,15 @@ fn main() {
         env::var("PROFILE").unwrap()
     );
 
-    println!("cargo:rerun-if-changed={pkg_dir}/build.rs");
-    println!("cargo:rerun-if-changed={pkg_dir}/src/lib.rs");
-    println!("cargo:rerun-if-changed={pkg_dir}/vendor/inih");
-    println!("cargo:rerun-if-changed={pkg_dir}/cbindgen.toml");
+    if env!("APP_ENV") == "prod" {
+        println!("cargo::rerun-if-changed={}", env!("PWD"));
+    }
+    println!("cargo::rerun-if-env-changed=APP_ENV");
+    println!("cargo::rerun-if-changed={}/.env", env!("PWD"));
+    println!("cargo::rerun-if-changed={pkg_dir}/build.rs");
+    println!("cargo::rerun-if-changed={pkg_dir}/src/lib.rs");
+    println!("cargo::rerun-if-changed={pkg_dir}/vendor/inih");
+    println!("cargo::rerun-if-changed={pkg_dir}/cbindgen.toml");
 
     //
     // Linking libraries
@@ -105,7 +109,7 @@ fn main() {
         "Unsuccessful status code when running `rustfmt`: {output:?}",
     );
 
-    //println!("cargo:warning={:?} was formatted successfully.", &out_path);
+    //println!("cargo::warning={:?} was formatted successfully.", &out_path);
 
     //
     // Binding Rust code
