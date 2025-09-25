@@ -9,6 +9,7 @@ fn main() {
 
     let now: DateTime<Local> = Local::now();
     println!("cargo:rustc-env=BUILD_TIME={now}");
+    println!("cargo:rerun-if-changed={}", env!("PWD"));
     println!(
         "cargo:rustc-env=BUILD_PROFILE={}",
         env::var("PROFILE").unwrap()
