@@ -12,7 +12,7 @@ impl AppModuleExt for MainModule {
 
     type Config = Config;
 
-    fn boot(&mut self, app: &mut AppBase<Self::Config>) -> Void {
+    fn boot(&mut self, app: &mut App) -> Void {
         let skip_commands = [Self::COMMAND, AppConfigModule::<Self::Config>::COMMAND];
         if false == skip_commands.contains(&app.command()?) {
             let config = app.config();

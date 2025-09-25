@@ -165,13 +165,17 @@ doc:
 ifndef CARGO_WATCH_DELAY
 CARGO_WATCH_DELAY=5
 endif
-CARGO_WATCH_ARGS = --delay $(CARGO_WATCH_DELAY) -B 1 --poll --why --no-gitignore \
+CARGO_WATCH_ARGS = --delay $(CARGO_WATCH_DELAY) -B 1 --poll --why --no-gitignore -i bindings.rs \
 		-w Cargo.toml -w .cargo -w crates -w assets -w .env -w config
 
 .PHONY: watch
 watch: flags
 	echo CARGO_WATCH_ARGS: $(CARGO_WATCH_ARGS)
 	cargo watch $(CARGO_WATCH_ARGS) -s ". ./.env; cargo run $(CARGO_ARGS)"
+
+watch-%: flags
+	echo CARGO_WATCH_ARGS: $(CARGO_WATCH_ARGS)
+	cargo watch $(CARGO_WATCH_ARGS) -s ". ./.env; cargo run -p $* $(CARGO_ARGS)"
 
 .PHONY: strip
 strip:
