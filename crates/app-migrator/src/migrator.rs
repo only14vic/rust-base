@@ -62,7 +62,10 @@ where
 
             let migrations = self.get_migrations(&files, false, count).await?;
             self.remove_invalid_migrations(&migrations).await?;
-            self.apply_search_path().await?;
+
+            if let Some(schema) = self.config.db_schema.clone() {
+                self.apply_search_path(&schema).await?;
+            }
 
             let migrator = self.get_migrator(migrations);
             let mut migrate = self.get_migrate().await?;
@@ -165,6 +168,7 @@ where
         self.tx =
             Some(db_pool(Some(&db_config)).await?.begin().await? as Transaction<'a, D>);
 
+        self.apply_search_path(&self.config.schema.clone()).await?;
         self.db_conn().await?.ensure_migrations_table().await?;
 
         ok()

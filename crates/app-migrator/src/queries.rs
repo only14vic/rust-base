@@ -6,7 +6,7 @@ use {
 };
 
 pub trait MigrationQueries {
-    async fn apply_search_path(&mut self) -> Void;
+    async fn apply_search_path(&mut self, schema: &str) -> Void;
 
     async fn remove_invalid_migrations(&mut self, migrations: &[Migration]) -> Void;
 
@@ -21,13 +21,10 @@ pub trait MigrationQueries {
 
 impl MigrationQueries for Migrator<'_, Postgres> {
     #[cold]
-    async fn apply_search_path(&mut self) -> Void {
-        if let Some(schema) = self.config.db_schema.as_ref() {
-            sqlx::query(&format!("set search_path to {schema}"))
-                .execute(self.db_conn().await?)
-                .await?;
-        }
-
+    async fn apply_search_path(&mut self, schema: &str) -> Void {
+        sqlx::query(&format!("set search_path to {schema}"))
+            .execute(self.db_conn().await?)
+            .await?;
         ok()
     }
 

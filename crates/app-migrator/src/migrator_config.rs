@@ -23,6 +23,7 @@ pub struct MigratorConfig {
     pub verbose: bool,
     pub db_url: String,
     pub db_schema: Option<String>,
+    pub schema: String,
     quiet: Option<bool>
 }
 
@@ -39,7 +40,8 @@ impl Default for MigratorConfig {
             verbose: true,
             quiet: None,
             db_url: "".into(),
-            db_schema: None
+            db_schema: None,
+            schema: "public".into()
         }
     }
 }
@@ -55,7 +57,8 @@ impl Iter<'_, (&'static str, String)> for MigratorConfig {
             (
                 "migrator.db_schema",
                 Box::leak(Box::new(self.db_schema.as_deref().unwrap_or_default()))
-            )
+            ),
+            ("migrator.schema", &self.schema)
         ]
         .into_iter()
         .map(|(k, v)| (k, v.to_string()))
@@ -72,7 +75,8 @@ impl LoadArgs for MigratorConfig {
                 ("verbose:b", "-v".into(), None),
                 ("quiet:b", "-q".into(), None),
                 ("migrator-db-url", "-D".into(), None),
-                ("migrator-db-schema", "-S".into(), None)
+                ("migrator-db-schema", "-S".into(), None),
+                ("migrator-schema", None, None)
             ])
             .unwrap();
         }
@@ -88,7 +92,8 @@ impl LoadArgs for MigratorConfig {
                     ("verbose", args.get("verbose")),
                     ("quiet", args.get("quiet")),
                     ("db_url", args.get("migrator-db-url")),
-                    ("db_schema", args.get("migrator-db-schema"))
+                    ("db_schema", args.get("migrator-db-schema")),
+                    ("schema", args.get("migrator-schema"))
                 ]
                 .iter()
                 .map(convert::tuple_result_option_str)
@@ -118,6 +123,7 @@ impl LoadEnv for MigratorConfig {
                 ("dir", getenv("MIGRATOR_DIR")),
                 ("db_url", getenv("MIGRATOR_DATABASE_URL")),
                 ("db_schema", getenv("MIGRATOR_DATABASE_SCHEMA")),
+                ("schema", getenv("MIGRATOR_SCHEMA")),
             ]
             .iter()
             .map(convert::tuple_option_str)
