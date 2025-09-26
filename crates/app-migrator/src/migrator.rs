@@ -19,7 +19,6 @@ where
     &'a mut D::Connection: Executor<'a>
 {
     pub config: Arc<MigratorConfig>,
-    pub db_config: Arc<DbConfig>,
     tx: Option<Transaction<'a, D>>
 }
 
@@ -48,15 +47,12 @@ where
     D::Connection: Migrate + MigratePhantom,
     &'a mut D::Connection: Executor<'a>
 {
-    pub fn new(
-        config: &dyn AsRef<Arc<MigratorConfig>>,
-        db_config: &dyn AsRef<Arc<DbConfig>>
-    ) -> Self {
-        Self {
-            config: config.as_ref().clone(),
-            db_config: db_config.as_ref().clone(),
-            tx: None
-        }
+    pub fn new<C>(config: &dyn AsRef<AppConfig<C>>) -> Self
+    where
+        C: MigratorConfigExt
+    {
+        let migrator_config = config.as_ref().get::<MigratorConfig>();
+        Self { config: migrator_config.clone(), tx: None }
     }
 
     #[cold]
@@ -66,6 +62,7 @@ where
 
             let migrations = self.get_migrations(&files, false, count).await?;
             self.remove_invalid_migrations(&migrations).await?;
+            self.apply_search_path().await?;
 
             let migrator = self.get_migrator(migrations);
             let mut migrate = self.get_migrate().await?;
@@ -154,15 +151,20 @@ where
     }
 
     async fn init_conn(&mut self) -> Void {
-        if D::database_exists(&self.db_config.url).await? == false {
-            D::create_database(&self.db_config.url).await?;
+        if D::database_exists(&self.config.db_url).await? == false {
+            D::create_database(&self.config.db_url).await?;
         }
 
-        self.tx = Some(
-            db_pool(Some(&self.db_config)).await?.begin().await? as Transaction<'a, D>
-        );
+        let db_config: Arc<_> = DbConfig {
+            url: self.config.db_url.clone(),
+            schema: self.config.db_schema.clone(),
+            ..Default::default()
+        }
+        .into();
 
-        self.apply_search_path().await?;
+        self.tx =
+            Some(db_pool(Some(&db_config)).await?.begin().await? as Transaction<'a, D>);
+
         self.db_conn().await?.ensure_migrations_table().await?;
 
         ok()

@@ -178,6 +178,14 @@ impl AsRef<Arc<MigratorConfig>> for Config {
     }
 }
 
+#[cfg(feature = "migrator")]
+impl AsMut<Arc<MigratorConfig>> for Config {
+    #[inline]
+    fn as_mut(&mut self) -> &mut Arc<MigratorConfig> {
+        &mut self.migrator
+    }
+}
+
 #[cfg(feature = "desktop")]
 impl AsRef<Arc<DesktopConfig>> for Config {
     #[inline]

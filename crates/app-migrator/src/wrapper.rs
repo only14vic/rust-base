@@ -27,7 +27,7 @@ where
     C::Database: Database<Connection = C>
 {
     fn ensure_migrations_table(&mut self) -> BoxFuture<'_, Result<(), MigrateError>> {
-        self.conn.ensure_migrations_table()
+        Box::pin(future::ok(()))
     }
 
     fn dirty_version(&mut self) -> BoxFuture<'_, Result<Option<i64>, MigrateError>> {

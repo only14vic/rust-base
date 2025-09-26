@@ -22,7 +22,7 @@ pub trait MigrationQueries {
 impl MigrationQueries for Migrator<'_, Postgres> {
     #[cold]
     async fn apply_search_path(&mut self) -> Void {
-        if let Some(schema) = self.db_config.schema.as_ref() {
+        if let Some(schema) = self.config.db_schema.as_ref() {
             sqlx::query(&format!("set search_path to {schema}"))
                 .execute(self.db_conn().await?)
                 .await?;

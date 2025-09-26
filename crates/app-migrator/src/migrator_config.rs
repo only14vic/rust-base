@@ -7,7 +7,11 @@ use {
 };
 
 pub trait MigratorConfigExt:
-    AppConfigExt + AsRef<Arc<MigratorConfig>> + AsRef<Arc<TokioConfig>> + AsRef<Arc<DbConfig>>
+    AppConfigExt
+    + AsRef<Arc<MigratorConfig>>
+    + AsMut<Arc<MigratorConfig>>
+    + AsRef<Arc<TokioConfig>>
+    + AsRef<Arc<DbConfig>>
 {
 }
 
@@ -17,6 +21,8 @@ pub struct MigratorConfig {
     pub dry_run: bool,
     pub simple: bool,
     pub verbose: bool,
+    pub db_url: String,
+    pub db_schema: Option<String>,
     quiet: Option<bool>
 }
 
@@ -31,7 +37,9 @@ impl Default for MigratorConfig {
             dry_run: false,
             simple: false,
             verbose: true,
-            quiet: None
+            quiet: None,
+            db_url: "".into(),
+            db_schema: None
         }
     }
 }
@@ -42,7 +50,12 @@ impl Iter<'_, (&'static str, String)> for MigratorConfig {
             ("migrator.dir", &self.dir as &dyn Display),
             ("migrator.dry_run", &self.dry_run),
             ("migrator.simple", &self.simple),
-            ("migrator.verbose", &self.verbose)
+            ("migrator.verbose", &self.verbose),
+            ("migrator.db_url", &self.db_url),
+            (
+                "migrator.db_schema",
+                Box::leak(Box::new(self.db_schema.as_deref().unwrap_or_default()))
+            )
         ]
         .into_iter()
         .map(|(k, v)| (k, v.to_string()))
@@ -57,7 +70,9 @@ impl LoadArgs for MigratorConfig {
                 ("dry-run:b", "-n".into(), None),
                 ("simple:b", "-s".into(), None),
                 ("verbose:b", "-v".into(), None),
-                ("quiet:b", "-q".into(), None)
+                ("quiet:b", "-q".into(), None),
+                ("migrator-db-url", "-D".into(), None),
+                ("migrator-db-schema", "-S".into(), None)
             ])
             .unwrap();
         }
@@ -71,7 +86,9 @@ impl LoadArgs for MigratorConfig {
                     ("dry_run", args.get("dry-run")),
                     ("simple", args.get("simple")),
                     ("verbose", args.get("verbose")),
-                    ("quiet", args.get("quiet"))
+                    ("quiet", args.get("quiet")),
+                    ("db_url", args.get("migrator-db-url")),
+                    ("db_schema", args.get("migrator-db-schema"))
                 ]
                 .iter()
                 .map(convert::tuple_result_option_str)
@@ -98,10 +115,26 @@ impl LoadEnv for MigratorConfig {
         #[rustfmt::skip]
         self.extend(
             [
-                ("dir", getenv("MIGRATIONS_DIR")),
+                ("dir", getenv("MIGRATOR_DIR")),
+                ("db_url", getenv("MIGRATOR_DATABASE_URL")),
+                ("db_schema", getenv("MIGRATOR_DATABASE_SCHEMA")),
             ]
             .iter()
             .map(convert::tuple_option_str)
         );
+    }
+}
+
+impl<C> LoadConfig<AppConfig<C>> for MigratorConfig
+where
+    C: MigratorConfigExt
+{
+    fn load_config(&mut self, config: &AppConfig<C>) {
+        if self.db_url.is_empty() {
+            self.db_url = config.get::<DbConfig>().url.clone();
+        }
+        if self.db_schema.is_none() {
+            self.db_schema = config.get::<DbConfig>().schema.clone();
+        }
     }
 }

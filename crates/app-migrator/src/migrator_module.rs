@@ -31,6 +31,17 @@ where
         ok()
     }
 
+    fn setup(&mut self, app: &mut App<Self::Config>) -> Void {
+        let config = unsafe { app.config_static() };
+        let migrator_config = app
+            .config_mut()
+            .unwrap()
+            .get_mut::<MigratorConfig>()
+            .unwrap();
+        migrator_config.load_config(config);
+        ok()
+    }
+
     fn run(&mut self, app: &mut App<Self::Config>) -> Void {
         let args = app.args();
         let action = args.get("action").unwrap().unwrap_or(Self::STATUS);
@@ -44,10 +55,8 @@ where
             .transpose();
 
         let config = app.config();
-        let migrator_config = &***config;
-        let db_config = &***config;
         let tokio_config = (***config).as_ref() as &Arc<_>;
-        let migrator = Migrator::<Postgres>::new(migrator_config, db_config);
+        let migrator = Migrator::<Postgres>::new(config);
 
         tokio_start(Some(tokio_config))?.block_on(async {
             match action {
