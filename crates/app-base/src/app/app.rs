@@ -21,6 +21,7 @@ use {
 #[allow(non_camel_case_types)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AppEvent {
+    APP_PRE_INIT,
     APP_INIT,
     APP_BOOT,
     APP_SETUP,
@@ -213,7 +214,7 @@ where
 
         Env::is_debug().then(|| {
             log::debug!(
-                "Prepare Args: {}",
+                "Preinit Args: {}",
                 &args
                     .iter()
                     .filter_map(|(n, v)| v.as_ref().map(|v| format!("{n}={v}")))
@@ -222,6 +223,11 @@ where
             )
         });
 
+        self.trigger_event(AppEvent::APP_PRE_INIT)?;
+
+        // Correct command name only after registration commands
+        self.correct_command_name()?;
+        let args = &mut self.args;
         self.config.try_mut().unwrap().init_args(args);
 
         self.trigger_event(AppEvent::APP_INIT)?;
@@ -241,6 +247,9 @@ where
         unsafe {
             args.parse_argc(argc, argv)?
         };
+        // Correct command name again after parse args
+        self.correct_command_name()?;
+        let args = &mut self.args;
 
         Env::is_debug().then(|| {
             log::debug!(
@@ -344,6 +353,21 @@ where
         } else {
             Err(format!("Invalid command: '{command}'"))?
         }
+    }
+
+    pub fn correct_command_name(&mut self) -> Void {
+        let command = self.command()?;
+        if self.commands.contains_key(&command) == false {
+            let mut similar = self.commands.keys().filter(|c| c.starts_with(&command));
+            if similar.clone().count() == 1 {
+                let correct_command = similar.next().unwrap().to_string();
+                Env::is_debug().then(|| {
+                    log::trace!("Correct command name '{command}' to '{correct_command}'")
+                });
+                self.args.insert("command".into(), Some(correct_command));
+            }
+        }
+        ok()
     }
 
     fn panic_handler(

@@ -28,7 +28,7 @@ const void *main_module(App *app, AppEvent event) {
     sprintf(msg, "Catched event: %d", event);
     log_msg(TRACE, __FUNCTION__, msg);
 
-    if (event == APP_INIT) {
+    if (event == APP_PRE_INIT) {
         app_register_command(app, "run", MAIN_MODULE);
     }
 

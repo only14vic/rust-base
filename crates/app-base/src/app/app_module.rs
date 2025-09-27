@@ -13,7 +13,7 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
     type Config: AppConfigExt;
 
     fn handle(app: &mut App<Self::Config>, event: AppEvent) -> Void {
-        if event == AppEvent::APP_INIT {
+        if event == AppEvent::APP_PRE_INIT {
             if app.has::<Self>() == false {
                 app.add(Self::default());
             }
@@ -40,6 +40,7 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
                 "{}::{}",
                 type_name_simple!(Self),
                 match event {
+                    AppEvent::APP_PRE_INIT => "PRE_INIT",
                     AppEvent::APP_INIT => "init()",
                     AppEvent::APP_BOOT => "boot()",
                     AppEvent::APP_SETUP => "setup()",
@@ -57,6 +58,7 @@ pub trait AppModuleExt: Default + Send + Sync + 'static {
         });
 
         match event {
+            AppEvent::APP_PRE_INIT => ok(),
             AppEvent::APP_INIT => module.init(app),
             AppEvent::APP_BOOT => module.boot(app),
             AppEvent::APP_SETUP => module.setup(app),

@@ -12,6 +12,7 @@
 
 
 typedef enum AppEvent {
+  APP_PRE_INIT,
   APP_INIT,
   APP_BOOT,
   APP_SETUP,
