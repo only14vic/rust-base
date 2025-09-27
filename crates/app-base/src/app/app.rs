@@ -355,7 +355,7 @@ where
         }
     }
 
-    pub fn correct_command_name(&mut self) -> Void {
+    fn correct_command_name(&mut self) -> Void {
         let command = self.command()?;
         if self.commands.contains_key(&command) == false {
             let mut similar = self.commands.keys().filter(|c| c.starts_with(&command));
