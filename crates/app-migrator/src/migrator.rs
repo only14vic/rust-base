@@ -56,7 +56,7 @@ where
     }
 
     #[cold]
-    pub async fn apply(mut self, count: Option<u32>) -> Void {
+    pub async fn up(mut self, count: Option<u32>) -> Void {
         let res = async {
             let files = Sorter.sort(&self.config.dir, self.config.simple)?;
 
@@ -84,7 +84,7 @@ where
     }
 
     #[cold]
-    pub async fn revert(mut self, count: Option<u32>) -> Void {
+    pub async fn down(mut self, count: Option<u32>) -> Void {
         let res = async {
             let files = Sorter.sort(&self.config.dir, true)?;
 

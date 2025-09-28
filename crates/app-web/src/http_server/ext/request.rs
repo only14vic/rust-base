@@ -4,7 +4,7 @@ use {
         ext::{CurrentUser, DbWeb, Http, JwtToken}
     },
     actix_web::{
-        FromRequest, HttpRequest, HttpResponse,
+        FromRequest, HttpMessage, HttpRequest, HttpResponse,
         dev::{Payload, RequestHead},
         http::header
     },
@@ -14,6 +14,7 @@ use {
     sqlx::{Pool, Postgres},
     std::{
         borrow::Cow,
+        rc::Rc,
         sync::{Arc, LazyLock}
     }
 };
@@ -27,7 +28,7 @@ pub trait RequestExt {
 
     fn db_pool(&self) -> &Arc<Pool<Postgres>>;
 
-    fn db_web(&self) -> &DbWeb;
+    fn db_web(&self) -> Rc<DbWeb>;
 
     fn language(&self) -> Cow<'_, str>;
 
@@ -77,10 +78,12 @@ impl RequestExt for HttpRequest {
             .unwrap()
     }
 
-    fn db_web(&self) -> &DbWeb {
-        self.app_data::<DbWeb>()
-            .ok_or("There is no item HttpRequest::app_data::<DbWeb>()")
-            .unwrap()
+    fn db_web(&self) -> Rc<DbWeb> {
+        if self.extensions().contains::<Rc<DbWeb>>() == false {
+            self.extensions_mut()
+                .insert(Rc::new(DbWeb::new(self.db_pool())));
+        }
+        self.extensions().get::<Rc<DbWeb>>().unwrap().clone()
     }
 
     fn language(&self) -> Cow<'_, str> {

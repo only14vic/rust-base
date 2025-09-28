@@ -2,18 +2,45 @@ use {
     crate::ext::{JwtToken, User},
     actix_web::error::ErrorUnauthorized,
     app_base::prelude::*,
-    sqlx::{Acquire, Pool, Postgres},
-    std::sync::Arc,
+    core::cell::RefCell,
+    sqlx::{Acquire, Pool, Postgres, Transaction, pool::PoolConnection},
+    std::{rc::Rc, sync::Arc},
     uuid::Uuid
 };
 
 pub struct DbWeb {
-    db_pool: Arc<Pool<Postgres>>
+    db_pool: Arc<Pool<Postgres>>,
+    db_conn: RefCell<Option<Rc<RefCell<PoolConnection<Postgres>>>>>,
+    db_tx: RefCell<Option<Rc<RefCell<Transaction<'static, Postgres>>>>>
 }
 
 impl DbWeb {
     pub fn new(db_pool: &Arc<Pool<Postgres>>) -> Self {
-        Self { db_pool: db_pool.clone() }
+        Self {
+            db_pool: db_pool.clone(),
+            db_conn: RefCell::new(None),
+            db_tx: RefCell::new(None)
+        }
+    }
+
+    pub async fn db_pool(&self) -> Ok<PoolConnection<Postgres>> {
+        Ok(self.db_pool.acquire().await?)
+    }
+
+    pub async fn db_conn(&self) -> Ok<Rc<RefCell<PoolConnection<Postgres>>>> {
+        if self.db_conn.try_borrow()?.is_none() {
+            let db_conn = Rc::new(RefCell::new(self.db_pool().await?));
+            *self.db_conn.try_borrow_mut()? = Some(db_conn);
+        }
+        Ok(self.db_conn.try_borrow()?.as_ref().unwrap().clone())
+    }
+
+    pub async fn db_tx(&self) -> Ok<Rc<RefCell<Transaction<'static, Postgres>>>> {
+        if self.db_tx.try_borrow()?.is_none() {
+            let db_tx = Rc::new(RefCell::new(self.db_pool.begin().await?));
+            *self.db_tx.try_borrow_mut()? = Some(db_tx);
+        }
+        Ok(self.db_tx.try_borrow()?.as_ref().unwrap().clone())
     }
 
     pub async fn find_user_by_id(&self, id: &Uuid) -> Ok<Option<User>> {
@@ -21,7 +48,7 @@ impl DbWeb {
 
         sqlx::query_as("select * from app.users_view where id = $1")
             .bind(id)
-            .fetch_optional(self.db_pool.acquire().await?.acquire().await?)
+            .fetch_optional(self.db_conn().await?.try_borrow_mut()?.acquire().await?)
             .await?
             .into_ok()
     }
@@ -33,7 +60,7 @@ impl DbWeb {
             "select * from app.users_view where id = (auth.find_user_by_login($1)).id"
         )
         .bind(login)
-        .fetch_optional(self.db_pool.acquire().await?.acquire().await?)
+        .fetch_optional(self.db_conn().await?.try_borrow_mut()?.acquire().await?)
         .await?
         .into_ok()
     }
@@ -48,7 +75,7 @@ impl DbWeb {
         sqlx::query_as("select * from auth.find_user_by_token($1, $2)")
             .bind(token)
             .bind(user_agent)
-            .fetch_optional(self.db_pool.acquire().await?.acquire().await?)
+            .fetch_optional(self.db_conn().await?.try_borrow_mut()?.acquire().await?)
             .await?
             .into_ok()
     }

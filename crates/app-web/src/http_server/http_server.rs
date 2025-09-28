@@ -2,7 +2,7 @@ use {
     crate::{
         ActixConfig, HtmlRender, WebConfig,
         api::api_postgrest,
-        ext::{DbWeb, JwtEncoder, RequestExt}
+        ext::{JwtEncoder, RequestExt}
     },
     actix_files::Files,
     actix_multipart::form::tempfile::TempFileConfig,
@@ -149,7 +149,6 @@ where
             let db_config = server.config.get::<DbConfig>();
             let db_pool =
                 block_on(async { db_pool::<Postgres>(Some(db_config)).await.unwrap() });
-            srv.app_data(DbWeb::new(&db_pool));
             srv.app_data(db_pool);
         })
     }

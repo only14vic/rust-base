@@ -1,0 +1,13 @@
+[Unit]
+Description=Rust App service for user %I
+
+[Service]
+Type=simple
+WorkingDirectory=~
+EnvironmentFile=/usr/share/app/.env
+ExecStartPre=postgrest /etc/app/postgrest.conf
+ExecStart=app serve
+KillMode=control-group
+
+[Install]
+WantedBy=default.target

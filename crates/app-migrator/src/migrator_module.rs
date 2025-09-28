@@ -60,8 +60,8 @@ where
 
         tokio_start(Some(tokio_config))?.block_on(async {
             match action {
-                Self::APPLY => migrator.apply(count?).await?,
-                Self::REVERT => migrator.revert(count?).await?,
+                Self::UP => migrator.up(count?).await?,
+                Self::DOWN => migrator.down(count?).await?,
                 Self::STATUS => migrator.status().await?,
                 _ => Err(format!("Invalid action: '{action}'"))?
             }
@@ -75,8 +75,8 @@ where
         let action = args.get("action").unwrap().unwrap_or_default();
 
         match action {
-            Self::APPLY => self.help_apply(app),
-            Self::REVERT => self.help_revert(app),
+            Self::UP => self.help_apply(app),
+            Self::DOWN => self.help_revert(app),
             Self::STATUS => self.help_status(app),
             _ => self.help_default(app)
         }
@@ -89,8 +89,8 @@ impl<C> MigratorModule<C>
 where
     C: MigratorConfigExt
 {
-    const APPLY: &str = "apply";
-    const REVERT: &str = "revert";
+    const UP: &str = "up";
+    const DOWN: &str = "down";
     const STATUS: &str = "status";
 
     fn help_default(&self, app: &App<C>) {
