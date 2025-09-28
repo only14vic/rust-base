@@ -9,6 +9,5 @@ flamegraph*.svg
 target
 vendor/*
 var/*
-migrations/*
 bin/*
 lib/*
