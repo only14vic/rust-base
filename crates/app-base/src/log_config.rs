@@ -9,7 +9,7 @@ use {
 
 #[derive(Debug, Clone, ExtendFromIter)]
 pub struct LogConfig {
-    #[parse]
+    #[extend_parse]
     pub level: LevelFilter,
     pub color: bool,
     pub file: Option<String>,

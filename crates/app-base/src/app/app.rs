@@ -358,7 +358,7 @@ where
     fn correct_command_name(&mut self) -> Void {
         let command = self.command()?;
         if self.commands.contains_key(&command) == false {
-            let mut similar = self.commands.keys().filter(|c| c.starts_with(&command));
+            let mut similar = self.commands.keys().filter(|c| c.starts_with(command));
             if similar.clone().count() == 1 {
                 let correct_command = similar.next().unwrap().to_string();
                 Env::is_debug().then(|| {

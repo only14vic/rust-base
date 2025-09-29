@@ -183,7 +183,7 @@ impl ExtendMacros {
         let Some((n, mut ty)) = types.next() else {
             return quote! { v };
         };
-        if attrs.iter().any(|a| a.path().is_ident("skip")) {
+        if attrs.iter().any(|a| a.path().is_ident("extend_skip")) {
             return quote! {};
         }
         if ty.contains('(') || ty.contains(',') || ty.contains(' ') {
@@ -199,7 +199,7 @@ impl ExtendMacros {
             .map_err(|e| format!("{name}: {ty} - {e}"))
             .unwrap();
         let next_ty = types.peek().map(|(.., ty)| Cow::from(ty));
-        let is_parse = attrs.iter().any(|a| a.path().is_ident("parse"));
+        let is_parse = attrs.iter().any(|a| a.path().is_ident("extend_parse"));
 
         *iterable = false;
         match ty.as_str() {

@@ -16,7 +16,7 @@ use {
     app_async::{
         TokioConfig, actix_with_tokio_start,
         cache::{ArrayCache, Cacher},
-        db::{DbConfig, db_pool}
+        db::{DbConfig, DbConfigApp, db_pool}
     },
     app_base::prelude::*,
     core::pin::Pin,
@@ -149,6 +149,8 @@ where
             let db_config = server.config.get::<DbConfig>();
             let db_pool =
                 block_on(async { db_pool::<Postgres>(Some(db_config)).await.unwrap() });
+
+            srv.app_data(DbConfigApp::new(&db_pool));
             srv.app_data(db_pool);
         })
     }
@@ -230,6 +232,7 @@ where
                             "data",
                             &data.map(web::Json::into_inner).unwrap_or_default()
                         );
+                        context.add("config", &req.db_config().list());
                         req.html_render().await
                     }
                 }

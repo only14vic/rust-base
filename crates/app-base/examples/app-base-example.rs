@@ -114,7 +114,7 @@ impl FromStr for Lang {
 
 #[derive(Default, Debug, Serialize, Extend)]
 pub struct General {
-    #[parse]
+    #[extend_parse]
     str: Option<Box<Lang>>,
     number: u32,
     boolean: bool,
@@ -125,7 +125,7 @@ pub struct General {
 
 #[derive(Default, Debug, Serialize, Extend)]
 pub struct Foo {
-    #[parse]
+    #[extend_parse]
     str: Lang,
     number: Option<NonZero<u32>>,
     boolean: Option<bool>,

@@ -8,6 +8,7 @@ use {
         dev::{Payload, RequestHead},
         http::header
     },
+    app_async::db::DbConfigApp,
     app_base::{prelude::*, type_name_simple},
     core::any::type_name,
     regex::Regex,
@@ -29,6 +30,8 @@ pub trait RequestExt {
     fn db_pool(&self) -> &Arc<Pool<Postgres>>;
 
     fn db_web(&self) -> Rc<DbWeb>;
+
+    fn db_config(&self) -> &Arc<DbConfigApp>;
 
     fn language(&self) -> Cow<'_, str>;
 
@@ -84,6 +87,12 @@ impl RequestExt for HttpRequest {
                 .insert(Rc::new(DbWeb::new(self.db_pool())));
         }
         self.extensions().get::<Rc<DbWeb>>().unwrap().clone()
+    }
+
+    fn db_config(&self) -> &Arc<DbConfigApp> {
+        self.app_data::<Arc<DbConfigApp>>()
+            .ok_or("There is no item HttpRequest::app_data::<DbConfigApp>()")
+            .unwrap()
     }
 
     fn language(&self) -> Cow<'_, str> {

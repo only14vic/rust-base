@@ -30,7 +30,7 @@ where
     f: Option<&'b str>,
     g: Vec<&'a str>,
     h: Option<alloc::boxed::Box<str>>,
-    #[parse]
+    #[extend_parse]
     l: Option<Box<Lang>>,
     m: Option<HashSet<Option<NonZero<i32>>>>,
     n: Option<Rc<RefCell<HashMap<&'a str, Option<&'a str>>>>>,

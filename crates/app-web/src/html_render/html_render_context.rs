@@ -41,6 +41,7 @@ impl FromRequest for HtmlRenderContext {
             let context = Self::default();
             let base_config = req.config::<BaseConfig>();
             let web_config = req.config::<WebConfig>();
+            let db_config = req.db_config();
             let mut app = Value::Object(Default::default());
 
             app.as_object_mut().unwrap().extend([
@@ -62,6 +63,7 @@ impl FromRequest for HtmlRenderContext {
                 ("api_url".into(), web_config.api.url.as_str().into()),
                 ("static_path".into(), web_config.static_path.as_str().into()),
                 ("is_mobile".into(), req.head().is_mobile().into()),
+                ("db_config".into(), json!(db_config.list())),
                 ("user".into(), ().into())
             ]);
 
