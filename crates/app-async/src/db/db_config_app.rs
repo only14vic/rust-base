@@ -24,8 +24,10 @@ impl DbConfigApp {
             config: AtomicPtr::new(null_mut())
         }
         .into();
+
         let this_clone = this.clone();
         spawn_local(async move { this_clone.load().await.unwrap() });
+
         this
     }
 

@@ -152,6 +152,7 @@ pub async fn api_postgrest(
     }
 
     if req.method() == Method::GET
+        && url.path() != "/"
         && url.path().starts_with("/rpc/").not()
         && query_params.contains_key("select").not()
     {
