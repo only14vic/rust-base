@@ -12,7 +12,8 @@ use {
         error::Error,
         fmt::{self, Debug, Display},
         hash::BuildHasherDefault,
-        ops::Deref
+        ops::Deref,
+        pin::Pin
     },
     serde::{Deserialize, Serialize, de::DeserializeOwned}
 };
@@ -164,6 +165,11 @@ where
     #[inline(always)]
     fn into_box(self) -> Box<Self> {
         Box::new(self)
+    }
+
+    #[inline(always)]
+    fn into_pin_box(self) -> Pin<Box<Self>> {
+        Box::pin(self)
     }
 
     #[inline(always)]

@@ -68,7 +68,7 @@ impl DbNotifyListener {
             };
 
             Env::is_debug()
-                .then(|| log::trace!("Listening db channels: {:?}", &self.channels));
+                .then(|| log::debug!("Listening db channels: {:?}", &self.channels));
 
             let mut listener = ManuallyDrop::new(listener);
 

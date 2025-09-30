@@ -39,31 +39,10 @@ impl AppModuleExt for MainModule {
     fn setup(&mut self, app: &mut App) -> Void {
         #[cfg(feature = "web")]
         {
-            use {
-                app_async::{
-                    db::{DbConfig, DbNotifyListener, db_pool},
-                    queue::QueueListener
-                },
-                std::sync::Arc
-            };
-
-            let db_config = app.config().get::<DbConfig>().clone();
-
+            let init_runtime = self.init_runtime(app);
             if let Ok(web_module) = app.get_mut::<WebModule<Self::Config>>() {
                 web_module.enable_defaults = true;
-                web_module.with_init_runtime(move || {
-                    let db_config = db_config.clone();
-                    Box::pin(async move {
-                        DbNotifyListener::new(
-                            ["app"],
-                            &db_pool(Some(&db_config)).await?,
-                            Arc::new(QueueListener::handle)
-                        )
-                        .start()
-                        .await;
-                        ok()
-                    })
-                });
+                web_module.with_init_runtime(init_runtime);
             }
         }
 
@@ -128,5 +107,42 @@ Options:
         );
 
         ok()
+    }
+}
+
+#[cfg(feature = "web")]
+use {
+    app_async::{
+        db::{DbConfig, DbNotifyListener, db_pool},
+        queue::QueueListener
+    },
+    futures::future::LocalBoxFuture,
+    std::sync::Arc
+};
+
+impl MainModule {
+    #[cfg(feature = "web")]
+    fn init_runtime(
+        &self,
+        app: &mut App
+    ) -> impl Fn() -> LocalBoxFuture<'static, Void> + Send + Sync + 'static {
+        const NOTIFY_CHANNELS: [&str; 1] = ["app"];
+        let db_config = app.config().get::<DbConfig>().clone();
+
+        move || {
+            let db_config = db_config.clone();
+
+            async move {
+                DbNotifyListener::new(
+                    NOTIFY_CHANNELS,
+                    &db_pool(Some(&db_config)).await?,
+                    Arc::new(QueueListener::handle)
+                )
+                .start()
+                .await;
+                ok()
+            }
+            .into_pin_box()
+        }
     }
 }

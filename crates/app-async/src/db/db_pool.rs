@@ -29,9 +29,7 @@ static DEFAULT_CONFIG: LazyLock<Arc<DbConfig>> = LazyLock::new(|| {
 /// # Gets "sqlx" database pool by config
 ///
 /// If `config` is `None` then default config will be used.
-pub async fn db_pool<D: Database>(
-    config: Option<&Arc<DbConfig>>
-) -> OkAsync<Arc<Pool<D>>> {
+pub async fn db_pool<D: Database>(config: Option<&Arc<DbConfig>>) -> Ok<Arc<Pool<D>>> {
     let config = config.unwrap_or(&DEFAULT_CONFIG);
     let pool_ref: Arc<Pool<D>>;
     let mut pools = POOLS.lock().await;
