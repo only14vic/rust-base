@@ -116,8 +116,7 @@ use {
         db::{DbConfig, DbNotifyListener, db_pool},
         queue::QueueListener
     },
-    futures::future::LocalBoxFuture,
-    std::sync::Arc
+    futures::future::LocalBoxFuture
 };
 
 impl MainModule {
@@ -133,13 +132,18 @@ impl MainModule {
             let db_config = db_config.clone();
 
             async move {
+                let db_pool = db_pool(Some(&db_config)).await?;
+                let queue_listener = QueueListener::new(&db_pool);
+                queue_listener.start_resend_periodically().await;
+
                 DbNotifyListener::new(
                     NOTIFY_CHANNELS,
-                    &db_pool(Some(&db_config)).await?,
-                    Arc::new(QueueListener::handle)
+                    &db_pool,
+                    queue_listener.handler()
                 )
                 .start()
                 .await;
+
                 ok()
             }
             .into_pin_box()

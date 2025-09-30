@@ -75,8 +75,8 @@ where
         let action = args.get("action").unwrap().unwrap_or_default();
 
         match action {
-            Self::UP => self.help_apply(app),
-            Self::DOWN => self.help_revert(app),
+            Self::UP => self.help_up(app),
+            Self::DOWN => self.help_down(app),
             Self::STATUS => self.help_status(app),
             _ => self.help_default(app)
         }
@@ -104,9 +104,9 @@ Usage: {bin} {cmd} [action] [options]
 This command {desc}.
 
 Actions:
-    apply   - apply migrations
-    revert  - revert migrations
-    status  - show migrations status (default)
+    {:<len$} - apply migrations
+    {:<len$} - revert migrations
+    {:<len$} - show migrations status (default)
 
 Options:
     -d, --dir       - path to migrations directory [{dir}]
@@ -116,6 +116,10 @@ Options:
     -q, --quiet     - quiet output
     -h, --help      - show usage help
 "#,
+            Self::UP,
+            Self::DOWN,
+            Self::STATUS,
+            len = Self::STATUS.len(),
             bin = config.dirs.exe_file(),
             cmd = Self::COMMAND,
             desc = Self::DESCRIPTION,
@@ -123,13 +127,13 @@ Options:
         );
     }
 
-    fn help_apply(&self, app: &App<C>) {
+    fn help_up(&self, app: &App<C>) {
         let config = app.config();
         let migrator_config: &Arc<MigratorConfig> = (***config).as_ref();
 
         println!(
             r#"
-Usage: {bin} {cmd} apply [count] [options]
+Usage: {bin} {cmd} {} [count] [options]
 
 Applies migrations.
 
@@ -144,19 +148,20 @@ Options:
     -q, --quiet     - quiet output
     -h, --help      - show usage help
 "#,
+            Self::UP,
             bin = config.dirs.exe_file(),
             cmd = Self::COMMAND,
             dir = migrator_config.dir
         );
     }
 
-    fn help_revert(&self, app: &App<C>) {
+    fn help_down(&self, app: &App<C>) {
         let config = app.config();
         let migrator_config: &Arc<MigratorConfig> = (***config).as_ref();
 
         println!(
             r#"
-Usage: {bin} {cmd} revert [count] [options]
+Usage: {bin} {cmd} {} [count] [options]
 
 Reverts migrations.
 
@@ -170,6 +175,7 @@ Options:
     -q, --quiet     - quiet output
     -h, --help      - show usage help
 "#,
+            Self::DOWN,
             bin = config.dirs.exe_file(),
             cmd = Self::COMMAND,
             dir = migrator_config.dir
@@ -182,7 +188,7 @@ Options:
 
         println!(
             r#"
-Usage: {bin} {cmd} status [options]
+Usage: {bin} {cmd} {} [options]
 
 Displays migration statuses.
 
@@ -194,6 +200,7 @@ Options:
     -q, --quiet     - quiet output
     -h, --help      - show usage help
 "#,
+            Self::STATUS,
             bin = config.dirs.exe_file(),
             cmd = Self::COMMAND,
             dir = migrator_config.dir
