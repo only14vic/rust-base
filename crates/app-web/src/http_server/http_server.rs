@@ -20,7 +20,7 @@ use {
     },
     app_base::prelude::*,
     core::pin::Pin,
-    futures::executor::block_on,
+    futures::{executor::block_on, future::LocalBoxFuture},
     serde_json::Value,
     sqlx::Postgres,
     std::{boxed::Box, sync::Arc, vec::Vec}
@@ -92,12 +92,17 @@ where
         ok()
     }
 
-    pub fn run_with_runtime(self) -> Void
+    pub fn run_with_runtime(self, init: Option<LocalBoxFuture<'static, Void>>) -> Void
     where
         C: AsRef<Arc<TokioConfig>>
     {
         let tokio_config = self.config.get::<TokioConfig>().clone();
-        actix_with_tokio_start(Some(&tokio_config), self.run())?
+        actix_with_tokio_start(Some(&tokio_config), async move {
+            if let Some(init) = init {
+                init.await?;
+            }
+            self.run().await
+        })?
     }
 
     pub fn add_service(
@@ -232,7 +237,6 @@ where
                             "data",
                             &data.map(web::Json::into_inner).unwrap_or_default()
                         );
-                        context.add("config", &req.db_config().list());
                         req.html_render().await
                     }
                 }

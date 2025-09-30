@@ -150,6 +150,11 @@ where
     }
 
     #[inline]
+    pub unsafe fn as_static(&mut self) -> &'static mut Self {
+        unsafe { &mut *(self as *mut Self) }
+    }
+
+    #[inline]
     pub fn args(&self) -> &Args {
         &self.args
     }

@@ -1,7 +1,6 @@
 use {
     crate::{prelude::*, type_name_simple},
-    alloc::format,
-    core::any::type_name
+    alloc::format
 };
 
 pub type AppModule<C> = fn(&mut App<C>, AppEvent) -> Void;

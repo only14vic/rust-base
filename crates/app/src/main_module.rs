@@ -38,8 +38,33 @@ impl AppModuleExt for MainModule {
     #[allow(unused_variables)]
     fn setup(&mut self, app: &mut App) -> Void {
         #[cfg(feature = "web")]
-        if let Ok(web_module) = app.get_mut::<WebModule<Self::Config>>() {
-            web_module.enable_defaults = true;
+        {
+            use {
+                app_async::{
+                    db::{DbConfig, DbNotifyListener, db_pool},
+                    queue::QueueListener
+                },
+                std::sync::Arc
+            };
+
+            let db_config = app.config().get::<DbConfig>().clone();
+
+            if let Ok(web_module) = app.get_mut::<WebModule<Self::Config>>() {
+                web_module.enable_defaults = true;
+                web_module.with_init_runtime(move || {
+                    let db_config = db_config.clone();
+                    Box::pin(async move {
+                        DbNotifyListener::new(
+                            ["app"],
+                            &db_pool(Some(&db_config)).await?,
+                            Arc::new(QueueListener::handle)
+                        )
+                        .start()
+                        .await;
+                        ok()
+                    })
+                });
+            }
         }
 
         ok()

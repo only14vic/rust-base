@@ -2,12 +2,15 @@ use {
     crate::{HttpServer, WebConfig, WebConfigExt},
     app_base::prelude::*,
     core::marker::PhantomData,
-    futures::executor::block_on
+    futures::{executor::block_on, future::LocalBoxFuture},
+    std::sync::Arc
 };
 
-pub struct WebModule<C: AppConfigExt> {
+pub struct WebModule<C: WebConfigExt> {
     pub enable_defaults: bool,
     pub enable_runtime: bool,
+    init_runtime:
+        Option<Arc<dyn Fn() -> LocalBoxFuture<'static, Void> + Send + Sync + 'static>>,
     _phantom: PhantomData<C>
 }
 
@@ -19,6 +22,7 @@ where
         Self {
             enable_defaults: true,
             enable_runtime: true,
+            init_runtime: None,
             _phantom: PhantomData
         }
     }
@@ -48,9 +52,23 @@ where
         }
 
         if self.enable_runtime {
-            server.run_with_runtime()
+            let init = self.init_runtime.as_ref().map(|f| f());
+            server.run_with_runtime(init)
         } else {
             block_on(server.run())
         }
+    }
+}
+
+impl<C> WebModule<C>
+where
+    C: WebConfigExt
+{
+    pub fn with_init_runtime(
+        &mut self,
+        init: impl Fn() -> LocalBoxFuture<'static, Void> + Send + Sync + 'static
+    ) -> &mut Self {
+        self.init_runtime = Some(Arc::new(init));
+        self
     }
 }

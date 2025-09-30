@@ -10,7 +10,6 @@ use {
     },
     app_async::db::DbConfigApp,
     app_base::{prelude::*, type_name_simple},
-    core::any::type_name,
     regex::Regex,
     sqlx::{Pool, Postgres},
     std::{
