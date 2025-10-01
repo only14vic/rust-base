@@ -1,5 +1,6 @@
 use {
     app_base::prelude::*,
+    futures::{FutureExt, future::BoxFuture},
     serde_json::Value,
     sqlx::{
         PgConnection,
@@ -11,7 +12,36 @@ use {
     }
 };
 
-#[derive(Debug, FromRow)]
+pub trait QueueTaskHandler: Send + Sync + 'static {
+    fn name(&self) -> &'static str;
+
+    fn handle(&self, task: &QueueTask) -> BoxFuture<'static, Void>;
+}
+
+pub struct QueueSimpleTaskHandler(pub &'static str);
+
+impl Into<Box<dyn QueueTaskHandler>> for QueueSimpleTaskHandler {
+    fn into(self) -> Box<dyn QueueTaskHandler> {
+        Box::new(self)
+    }
+}
+
+impl QueueTaskHandler for QueueSimpleTaskHandler {
+    fn name(&self) -> &'static str {
+        self.0
+    }
+
+    fn handle(&self, task: &QueueTask) -> BoxFuture<'static, Void> {
+        let task = task.clone();
+        async move {
+            dbg!(task);
+            ok()
+        }
+        .boxed()
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
 pub struct QueueTask {
     pub id: Uuid,
     pub name: String,

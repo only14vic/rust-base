@@ -1,7 +1,7 @@
 use {
     app_base::prelude::*,
-    core::{error::Error, mem::ManuallyDrop, time::Duration},
-    futures::{executor::block_on, future::BoxFuture},
+    core::{error::Error, mem::ManuallyDrop, pin::Pin, time::Duration},
+    futures::executor::block_on,
     sqlx::{
         Pool, Postgres,
         postgres::{PgListener, PgNotification}
@@ -14,17 +14,21 @@ use {
     }
 };
 
+pub type DbNotifyHandler = Arc<
+    dyn Fn(PgNotification) -> Pin<Box<dyn Future<Output = Void> + Send>> + Send + Sync
+>;
+
 pub struct DbNotifyListener {
     db_pool: Arc<Pool<Postgres>>,
     channels: Vec<String>,
-    handler: Arc<dyn Fn(PgNotification) -> BoxFuture<'static, Void> + Send + Sync>
+    handler: DbNotifyHandler
 }
 
 impl DbNotifyListener {
     pub fn new(
         channels: impl IntoIterator<Item = impl ToString>,
         db_pool: &Arc<Pool<Postgres>>,
-        handler: Arc<dyn Fn(PgNotification) -> BoxFuture<'static, Void> + Send + Sync>
+        handler: DbNotifyHandler
     ) -> Self {
         Self {
             db_pool: db_pool.clone(),
@@ -79,7 +83,7 @@ impl DbNotifyListener {
                         let handler = self.handler.clone();
                         spawn(async move {
                             if let Err(e) = handler(pg_notify).await {
-                                log::error!("{e}");
+                                log::error!("{e}")
                             }
                         });
                     },

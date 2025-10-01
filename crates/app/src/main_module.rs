@@ -132,8 +132,11 @@ impl MainModule {
             let db_config = db_config.clone();
 
             async move {
+                use app_async::queue::QueueSimpleTaskHandler;
+
                 let db_pool = db_pool(Some(&db_config)).await?;
-                let queue_handler = QueueHandler::new(&db_pool);
+                let queue_handler =
+                    QueueHandler::new(&db_pool, [QueueSimpleTaskHandler("test")]);
                 queue_handler.start_resend_periodically().await;
 
                 DbNotifyListener::new(NOTIFY_CHANNELS, &db_pool, queue_handler.handler())
