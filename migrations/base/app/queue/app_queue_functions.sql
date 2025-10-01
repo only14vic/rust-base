@@ -68,7 +68,7 @@ as $$
           and created_at > now() - app.config('app.queue.max_created_at_interval')::interval
           and now() >= updated_at + make_interval(secs => delay)
         order by priority desc, updated_at
-        limit 50
+        limit 100
     )
     returning n.id;
 $$;

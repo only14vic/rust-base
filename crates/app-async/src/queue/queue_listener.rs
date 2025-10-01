@@ -3,7 +3,7 @@ use {
     app_base::prelude::*,
     core::{str::FromStr, time::Duration},
     futures::future::BoxFuture,
-    sqlx::{Executor, Pool, Postgres, postgres::PgNotification, types::Uuid},
+    sqlx::{Acquire, Executor, Pool, Postgres, postgres::PgNotification, types::Uuid},
     std::sync::Arc,
     tokio::{spawn, task::JoinHandle, time::sleep}
 };
@@ -39,14 +39,19 @@ impl QueueListener {
     {
         let db_pool = self.db_pool.clone();
         Arc::new(move |notify| {
+            if notify.payload().is_empty() {
+                return async { ok() }.into_pin_box();
+            }
+
             let db_pool = db_pool.clone();
             async move {
-                let mut conn = db_pool.acquire().await?;
                 let id = Uuid::from_str(notify.payload())?;
+                let mut db_pool = db_pool.acquire().await?;
+                let conn = db_pool.acquire().await?;
 
-                if let Some(task) = QueueTask::start_process(&id, &mut conn).await? {
+                if let Some(task) = QueueTask::start_process(&id, conn).await? {
                     dbg!(&task);
-                    task.finish_process(None, &mut conn).await?;
+                    task.finish_process(None, conn).await?;
                 }
 
                 ok()
