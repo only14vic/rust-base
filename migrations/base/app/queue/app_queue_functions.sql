@@ -1,6 +1,7 @@
 create or replace function app.queue_config(
     inout name text,
     out max_attempts smallint,
+    out max_process_time interval,
     out delay smallint,
     out priority smallint
 )
@@ -10,20 +11,21 @@ create or replace function app.queue_config(
 as $$
     # variable_conflict use_variable
 begin
-    select t.max_attempts, t.delay, t.priority
+    select t.max_attempts, t.max_process_time, t.delay, t.priority
     from (
         values
-        ('send_email', 100, 10, 10),
-        ('reset_cache', 100, 1, 10),
-        ('delete_file', 10, 1, 0)
-    ) as t(name, max_attempts, delay, priority)
+        ('send_email',  100, '30 seconds'::interval, 30, 10),
+        ('reset_cache', 10,  '2 seconds'::interval,  1,  10),
+        ('delete_file', 3,   '5 seconds'::interval,  1,  0)
+    ) as t(name, max_attempts, max_process_time, delay, priority)
     where t.name = name
-    into max_attempts, delay, priority;
+    into max_attempts, max_process_time, delay, priority;
 
     if not found then
         name := name;
+        max_process_time := '10 seconds'::interval;
         max_attempts := 3;
-        delay := 0;
+        delay := 1;
         priority := 0;
     end if;
 end $$;
@@ -39,8 +41,10 @@ create or replace function app.queue(
     returns app.queue
     language sql
 as $$
-    insert into app.queue(name, params, max_attempts, delay, priority)
-    select $1, $2, t.max_attempts, t.delay, t.priority
+    insert into app.queue(
+           name, params, max_attempts, max_process_time, delay, priority
+    )
+    select $1, $2, t.max_attempts, t.max_process_time, t.delay, t.priority
     from app.queue_config($1) as t
     returning *;
 $$;
@@ -59,14 +63,15 @@ as $$
     where n.id = any(
         select id
         from app.queue
-        where (
-            state in ('new','error')
-            or
-            (state = 'processing' and now() > processed_at + app.config('app.queue.max_processed_at_interval')::interval)
-          )
+        where state in ('new','error')
           and attempt < max_attempts
           and created_at > now() - app.config('app.queue.max_created_at_interval')::interval
           and now() >= updated_at + make_interval(secs => delay)
+          or (
+            state = 'processing'
+            and attempt <= max_attempts
+            and now() > processed_at + max_process_time
+          )
         order by priority desc, updated_at
         limit 100
     )

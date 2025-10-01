@@ -114,7 +114,7 @@ Options:
 use {
     app_async::{
         db::{DbConfig, DbNotifyListener, db_pool},
-        queue::QueueListener
+        queue::QueueHandler
     },
     futures::future::LocalBoxFuture
 };
@@ -133,16 +133,12 @@ impl MainModule {
 
             async move {
                 let db_pool = db_pool(Some(&db_config)).await?;
-                let queue_listener = QueueListener::new(&db_pool);
-                queue_listener.start_resend_periodically().await;
+                let queue_handler = QueueHandler::new(&db_pool);
+                queue_handler.start_resend_periodically().await;
 
-                DbNotifyListener::new(
-                    NOTIFY_CHANNELS,
-                    &db_pool,
-                    queue_listener.handler()
-                )
-                .start()
-                .await;
+                DbNotifyListener::new(NOTIFY_CHANNELS, &db_pool, queue_handler.handler())
+                    .start()
+                    .await;
 
                 ok()
             }

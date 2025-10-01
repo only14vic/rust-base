@@ -8,11 +8,11 @@ use {
     tokio::{spawn, task::JoinHandle, time::sleep}
 };
 
-pub struct QueueListener {
+pub struct QueueHandler {
     db_pool: Arc<Pool<Postgres>>
 }
 
-impl QueueListener {
+impl QueueHandler {
     pub fn new(db_pool: &Arc<Pool<Postgres>>) -> Self {
         Self { db_pool: db_pool.clone() }
     }
